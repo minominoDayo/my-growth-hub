@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>単語トレーナー</title>
+  <style>
+    :root {
+      --bg: #0f172a; --card: #1e293b; --bdr: #334155;
+      --txt: #e2e8f0; --muted: #94a3b8;
+      --green: #34d399; --red: #f87171; --blue: #60a5fa; --yellow: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background: var(--bg); color: var(--txt);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+
+    /* ── STATS BAR ── */
+    #statsBar {
+      background: #0a1120; border-bottom: 1px solid var(--bdr);
+      padding: 10px 20px; display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; flex-shrink: 0;
+    }
+    #statsBar h1 { font-size: 0.95rem; font-weight: 700; }
+    .stat-group { display: flex; gap: 16px; }
+    .stat { text-align: center; }
+    .stat .n { font-size: 1.4rem; font-weight: 700; color: var(--green); }
+    .stat .l { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ── TABS ── */
+    .tab-nav {
+      display: flex; border-bottom: 1px solid var(--bdr);
+      background: #0a1120; flex-shrink: 0;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px 0; font-size: 0.82rem; font-weight: 600;
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all .15s;
+    }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-btn:hover:not(.active) { color: var(--txt); }
+
+    /* ── TAB CONTENTS ── */
+    .tab-pane { display: none; flex: 1; overflow-y: auto; }
+    .tab-pane.active { display: flex; flex-direction: column; }
+    .inner { max-width: 520px; width: 100%; margin: 0 auto; padding: 20px 16px 60px; }
+
+    /* ── ADD TAB ── */
+    .form-row { margin-bottom: 12px; }
+    .form-row label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 5px; }
+    .form-row input, .form-row textarea {
+      width: 100%; background: var(--card); border: 1px solid var(--bdr);
+      border-radius: 8px; padding: 10px 12px; color: var(--txt);
+      font-family: inherit; font-size: 0.9rem; outline: none;
+      transition: border-color .15s;
+    }
+    .form-row input:focus, .form-row textarea:focus { border-color: var(--blue); }
+    .form-row textarea { resize: vertical; min-height: 70px; }
+    .btn-primary {
+      width: 100%; padding: 11px; background: var(--blue); color: #fff;
+      border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; transition: background .15s;
+    }
+    .btn-primary:hover { background: #3b8dea; }
+    .add-msg { font-size: 0.8rem; color: var(--green); text-align: center; margin-top: 8px; min-height: 20px; }
+
+    /* ── TEST TAB ── */
+    .test-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 0.8rem; color: var(--muted); }
+    .streak-badge { background: rgba(251,191,36,.15); color: var(--yellow); padding: 2px 8px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
+
+    .flashcard {
+      background: var(--card); border: 1px solid var(--bdr); border-radius: 16px;
+      min-height: 200px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 28px 24px;
+      margin-bottom: 16px; text-align: center;
+    }
+    .card-word { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+    .card-def { font-size: 0.92rem; color: #a0b4c8; line-height: 1.6; display: none; margin-top: 12px; border-top: 1px solid var(--bdr); padding-top: 12px; width: 100%; }
+    .card-def.show { display: block; }
+
+    .btn-reveal {
+      width: 100%; padding: 11px; background: var(--card); border: 1px solid var(--bdr);
+      color: var(--txt); border-radius: 8px; font-size: 0.9rem; cursor: pointer;
+      transition: background .15s; margin-bottom: 10px;
+    }
+    .btn-reveal:hover { background: #253248; }
+
+    .judge-btns { display: none; gap: 10px; margin-bottom: 10px; }
+    .judge-btns.show { display: flex; }
+    .btn-correct {
+      flex: 1; padding: 12px; background: rgba(52,211,153,.15); border: 1px solid rgba(52,211,153,.4);
+      color: var(--green); border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-correct:hover { background: rgba(52,211,153,.25); }
+    .btn-wrong {
+      flex: 1; padding: 12px; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3);
+      color: var(--red); border-radius: 8px; font-size: 0.9rem; cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-wrong:hover { background: rgba(248,113,113,.2); }
+
+    .test-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+    .test-done { text-align: center; padding: 40px 20px; }
+    .test-done .big { font-size: 2.5rem; margin-bottom: 8px; }
+    .test-done .msg { font-size: 1rem; color: var(--green); font-weight: 600; margin-bottom: 6px; }
+    .test-done .sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+    .btn-restart {
+      padding: 10px 24px; background: var(--card); border: 1px solid var(--bdr);
+      color: var(--txt); border-radius: 8px; font-size: 0.85rem; cursor: pointer;
+    }
+
+    /* Mastered celebration */
+    #masterMsg {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      background: rgba(52,211,153,.15); border: 1px solid rgba(52,211,153,.4);
+      color: var(--green); border-radius: 14px; padding: 18px 28px; text-align: center;
+      font-weight: 600; font-size: 1rem; display: none; z-index: 999;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── LIST TAB ── */
+    .filter-row { display: flex; gap: 6px; margin-bottom: 14px; }
+    .filter-btn {
+      padding: 4px 12px; border-radius: 99px; font-size: 0.76rem; font-weight: 600;
+      border: 1px solid var(--bdr); background: none; color: var(--muted); cursor: pointer;
+    }
+    .filter-btn.active { background: rgba(96,165,250,.15); color: var(--blue); border-color: rgba(96,165,250,.4); }
+
+    .word-card {
+      background: var(--card); border: 1px solid var(--bdr); border-radius: 10px;
+      padding: 12px 14px; margin-bottom: 8px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .word-card.mastered { opacity: .6; }
+    .word-info { flex: 1; min-width: 0; }
+    .word-text { font-size: 0.92rem; font-weight: 600; margin-bottom: 3px; }
+    .word-def { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+    .word-meta { display: flex; gap: 6px; margin-top: 5px; align-items: center; }
+    .status-badge {
+      font-size: 0.62rem; padding: 1px 7px; border-radius: 99px; font-weight: 600;
+    }
+    .sb-active   { background: rgba(251,191,36,.15); color: var(--yellow); }
+    .sb-mastered { background: rgba(52,211,153,.15); color: var(--green); }
+    .streak-dot { font-size: 0.68rem; color: var(--muted); }
+    .btn-del {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: 1rem; padding: 2px 4px; flex-shrink: 0;
+      transition: color .15s;
+    }
+    .btn-del:hover { color: var(--red); }
+    .list-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+<!-- STATS BAR -->
+<div id="statsBar">
+  <h1>単語トレーナー</h1>
+  <div class="stat-group">
+    <div class="stat"><div class="n" id="statTotal">0</div><div class="l">登録</div></div>
+    <div class="stat"><div class="n" id="statActive" style="color:#fbbf24">0</div><div class="l">練習中</div></div>
+    <div class="stat"><div class="n" id="statMastered">0</div><div class="l">習得済み</div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('add')">➕ 追加</button>
+  <button class="tab-btn" onclick="switchTab('test')">🃏 テスト</button>
+  <button class="tab-btn" onclick="switchTab('list')">📚 一覧</button>
+</div>
+
+<!-- MASTERED NOTIFICATION -->
+<div id="masterMsg"></div>
+
+<!-- ── ADD TAB ── -->
+<div class="tab-pane active" id="pane-add">
+  <div class="inner">
+    <div class="form-row">
+      <label>単語・用語</label>
+      <input id="inputWord" placeholder="例：reconciliation（照合）" autocomplete="off">
+    </div>
+    <div class="form-row">
+      <label>意味・説明</label>
+      <textarea id="inputDef" placeholder="例：帳簿上の残高と実際の残高が一致しているかを確認する作業"></textarea>
+    </div>
+    <button class="btn-primary" onclick="addWord()">単語を追加する</button>
+    <div class="add-msg" id="addMsg"></div>
+  </div>
+</div>
+
+<!-- ── TEST TAB ── -->
+<div class="tab-pane" id="pane-test">
+  <div class="inner">
+    <div class="test-info">
+      <span id="testProgress">残り 0 語</span>
+      <span class="streak-badge" id="streakBadge" style="display:none"></span>
+    </div>
+    <div id="testArea">
+      <div class="flashcard" id="flashcard">
+        <div class="card-word" id="cardWord"></div>
+        <div class="card-def" id="cardDef"></div>
+      </div>
+      <button class="btn-reveal" id="revealBtn" onclick="revealDef()">答えを見る</button>
+      <div class="judge-btns" id="judgeBtns">
+        <button class="btn-wrong"   onclick="markWrong()">もう一度 ✗</button>
+        <button class="btn-correct" onclick="markCorrect()">わかった！ ✓</button>
+      </div>
+    </div>
+    <div class="test-empty" id="testEmpty" style="display:none">
+      まだ単語が登録されていません。<br>「追加」タブで単語を登録してください。
+    </div>
+    <div class="test-done" id="testDone" style="display:none">
+      <div class="big">🎉</div>
+      <div class="msg">今日の分は全部終わりました！</div>
+      <div class="sub" id="testDoneSub"></div>
+      <button class="btn-restart" onclick="startTest()">もう一周する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LIST TAB ── -->
+<div class="tab-pane" id="pane-list">
+  <div class="inner">
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilter('all',this)">すべて</button>
+      <button class="filter-btn" onclick="setFilter('active',this)">練習中</button>
+      <button class="filter-btn" onclick="setFilter('mastered',this)">習得済み</button>
+    </div>
+    <div id="wordList"></div>
+  </div>
+</div>
+
+<script>
+const STORE = 'vocabWords';
+
+// ── DATA ─────────────────────────────────────────────
+function load() { return JSON.parse(localStorage.getItem(STORE) || '[]'); }
+function save(words) {
+  localStorage.setItem(STORE, JSON.stringify(words));
+  localStorage.setItem('vocabMastered', words.filter(w => w.mastered).length);
+  updateStats(words);
+}
+
+function updateStats(words) {
+  words = words || load();
+  const total    = words.length;
+  const mastered = words.filter(w => w.mastered).length;
+  const active   = total - mastered;
+  document.getElementById('statTotal').textContent    = total;
+  document.getElementById('statActive').textContent   = active;
+  document.getElementById('statMastered').textContent = mastered;
+}
+
+// ── ADD ──────────────────────────────────────────────
+function addWord() {
+  const word = document.getElementById('inputWord').value.trim();
+  const def  = document.getElementById('inputDef').value.trim();
+  if (!word || !def) {
+    showAddMsg('単語と意味の両方を入力してください', '#f87171'); return;
+  }
+  const words = load();
+  words.push({ id: Date.now(), word, def, streak: 0, mastered: false,
+                addedDate: new Date().toLocaleDateString('ja-JP') });
+  save(words);
+  document.getElementById('inputWord').value = '';
+  document.getElementById('inputDef').value  = '';
+  document.getElementById('inputWord').focus();
+  showAddMsg(`「${word}」を追加しました`, '#34d399');
+  renderList();
+}
+
+function showAddMsg(msg, color) {
+  const el = document.getElementById('addMsg');
+  el.textContent = msg; el.style.color = color;
+  setTimeout(() => el.textContent = '', 2500);
+}
+
+// ── TEST ─────────────────────────────────────────────
+let testQueue = [], testIdx = 0, currentCard = null;
+
+function startTest() {
+  const words = load().filter(w => !w.mastered);
+  if (!words.length) {
+    document.getElementById('testArea').style.display  = 'none';
+    document.getElementById('testEmpty').style.display = 'block';
+    document.getElementById('testDone').style.display  = 'none';
+    return;
+  }
+  testQueue = shuffle([...words]);
+  testIdx   = 0;
+  document.getElementById('testArea').style.display  = 'block';
+  document.getElementById('testEmpty').style.display = 'none';
+  document.getElementById('testDone').style.display  = 'none';
+  showCard();
+}
+
+function showCard() {
+  if (testIdx >= testQueue.length) {
+    document.getElementById('testArea').style.display  = 'none';
+    document.getElementById('testDone').style.display  = 'block';
+    const mastered = load().filter(w => w.mastered).length;
+    document.getElementById('testDoneSub').textContent = `習得済み: ${mastered} 語 / 全 ${load().length} 語`;
+    return;
+  }
+  currentCard = testQueue[testIdx];
+  const words = load();
+  const word  = words.find(w => w.id === currentCard.id) || currentCard;
+
+  document.getElementById('cardWord').textContent   = word.word;
+  document.getElementById('cardDef').textContent    = word.def;
+  document.getElementById('cardDef').classList.remove('show');
+  document.getElementById('revealBtn').style.display = '';
+  document.getElementById('judgeBtns').classList.remove('show');
+
+  const remaining = testQueue.length - testIdx;
+  document.getElementById('testProgress').textContent = `残り ${remaining} 語`;
+
+  const badge = document.getElementById('streakBadge');
+  if (word.streak > 0) {
+    badge.textContent = `🔥 ${word.streak} 連続正解`;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function revealDef() {
+  document.getElementById('cardDef').classList.add('show');
+  document.getElementById('revealBtn').style.display = 'none';
+  document.getElementById('judgeBtns').classList.add('show');
+}
+
+function markCorrect() {
+  const words = load();
+  const w = words.find(x => x.id === currentCard.id);
+  if (!w) { next(); return; }
+  w.streak++;
+  if (w.streak >= 3) {
+    w.mastered = true;
+    flashMasterMsg(w.word);
+  }
+  save(words);
+  next();
+}
+
+function markWrong() {
+  const words = load();
+  const w = words.find(x => x.id === currentCard.id);
+  if (!w) { next(); return; }
+  w.streak = 0;
+  save(words);
+  next();
+}
+
+function next() {
+  testIdx++;
+  if (testIdx >= testQueue.length) {
+    showCard(); return;
+  }
+  // Skip mastered cards that were just mastered during this session
+  const words = load();
+  while (testIdx < testQueue.length) {
+    const w = words.find(x => x.id === testQueue[testIdx].id);
+    if (!w || !w.mastered) break;
+    testIdx++;
+  }
+  showCard();
+}
+
+function flashMasterMsg(word) {
+  const el = document.getElementById('masterMsg');
+  el.textContent = `🎉 「${word}」 習得！`;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2000);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── LIST ─────────────────────────────────────────────
+let currentFilter = 'all';
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const words = load();
+  const filtered = words.filter(w =>
+    currentFilter === 'all'      ? true :
+    currentFilter === 'mastered' ? w.mastered :
+                                   !w.mastered
+  );
+  const container = document.getElementById('wordList');
+  if (!filtered.length) {
+    container.innerHTML = `<div class="list-empty">該当する単語がありません</div>`;
+    return;
+  }
+  container.innerHTML = filtered.map(w => `
+    <div class="word-card${w.mastered ? ' mastered' : ''}">
+      <div class="word-info">
+        <div class="word-text">${esc(w.word)}</div>
+        <div class="word-def">${esc(w.def)}</div>
+        <div class="word-meta">
+          <span class="status-badge ${w.mastered ? 'sb-mastered' : 'sb-active'}">
+            ${w.mastered ? '習得済み' : '練習中'}
+          </span>
+          ${!w.mastered ? `<span class="streak-dot">🔥 ${w.streak}/3</span>` : ''}
+          <span class="streak-dot">${w.addedDate}</span>
+        </div>
+      </div>
+      <button class="btn-del" onclick="deleteWord(${w.id})" title="削除">✕</button>
+    </div>`).join('');
+}
+
+function deleteWord(id) {
+  if (!confirm('この単語を削除しますか？')) return;
+  const words = load().filter(w => w.id !== id);
+  save(words);
+  renderList();
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── TABS ─────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + name).classList.add('active');
+  document.querySelectorAll('.tab-btn')[['add','test','list'].indexOf(name)].classList.add('active');
+  if (name === 'test') startTest();
+  if (name === 'list') renderList();
+}
+
+// ── INIT ─────────────────────────────────────────────
+document.getElementById('inputWord').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('inputDef').focus();
+});
+document.getElementById('inputDef').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.ctrlKey) addWord();
+});
+
+updateStats();
+</script>
+</body>
+</html>

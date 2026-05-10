@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>勉強プラン｜2026-05-04</title>
+  <style>
+    :root {
+      --bg:    #0f172a;
+      --card:  #1e293b;
+      --bdr:   #334155;
+      --txt:   #e2e8f0;
+      --muted: #94a3b8;
+      --brk:   #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── TIMER BAR ── */
+    #timerBar {
+      flex-shrink: 0;
+      background: #0a1120;
+      border-bottom: 1px solid var(--bdr);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .t-section { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .t-label   { font-size: 0.6rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+    #clock { font-size: 1.9rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+    #studyDisp { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; color: #34d399; }
+    .t-center { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+    #blkName { font-size: 0.72rem; color: var(--muted); max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #blkCD { font-size: 2.6rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .06em; transition: color .3s; }
+    #blkCD.urgent { color: #f87171; animation: blink 1s step-start infinite; }
+    @keyframes blink { 50% { opacity: .4; } }
+    .ctrl-btns { display: flex; gap: 5px; }
+    .ctrl-btns button {
+      background: var(--card); border: 1px solid var(--bdr); color: var(--txt);
+      border-radius: 6px; padding: 3px 9px; font-size: 0.78rem; cursor: pointer;
+    }
+    .ctrl-btns button:hover { background: var(--bdr); }
+    .btn-go    { border-color: #34d399 !important; color: #34d399 !important; }
+    .btn-pause { border-color: #fbbf24 !important; color: #fbbf24 !important; }
+    .btn-reset { border-color: var(--muted) !important; color: var(--muted) !important; }
+
+    /* ── TWO-PANE LAYOUT ── */
+    .pane-wrap { flex: 1; display: flex; overflow: hidden; }
+
+    /* ── LEFT PANE ── */
+    #leftPane { flex: 1; overflow-y: auto; min-width: 0; }
+
+    header { padding: 20px 20px 10px; }
+    header h1 { font-size: 1.1rem; font-weight: 700; }
+    header .sub { font-size: 0.82rem; color: var(--muted); margin-top: 3px; }
+    .pills { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+    .pill { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+    .prog-wrap { background: var(--bdr); border-radius: 999px; height: 5px; margin-top: 10px; }
+    .prog-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#60a5fa,#a78bfa); width: 0%; transition: width .4s; }
+    .prog-txt  { font-size: 0.72rem; color: var(--muted); text-align: right; margin-top: 3px; }
+
+    .schedule { padding: 4px 16px 60px; }
+
+    .blk-card {
+      background: var(--card); border: 1px solid var(--bdr); border-radius: 12px;
+      margin-bottom: 10px; overflow: hidden; transition: border-color .2s, box-shadow .2s;
+    }
+    .blk-card.active { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96,165,250,.18); }
+    .blk-card.break-card { border-style: dashed; border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.04); }
+
+    .blk-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 11px 14px;
+    }
+    .blk-left { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .blk-time  { font-size: 0.68rem; color: var(--muted); }
+    .blk-title { font-size: 0.92rem; font-weight: 600; }
+    .break-card .blk-title { color: var(--brk); }
+
+    .blk-link {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.68rem; color: #60a5fa; text-decoration: none;
+      margin-top: 4px; padding: 2px 7px; border: 1px solid rgba(96,165,250,.3);
+      border-radius: 4px;
+    }
+    .blk-link:hover { background: rgba(96,165,250,.1); }
+    .blk-link.labor   { color: #a78bfa; border-color: rgba(167,139,250,.3); }
+    .blk-link.labor:hover { background: rgba(167,139,250,.1); }
+
+    .dur-badge {
+      font-size: 0.68rem; padding: 2px 7px; border-radius: 999px;
+      background: rgba(255,255,255,.07); color: var(--muted); flex-shrink: 0;
+    }
+    .go-btn {
+      background: none; border: 1px solid var(--bdr); color: var(--muted);
+      border-radius: 7px; padding: 4px 11px; font-size: 0.75rem; cursor: pointer;
+      white-space: nowrap; flex-shrink: 0; transition: all .15s;
+    }
+    .go-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+    .break-card .go-btn:hover { border-color: var(--brk); color: var(--brk); }
+
+    .task-list { border-top: 1px solid var(--bdr); padding: 0 14px 10px; }
+    .task-item {
+      display: flex; align-items: flex-start; gap: 9px;
+      padding: 7px 0; border-bottom: 1px solid rgba(51,65,85,.5);
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item input[type="checkbox"] {
+      margin-top: 2px; accent-color: #60a5fa; width: 15px; height: 15px;
+      flex-shrink: 0; cursor: pointer;
+    }
+    .task-txt { font-size: 0.86rem; line-height: 1.5; cursor: pointer; }
+    .task-item.done .task-txt { text-decoration: line-through; color: var(--muted); }
+
+    /* ── RIGHT PANE ── */
+    #rightPane {
+      width: 360px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      border-left: 1px solid var(--bdr);
+      background: #0c1628;
+      padding: 16px 14px 40px;
+    }
+    .rp-section { margin-bottom: 18px; }
+    .rp-title {
+      font-size: 0.63rem; text-transform: uppercase; letter-spacing: .12em;
+      color: var(--muted); margin-bottom: 10px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--bdr);
+    }
+    /* word counter */
+    .wc-box { background: var(--card); border: 1px solid var(--bdr); border-radius: 10px; padding: 12px 14px; }
+    .wc-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .wc-label { font-size: 0.84rem; }
+    .wc-ctrl { display: flex; align-items: center; gap: 8px; }
+    .wc-btn {
+      background: rgba(255,255,255,.06); border: 1px solid var(--bdr); color: var(--txt);
+      border-radius: 6px; width: 28px; height: 28px; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; line-height: 1;
+    }
+    .wc-btn:hover { background: rgba(255,255,255,.14); }
+    .wc-num { font-size: 1.5rem; font-weight: 700; min-width: 36px; text-align: center; color: #34d399; }
+    .wc-sub { font-size: 0.74rem; color: var(--muted); }
+    /* monthly themes */
+    .rp-theme { background: rgba(91,141,238,.1); border-left: 3px solid #5b8dee; border-radius: 0 7px 7px 0; padding: 7px 10px; margin-bottom: 6px; font-size: 0.78rem; }
+    .rp-theme-dead { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    /* progress bars */
+    .rp-prog { margin-bottom: 10px; }
+    .rp-prog-lbl { display: flex; justify-content: space-between; font-size: 0.76rem; margin-bottom: 3px; }
+    .rp-prog-cnt { color: var(--muted); font-size: 0.7rem; }
+    .rp-prog-bg { height: 6px; background: var(--bdr); border-radius: 99px; overflow: hidden; }
+    .rp-prog-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg,#5b8dee,#48c9b0); transition: width .4s; }
+    /* badges */
+    .rb { display: inline-block; font-size: 0.62rem; padding: 1px 6px; border-radius: 99px; font-weight: bold; margin-left: 4px; vertical-align: middle; }
+    .rb-gray   { background: rgba(255,255,255,.06); color: var(--muted); }
+    .rb-yellow { background: rgba(243,156,18,.15); color: #f39c12; }
+    .rb-blue   { background: rgba(91,141,238,.2); color: #7aadff; }
+    .rb-green  { background: rgba(39,174,96,.15); color: #2ecc71; }
+    /* chapters */
+    .rp-chapter { margin-bottom: 10px; }
+    .rp-ch-title {
+      font-size: 0.75rem; font-weight: 600; color: #c8d6e5; margin-bottom: 4px;
+      padding-bottom: 3px; border-bottom: 1px solid var(--bdr);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cs { display: inline-block; font-size: 0.6rem; padding: 1px 5px; border-radius: 99px; font-weight: bold; }
+    .cs-none  { background: rgba(255,255,255,.05); color: var(--muted); }
+    .cs-start { background: rgba(243,156,18,.12); color: #f39c12; }
+    .cs-done  { background: rgba(39,174,96,.12); color: #2ecc71; }
+    /* topics & goals */
+    .rp-topic, .rp-goal {
+      display: flex; align-items: flex-start; gap: 7px; padding: 3px 0;
+      font-size: 0.73rem; color: #8aa0b8; cursor: pointer;
+    }
+    .rp-goal { padding: 5px 0; border-bottom: 1px solid rgba(51,65,85,.4); }
+    .rp-goal:last-child { border-bottom: none; }
+    .rp-topic input, .rp-goal input {
+      margin-top: 2px; width: 13px; height: 13px; accent-color: #5b8dee; cursor: pointer; flex-shrink: 0;
+    }
+    .rp-topic.done, .rp-goal.done { color: var(--muted); text-decoration: line-through; }
+    /* TOEIC */
+    .rp-toeic { display: flex; justify-content: space-around; text-align: center; padding: 6px 0; }
+    .rp-toeic .tn { font-size: 1.3rem; font-weight: 700; color: #7aadff; }
+    .rp-toeic .tl { font-size: 0.66rem; color: var(--muted); }
+    /* bookkeeping cards */
+    .rp-boki-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .rp-boki-card { background: var(--card); border: 1px solid var(--bdr); border-radius: 9px; padding: 10px; }
+    .rp-boki-card .bk-q   { font-size: 0.78rem; font-weight: 600; }
+    .rp-boki-card .bk-sub { font-size: 0.65rem; color: var(--muted); margin-bottom: 4px; }
+    .rp-boki-card .bk-lv  { font-size: 1.05rem; font-weight: 700; color: #60a5fa; margin-bottom: 2px; }
+    .rp-boki-card .bk-dt  { font-size: 0.63rem; color: var(--muted); margin-bottom: 4px; }
+    .rp-boki-card .bk-note { font-size: 0.68rem; color: #8aa0b8; background: rgba(255,255,255,.03); border-radius: 5px; padding: 4px 7px; min-height: 22px; }
+    /* pdf */
+    .pdf-stat-bar { font-size: 0.72rem; color: #60a5fa; margin-bottom: 8px; padding: 3px 8px; background: rgba(96,165,250,.08); border-radius: 6px; border: 1px solid rgba(96,165,250,.18); }
+    .pdf-group { margin-bottom: 8px; }
+    .pdf-group-title { font-size: 0.68rem; font-weight: 600; color: var(--muted); margin-bottom: 3px; padding: 0 2px; }
+    .pdf-row { display: flex; align-items: center; padding: 4px 8px; border-radius: 7px; background: var(--card); margin-bottom: 2px; }
+    .pdf-row:hover { background: #1e3050; }
+    .pdf-row.done { opacity: .45; }
+    .pdf-row.done .pdf-name { text-decoration: line-through; color: var(--muted); }
+    .pdf-label { display: flex; align-items: center; gap: 7px; flex: 1; cursor: pointer; min-width: 0; }
+    .pdf-label input { accent-color: #60a5fa; width: 13px; height: 13px; flex-shrink: 0; cursor: pointer; }
+    .pdf-name { font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pdf-open { font-size: 0.62rem; color: #60a5fa; text-decoration: none; padding: 1px 5px; border: 1px solid rgba(96,165,250,.3); border-radius: 4px; flex-shrink: 0; margin-left: 5px; }
+    .pdf-open:hover { background: rgba(96,165,250,.12); }
+    /* TOEIC mock */
+    .mock-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 0; }
+    .mock-check { display: flex; align-items: center; gap: 7px; font-size: 0.84rem; cursor: pointer; }
+    .mock-check input { width: 15px; height: 15px; accent-color: #60a5fa; cursor: pointer; }
+    .mock-check.done { text-decoration: line-through; color: var(--muted); }
+    .mock-score-wrap { display: flex; align-items: center; gap: 4px; }
+    .mock-score-inp {
+      width: 64px; background: rgba(255,255,255,.06); border: 1px solid var(--bdr);
+      border-radius: 6px; color: var(--txt); font-size: 0.88rem; padding: 3px 7px;
+      text-align: right; font-variant-numeric: tabular-nums;
+    }
+    .mock-score-inp::placeholder { color: var(--muted); }
+    .mock-score-unit { font-size: 0.78rem; color: var(--muted); }
+    .mock-label { font-size: 0.68rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+  @media (max-width: 900px) {
+    body { height: auto; overflow: auto; }
+    .pane-wrap { flex-direction: column; overflow: visible; height: auto; }
+    #leftPane  { overflow-y: visible; height: auto; }
+    #rightPane { width: 100%; border-left: none; border-top: 1px solid var(--bdr); overflow-y: visible; height: auto; }
+    #timerBar  { position: sticky; top: 0; z-index: 100; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- TIMER BAR -->
+<div id="timerBar">
+  <div class="t-section">
+    <div class="t-label">現在時刻</div>
+    <div id="clock">--:--:--</div>
+  </div>
+  <div class="t-center">
+    <div id="blkName">▼ 下のブロックを選んで開始</div>
+    <div id="blkCD">--:--</div>
+    <div class="ctrl-btns">
+      <button class="btn-go"    onclick="resumeBlk()">▶ 再開</button>
+      <button class="btn-pause" onclick="pauseBlk()">⏸ 一時停止</button>
+      <button class="btn-reset" onclick="resetBlk()">↺ リセット</button>
+    </div>
+  </div>
+  <div class="t-section">
+    <div class="t-label">今日の勉強時間</div>
+    <div id="studyDisp">0:00:00</div>
+  </div>
+</div>
+
+<!-- TWO-PANE -->
+<div class="pane-wrap">
+
+  <!-- ========== LEFT: 今日の勉強タスク ========== -->
+  <div id="leftPane">
+    <header>
+      <h1>今日の勉強タスク</h1>
+      <div class="sub">2026年5月4日（月）｜15:30 → 0:00</div>
+      <div class="pills">
+        <span class="pill" style="background:rgba(96,165,250,.15);color:#60a5fa">簿記 60%</span>
+        <span class="pill" style="background:rgba(52,211,153,.15);color:#34d399">英語 20%</span>
+        <span class="pill" style="background:rgba(167,139,250,.15);color:#a78bfa">労務 20%</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-txt" id="progTxt">0 / 0 タスク完了</div>
+    </header>
+    <div class="schedule" id="schedule"></div>
+  </div>
+
+  <!-- ========== RIGHT: 勉強進捗 ========== -->
+  <div id="rightPane">
+
+    <!-- 英語 進捗 -->
+    <div class="rp-section">
+      <div class="rp-title">英語 進捗</div>
+      <!-- 習得済み単語 -->
+      <div class="wc-box" style="margin-bottom:10px">
+        <div class="wc-row">
+          <span class="wc-label">習得済み単語</span>
+          <span class="wc-num" id="masteredCount">0</span>
+        </div>
+        <div class="wc-sub">vocab-trainer で習得済みになった単語数</div>
+        <a class="blk-link" href="../vocab-trainer.html" target="_blank" style="margin-top:8px;display:inline-flex">📚 単語テストを開く</a>
+      </div>
+      <!-- TOEIC 模擬テスト（週2回目標） -->
+      <div class="wc-box">
+        <div class="mock-label">TOEIC 模擬テスト（週2回目標）</div>
+        <div class="mock-row">
+          <label class="mock-check" id="tmock-1"><input type="checkbox" onchange="toeicMock(1,this)"> 1回目</label>
+          <div class="mock-score-wrap">
+            <input class="mock-score-inp" type="number" id="tscore-1" min="10" max="990" step="5" placeholder="---" onchange="toeicScore(1,this.value)">
+            <span class="mock-score-unit">点</span>
+          </div>
+        </div>
+        <div class="mock-row">
+          <label class="mock-check" id="tmock-2"><input type="checkbox" onchange="toeicMock(2,this)"> 2回目</label>
+          <div class="mock-score-wrap">
+            <input class="mock-score-inp" type="number" id="tscore-2" min="10" max="990" step="5" placeholder="---" onchange="toeicScore(2,this.value)">
+            <span class="mock-score-unit">点</span>
+          </div>
+        </div>
+        <div class="wc-sub" id="toeic-avg" style="margin-top:4px"></div>
+      </div>
+    </div>
+
+    <!-- 今週のゴール -->
+    <div class="rp-section">
+      <div class="rp-title">今週のゴール（5/4〜5/10）</div>
+      <label class="rp-goal" id="wg0"><input type="checkbox" data-key="wkgoal_0" onchange="rpChk(this)"> 簿記3級の仕訳が「なんとなく解ける」状態になっている</label>
+      <label class="rp-goal" id="wg1"><input type="checkbox" data-key="wkgoal_1" onchange="rpChk(this)"> 給与計算ガイドを読んで理解度チェック済み</label>
+      <label class="rp-goal" id="wg2"><input type="checkbox" data-key="wkgoal_2" onchange="rpChk(this)"> 労務ハンドブックを読んで理解度チェック済み</label>
+      <label class="rp-goal" id="wg3"><input type="checkbox" data-key="wkgoal_3" onchange="rpChk(this)"> 来週の試験日予約ができそうか自分で判断できる</label>
+    </div>
+
+    <!-- 全体進捗 -->
+    <div class="rp-section">
+      <div class="rp-title">全体進捗</div>
+      <div class="rp-prog">
+        <div class="rp-prog-lbl">
+          <span>🏦 バックオフィス知識 <span class="rb rb-gray">未着手</span></span>
+          <span class="rp-prog-cnt" id="bo-cnt">0 / 0</span>
+        </div>
+        <div class="rp-prog-bg"><div class="rp-prog-fill" id="bo-fill" style="width:0%"></div></div>
+      </div>
+      <div class="rp-prog">
+        <div class="rp-prog-lbl">
+          <span>📋 労務・給与計算 <span class="rb rb-yellow">進行中</span></span>
+          <span class="rp-prog-cnt" id="labor-cnt">0 / 0</span>
+        </div>
+        <div class="rp-prog-bg"><div class="rp-prog-fill" id="labor-fill" style="width:0%"></div></div>
+      </div>
+      <div class="rp-prog">
+        <div class="rp-prog-lbl">
+          <span>📒 簿記3級 <span class="rb rb-yellow">勉強中</span></span>
+          <span class="rp-prog-cnt" id="boki-cnt">0 / 0</span>
+        </div>
+        <div class="rp-prog-bg"><div class="rp-prog-fill" id="boki-fill" style="width:0%"></div></div>
+      </div>
+      <div class="rp-prog">
+        <div class="rp-prog-lbl">
+          <span>🌏 TOEIC <span class="rb rb-blue">通勤維持中</span></span>
+          <span class="rp-prog-cnt">受験日未確定</span>
+        </div>
+        <div class="rp-prog-bg"><div class="rp-prog-fill" style="width:20%"></div></div>
+      </div>
+    </div>
+
+    <!-- 給与計算完全ガイド -->
+    <div class="rp-section">
+      <div class="rp-title">給与計算ガイド（14章）</div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch1：給与計算の全体構造 <span class="cs cs-start">着手済み</span></div>
+        <label class="rp-topic" id="ky-1-0"><input type="checkbox" data-key="kyuyo_1_0" data-group="labor" onchange="rpChk(this)"> 「総支給額→控除→手取り」の流れを説明できる</label>
+        <label class="rp-topic" id="ky-1-1"><input type="checkbox" data-key="kyuyo_1_1" data-group="labor" onchange="rpChk(this)"> 給与計算で使う帳票・システムを把握している</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch2：扶養の2つの基準 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-2-0"><input type="checkbox" data-key="kyuyo_2_0" data-group="labor" onchange="rpChk(this)"> 税法上の扶養（所得税の扶養控除）の条件</label>
+        <label class="rp-topic" id="ky-2-1"><input type="checkbox" data-key="kyuyo_2_1" data-group="labor" onchange="rpChk(this)"> 社会保険上の扶養の条件と税法との違い</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch3：社会保険対象額 vs 課税対象額 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-3-0"><input type="checkbox" data-key="kyuyo_3_0" data-group="labor" onchange="rpChk(this)"> 社会保険料の対象となる給与項目を把握している</label>
+        <label class="rp-topic" id="ky-3-1"><input type="checkbox" data-key="kyuyo_3_1" data-group="labor" onchange="rpChk(this)"> 所得税の課税対象となる給与項目（非課税枠）を把握している</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch4：勤怠締めのチェックポイント <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-4-0"><input type="checkbox" data-key="kyuyo_4_0" data-group="labor" onchange="rpChk(this)"> 勤怠データ確認の手順と締め日の管理</label>
+        <label class="rp-topic" id="ky-4-1"><input type="checkbox" data-key="kyuyo_4_1" data-group="labor" onchange="rpChk(this)"> 残業・遅刻・欠勤の集計ミスを防ぐチェック項目</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch5：総支給額の計算 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-5-0"><input type="checkbox" data-key="kyuyo_5_0" data-group="labor" onchange="rpChk(this)"> 基本給・各種手当の計算方法</label>
+        <label class="rp-topic" id="ky-5-1"><input type="checkbox" data-key="kyuyo_5_1" data-group="labor" onchange="rpChk(this)"> 残業代（法定内・法定外・深夜・休日）の計算式</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch6：フレックス・変形労働時間制 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-6-0"><input type="checkbox" data-key="kyuyo_6_0" data-group="labor" onchange="rpChk(this)"> フレックスタイム制の残業計算の考え方</label>
+        <label class="rp-topic" id="ky-6-1"><input type="checkbox" data-key="kyuyo_6_1" data-group="labor" onchange="rpChk(this)"> 変形労働時間制の基本ルール</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch7：通勤手当と立替経費 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-7-0"><input type="checkbox" data-key="kyuyo_7_0" data-group="labor" onchange="rpChk(this)"> 通勤手当の非課税限度額と社保対象の扱い</label>
+        <label class="rp-topic" id="ky-7-1"><input type="checkbox" data-key="kyuyo_7_1" data-group="labor" onchange="rpChk(this)"> 立替経費精算と給与の違い（税・社保への影響）</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch8：社会保険料の計算 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-8-0"><input type="checkbox" data-key="kyuyo_8_0" data-group="labor" onchange="rpChk(this)"> 標準報酬月額の求め方と等級表の読み方</label>
+        <label class="rp-topic" id="ky-8-1"><input type="checkbox" data-key="kyuyo_8_1" data-group="labor" onchange="rpChk(this)"> 健康保険・厚生年金・介護保険の保険料率と計算式</label>
+        <label class="rp-topic" id="ky-8-2"><input type="checkbox" data-key="kyuyo_8_2" data-group="labor" onchange="rpChk(this)"> 二以上事業所勤務時の按分のしくみ</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch9：随時改定（月変）と算定基礎届 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-9-0"><input type="checkbox" data-key="kyuyo_9_0" data-group="labor" onchange="rpChk(this)"> 月変が発生する条件（2等級以上の変動）</label>
+        <label class="rp-topic" id="ky-9-1"><input type="checkbox" data-key="kyuyo_9_1" data-group="labor" onchange="rpChk(this)"> 算定基礎届の提出時期と記載方法</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch10：労働保険料率のしくみ <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-10-0"><input type="checkbox" data-key="kyuyo_10_0" data-group="labor" onchange="rpChk(this)"> 労災保険と雇用保険の違いと料率</label>
+        <label class="rp-topic" id="ky-10-1"><input type="checkbox" data-key="kyuyo_10_1" data-group="labor" onchange="rpChk(this)"> 年度更新（概算→確定）の流れ</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch11：税金の計算（所得税・住民税） <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-11-0"><input type="checkbox" data-key="kyuyo_11_0" data-group="labor" onchange="rpChk(this)"> 源泉徴収税額の計算（甲欄・乙欄の判定）</label>
+        <label class="rp-topic" id="ky-11-1"><input type="checkbox" data-key="kyuyo_11_1" data-group="labor" onchange="rpChk(this)"> 住民税の特別徴収と年末調整の関係</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch12：給与計算シミュレーター <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-12-0"><input type="checkbox" data-key="kyuyo_12_0" data-group="labor" onchange="rpChk(this)"> シミュレーターを使って手取り額を概算できる</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch13：よくあるミスと対策 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-13-0"><input type="checkbox" data-key="kyuyo_13_0" data-group="labor" onchange="rpChk(this)"> 新人がつまずきやすいポイントを把握している</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">Ch14：給与計算 年間スケジュール <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="ky-14-0"><input type="checkbox" data-key="kyuyo_14_0" data-group="labor" onchange="rpChk(this)"> 月次・年次の給与計算業務カレンダーを把握している</label>
+      </div>
+    </div>
+
+    <!-- 労務担当ハンドブック -->
+    <div class="rp-section">
+      <div class="rp-title">労務担当ハンドブック（6章）</div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">第1章：労働法・法令の基礎知識 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="rm-1-0"><input type="checkbox" data-key="roumu_1_0" data-group="labor" onchange="rpChk(this)"> 労働法の全体像（労基法・労働契約法・労働組合法の関係）</label>
+        <label class="rp-topic" id="rm-1-1"><input type="checkbox" data-key="roumu_1_1" data-group="labor" onchange="rpChk(this)"> 労働契約の基本ルール（明示事項・口頭契約の有効性）</label>
+        <label class="rp-topic" id="rm-1-2"><input type="checkbox" data-key="roumu_1_2" data-group="labor" onchange="rpChk(this)"> 労働時間・休憩・休日の法定基準</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">第2章：採用・入退社の手続き <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="rm-2-0"><input type="checkbox" data-key="roumu_2_0" data-group="labor" onchange="rpChk(this)"> 採用時の必要書類と提出期限</label>
+        <label class="rp-topic" id="rm-2-1"><input type="checkbox" data-key="roumu_2_1" data-group="labor" onchange="rpChk(this)"> 雇用保険・社会保険の加入手続き（入社時）</label>
+        <label class="rp-topic" id="rm-2-2"><input type="checkbox" data-key="roumu_2_2" data-group="labor" onchange="rpChk(this)"> 退職・解雇時の手続きと注意点</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">第3章：給与・社会保険の基礎 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="rm-3-0"><input type="checkbox" data-key="roumu_3_0" data-group="labor" onchange="rpChk(this)"> 給与計算の全体フロー（総支給→控除→手取り）</label>
+        <label class="rp-topic" id="rm-3-1"><input type="checkbox" data-key="roumu_3_1" data-group="labor" onchange="rpChk(this)"> 社会保険（健康保険・厚生年金・介護保険）の基本</label>
+        <label class="rp-topic" id="rm-3-2"><input type="checkbox" data-key="roumu_3_2" data-group="labor" onchange="rpChk(this)"> 社会保険料の計算のしくみ（標準報酬月額）</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">第4章：勤怠・休暇管理 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="rm-4-0"><input type="checkbox" data-key="roumu_4_0" data-group="labor" onchange="rpChk(this)"> 有給休暇の付与ルール（勤続年数・比例付与）</label>
+        <label class="rp-topic" id="rm-4-1"><input type="checkbox" data-key="roumu_4_1" data-group="labor" onchange="rpChk(this)"> 欠勤・遅刻・早退の給与控除の計算方法</label>
+        <label class="rp-topic" id="rm-4-2"><input type="checkbox" data-key="roumu_4_2" data-group="labor" onchange="rpChk(this)"> 育児・介護休業の基本ルール</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">第5章：ハラスメントへの対応 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="rm-5-0"><input type="checkbox" data-key="roumu_5_0" data-group="labor" onchange="rpChk(this)"> ハラスメントの種類と定義（パワハラ・セクハラ・マタハラ）</label>
+        <label class="rp-topic" id="rm-5-1"><input type="checkbox" data-key="roumu_5_1" data-group="labor" onchange="rpChk(this)"> 相談窓口の設置義務と対応フロー</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">第6章：就業規則・規程管理 <span class="cs cs-none">未着手</span></div>
+        <label class="rp-topic" id="rm-6-0"><input type="checkbox" data-key="roumu_6_0" data-group="labor" onchange="rpChk(this)"> 就業規則の作成義務と記載事項（絶対的・相対的）</label>
+        <label class="rp-topic" id="rm-6-1"><input type="checkbox" data-key="roumu_6_1" data-group="labor" onchange="rpChk(this)"> 変更手続きと労働者への周知義務</label>
+      </div>
+    </div>
+
+    <!-- 簿記3級 -->
+    <div class="rp-section">
+      <div class="rp-title">簿記3級</div>
+      <div class="rp-boki-grid">
+        <div class="rp-boki-card">
+          <div class="bk-q">第1問</div><div class="bk-sub">仕訳（5問）</div>
+          <div class="bk-lv">未測定</div><div class="bk-dt">最終練習日：-</div>
+          <div class="bk-note">-</div>
+        </div>
+        <div class="rp-boki-card">
+          <div class="bk-q">第2問①</div><div class="bk-sub">補助簿・伝票</div>
+          <div class="bk-lv">未測定</div><div class="bk-dt">最終練習日：-</div>
+          <div class="bk-note">-</div>
+        </div>
+        <div class="rp-boki-card">
+          <div class="bk-q">第2問②</div><div class="bk-sub">帳簿記入</div>
+          <div class="bk-lv">未測定</div><div class="bk-dt">最終練習日：-</div>
+          <div class="bk-note">-</div>
+        </div>
+        <div class="rp-boki-card">
+          <div class="bk-q">第3問</div><div class="bk-sub">試算表・精算表</div>
+          <div class="bk-lv">未測定</div><div class="bk-dt">最終練習日：-</div>
+          <div class="bk-note">-</div>
+        </div>
+      </div>
+      <div class="pdf-stat-bar" id="pdfStat">集計中…</div>
+      <div class="pdf-group">
+        <div class="pdf-group-title">第1問 (Q1)</div>
+        <div class="pdf-row" id="pdfrow-Q1samples-1"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-1" data-group="pdf" onchange="pdfChk('Q1samples-1',this)"><span class="pdf-name">Q1samples-1</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-1.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q1samples-2"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-2" data-group="pdf" onchange="pdfChk('Q1samples-2',this)"><span class="pdf-name">Q1samples-2</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-2.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q1samples-3"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-3" data-group="pdf" onchange="pdfChk('Q1samples-3',this)"><span class="pdf-name">Q1samples-3</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-3.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q1samples-4"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-4" data-group="pdf" onchange="pdfChk('Q1samples-4',this)"><span class="pdf-name">Q1samples-4</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-4.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q1samples-5"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-5" data-group="pdf" onchange="pdfChk('Q1samples-5',this)"><span class="pdf-name">Q1samples-5</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-5.pdf" target="_blank">開く</a></div>
+      </div>
+      <div class="pdf-group">
+        <div class="pdf-group-title">第2問① (Q21)</div>
+        <div class="pdf-row" id="pdfrow-Q21samples-1"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q21samples-1" data-group="pdf" onchange="pdfChk('Q21samples-1',this)"><span class="pdf-name">Q21samples-1</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q21samples-1.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q21samples-2"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q21samples-2" data-group="pdf" onchange="pdfChk('Q21samples-2',this)"><span class="pdf-name">Q21samples-2</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q21samples-2.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q21samples-3"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q21samples-3" data-group="pdf" onchange="pdfChk('Q21samples-3',this)"><span class="pdf-name">Q21samples-3</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q21samples-3.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q21samples-4"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q21samples-4" data-group="pdf" onchange="pdfChk('Q21samples-4',this)"><span class="pdf-name">Q21samples-4</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q21samples-4.pdf" target="_blank">開く</a></div>
+      </div>
+      <div class="pdf-group">
+        <div class="pdf-group-title">第2問② (Q22)</div>
+        <div class="pdf-row" id="pdfrow-Q22samples-1"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-1" data-group="pdf" onchange="pdfChk('Q22samples-1',this)"><span class="pdf-name">Q22samples-1</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-1.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q22samples-2"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-2" data-group="pdf" onchange="pdfChk('Q22samples-2',this)"><span class="pdf-name">Q22samples-2</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-2.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q22samples-3"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-3" data-group="pdf" onchange="pdfChk('Q22samples-3',this)"><span class="pdf-name">Q22samples-3</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-3.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q22samples-4"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-4" data-group="pdf" onchange="pdfChk('Q22samples-4',this)"><span class="pdf-name">Q22samples-4</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-4.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q22samples-5"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-5" data-group="pdf" onchange="pdfChk('Q22samples-5',this)"><span class="pdf-name">Q22samples-5</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-5.pdf" target="_blank">開く</a></div>
+      </div>
+      <div class="pdf-group">
+        <div class="pdf-group-title">第3問 (Q3)</div>
+        <div class="pdf-row" id="pdfrow-Q3samples-1"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-1" data-group="pdf" onchange="pdfChk('Q3samples-1',this)"><span class="pdf-name">Q3samples-1</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-1.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q3samples-2"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-2" data-group="pdf" onchange="pdfChk('Q3samples-2',this)"><span class="pdf-name">Q3samples-2</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-2.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q3samples-3"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-3" data-group="pdf" onchange="pdfChk('Q3samples-3',this)"><span class="pdf-name">Q3samples-3</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-3.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q3samples-4"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-4" data-group="pdf" onchange="pdfChk('Q3samples-4',this)"><span class="pdf-name">Q3samples-4</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-4.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pdfrow-Q3samples-5"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-5" data-group="pdf" onchange="pdfChk('Q3samples-5',this)"><span class="pdf-name">Q3samples-5</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-5.pdf" target="_blank">開く</a></div>
+      </div>
+    </div>
+
+    <!-- TOEIC -->
+    <div class="rp-section">
+      <div class="rp-title">TOEIC</div>
+      <div class="rp-toeic">
+        <div><div class="tn">〜30</div><div class="tl">日後に受験予定</div></div>
+        <div><div class="tn">-</div><div class="tl">前回スコア</div></div>
+        <div><div class="tn">-</div><div class="tl">目標スコア</div></div>
+      </div>
+    </div>
+
+    <!-- バックオフィス知識 -->
+    <div class="rp-section">
+      <div class="rp-title">バックオフィス知識</div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">I. 会社経理の基礎</div>
+        <label class="rp-topic" id="bo-1-0"><input type="checkbox" data-key="bo_1_0" data-group="bo" onchange="rpChk(this)"> 会社経理の役割・必要性</label>
+        <label class="rp-topic" id="bo-1-1"><input type="checkbox" data-key="bo_1_1" data-group="bo" onchange="rpChk(this)"> 経理の仕事を早く理解するコツ</label>
+        <label class="rp-topic" id="bo-1-2"><input type="checkbox" data-key="bo_1_2" data-group="bo" onchange="rpChk(this)"> 管理会計と財務会計の違い</label>
+        <label class="rp-topic" id="bo-1-3"><input type="checkbox" data-key="bo_1_3" data-group="bo" onchange="rpChk(this)"> 会社にかかる税金の種類</label>
+        <label class="rp-topic" id="bo-1-4"><input type="checkbox" data-key="bo_1_4" data-group="bo" onchange="rpChk(this)"> 税務とBPOの違い（独占業務の範囲）</label>
+        <label class="rp-topic" id="bo-1-5"><input type="checkbox" data-key="bo_1_5" data-group="bo" onchange="rpChk(this)"> BPOとしてやっていいこと・やってはいけないこと</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">II. 簿記の基礎知識</div>
+        <label class="rp-topic" id="bo-2-0"><input type="checkbox" data-key="bo_2_0" data-group="bo" onchange="rpChk(this)"> 簿記とは何か・簿記のルール</label>
+        <label class="rp-topic" id="bo-2-1"><input type="checkbox" data-key="bo_2_1" data-group="bo" onchange="rpChk(this)"> 帳簿の種類</label>
+        <label class="rp-topic" id="bo-2-2"><input type="checkbox" data-key="bo_2_2" data-group="bo" onchange="rpChk(this)"> 「取引」とはどんな場合か・どの時点か</label>
+        <label class="rp-topic" id="bo-2-3"><input type="checkbox" data-key="bo_2_3" data-group="bo" onchange="rpChk(this)"> 収益・費用とは</label>
+        <label class="rp-topic" id="bo-2-4"><input type="checkbox" data-key="bo_2_4" data-group="bo" onchange="rpChk(this)"> 資産・負債・資本とは</label>
+        <label class="rp-topic" id="bo-2-5"><input type="checkbox" data-key="bo_2_5" data-group="bo" onchange="rpChk(this)"> 会計の5要素</label>
+        <label class="rp-topic" id="bo-2-6"><input type="checkbox" data-key="bo_2_6" data-group="bo" onchange="rpChk(this)"> 勘定科目の必要性</label>
+        <label class="rp-topic" id="bo-2-7"><input type="checkbox" data-key="bo_2_7" data-group="bo" onchange="rpChk(this)"> 仕訳のやり方・基本パターン</label>
+        <label class="rp-topic" id="bo-2-8"><input type="checkbox" data-key="bo_2_8" data-group="bo" onchange="rpChk(this)"> P/LとB/Sの関係</label>
+        <label class="rp-topic" id="bo-2-9"><input type="checkbox" data-key="bo_2_9" data-group="bo" onchange="rpChk(this)"> 発生主義と現金主義</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">III. 日常取引の事務の流れ</div>
+        <label class="rp-topic" id="bo-3-0"><input type="checkbox" data-key="bo_3_0" data-group="bo" onchange="rpChk(this)"> 現金預金の動き・出納事務</label>
+        <label class="rp-topic" id="bo-3-1"><input type="checkbox" data-key="bo_3_1" data-group="bo" onchange="rpChk(this)"> 仕入事務の流れ（仕入時・支払時の仕訳）</label>
+        <label class="rp-topic" id="bo-3-2"><input type="checkbox" data-key="bo_3_2" data-group="bo" onchange="rpChk(this)"> 「仕入」と「売上原価」の違い</label>
+        <label class="rp-topic" id="bo-3-3"><input type="checkbox" data-key="bo_3_3" data-group="bo" onchange="rpChk(this)"> 売上事務の流れ（売上時・回収時の仕訳）</label>
+        <label class="rp-topic" id="bo-3-4"><input type="checkbox" data-key="bo_3_4" data-group="bo" onchange="rpChk(this)"> 入金消込・未入金レポート・督促対応</label>
+        <label class="rp-topic" id="bo-3-5"><input type="checkbox" data-key="bo_3_5" data-group="bo" onchange="rpChk(this)"> 立替経費計算（申請受付〜振込実行）</label>
+        <label class="rp-topic" id="bo-3-6"><input type="checkbox" data-key="bo_3_6" data-group="bo" onchange="rpChk(this)"> 実務上よく見かける仕訳</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">IV. 試算表・決算</div>
+        <label class="rp-topic" id="bo-4-0"><input type="checkbox" data-key="bo_4_0" data-group="bo" onchange="rpChk(this)"> 試算表とは何か・誰が見るのか・何のためか</label>
+        <label class="rp-topic" id="bo-4-1"><input type="checkbox" data-key="bo_4_1" data-group="bo" onchange="rpChk(this)"> 試算表作成の手順</label>
+        <label class="rp-topic" id="bo-4-2"><input type="checkbox" data-key="bo_4_2" data-group="bo" onchange="rpChk(this)"> 試算表作成時の確認ポイント</label>
+        <label class="rp-topic" id="bo-4-3"><input type="checkbox" data-key="bo_4_3" data-group="bo" onchange="rpChk(this)"> 試算表に必要な資料一覧</label>
+        <label class="rp-topic" id="bo-4-4"><input type="checkbox" data-key="bo_4_4" data-group="bo" onchange="rpChk(this)"> 月次決算特有の処理（減価償却の月割りなど）</label>
+        <label class="rp-topic" id="bo-4-5"><input type="checkbox" data-key="bo_4_5" data-group="bo" onchange="rpChk(this)"> 月次決算のポイントと報告</label>
+        <label class="rp-topic" id="bo-4-6"><input type="checkbox" data-key="bo_4_6" data-group="bo" onchange="rpChk(this)"> 決算書の種類と関係</label>
+        <label class="rp-topic" id="bo-4-7"><input type="checkbox" data-key="bo_4_7" data-group="bo" onchange="rpChk(this)"> 決算の事務手続きの順序</label>
+        <label class="rp-topic" id="bo-4-8"><input type="checkbox" data-key="bo_4_8" data-group="bo" onchange="rpChk(this)"> 決算時の経理処理の項目</label>
+        <label class="rp-topic" id="bo-4-9"><input type="checkbox" data-key="bo_4_9" data-group="bo" onchange="rpChk(this)"> 決算書を自分で作ってみる</label>
+        <label class="rp-topic" id="bo-4-10"><input type="checkbox" data-key="bo_4_10" data-group="bo" onchange="rpChk(this)"> 決算と税務申告（利益と所得の違い）</label>
+        <label class="rp-topic" id="bo-4-11"><input type="checkbox" data-key="bo_4_11" data-group="bo" onchange="rpChk(this)"> 決算資料の一覧</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">V. 勘定科目・仕訳の実務</div>
+        <label class="rp-topic" id="bo-5-0"><input type="checkbox" data-key="bo_5_0" data-group="bo" onchange="rpChk(this)"> 勘定科目の考え方</label>
+        <label class="rp-topic" id="bo-5-1"><input type="checkbox" data-key="bo_5_1" data-group="bo" onchange="rpChk(this)"> 主要な勘定科目（前払金・前受金・未払金など）</label>
+        <label class="rp-topic" id="bo-5-2"><input type="checkbox" data-key="bo_5_2" data-group="bo" onchange="rpChk(this)"> 地代家賃（敷金・保証金・礼金・仲介手数料）</label>
+        <label class="rp-topic" id="bo-5-3"><input type="checkbox" data-key="bo_5_3" data-group="bo" onchange="rpChk(this)"> 保険料の処理</label>
+        <label class="rp-topic" id="bo-5-4"><input type="checkbox" data-key="bo_5_4" data-group="bo" onchange="rpChk(this)"> 租税公課（印紙税・固定資産税など）</label>
+        <label class="rp-topic" id="bo-5-5"><input type="checkbox" data-key="bo_5_5" data-group="bo" onchange="rpChk(this)"> 交際費と会議費の区別</label>
+        <label class="rp-topic" id="bo-5-6"><input type="checkbox" data-key="bo_5_6" data-group="bo" onchange="rpChk(this)"> 広告宣伝費・福利厚生費の区別</label>
+        <label class="rp-topic" id="bo-5-7"><input type="checkbox" data-key="bo_5_7" data-group="bo" onchange="rpChk(this)"> 売上計上基準（出荷基準・納品基準など）</label>
+        <label class="rp-topic" id="bo-5-8"><input type="checkbox" data-key="bo_5_8" data-group="bo" onchange="rpChk(this)"> 領収書の要件</label>
+        <label class="rp-topic" id="bo-5-9"><input type="checkbox" data-key="bo_5_9" data-group="bo" onchange="rpChk(this)"> 手形の種類</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">VI. 固定資産・減価償却</div>
+        <label class="rp-topic" id="bo-6-0"><input type="checkbox" data-key="bo_6_0" data-group="bo" onchange="rpChk(this)"> 固定資産とは（有形・無形・10万円以上）</label>
+        <label class="rp-topic" id="bo-6-1"><input type="checkbox" data-key="bo_6_1" data-group="bo" onchange="rpChk(this)"> 取得価額に含めるもの・含めないもの</label>
+        <label class="rp-topic" id="bo-6-2"><input type="checkbox" data-key="bo_6_2" data-group="bo" onchange="rpChk(this)"> 減価償却の方法（定額法・定率法）</label>
+        <label class="rp-topic" id="bo-6-3"><input type="checkbox" data-key="bo_6_3" data-group="bo" onchange="rpChk(this)"> 少額減価償却資産・一括償却資産</label>
+        <label class="rp-topic" id="bo-6-4"><input type="checkbox" data-key="bo_6_4" data-group="bo" onchange="rpChk(this)"> 建物の減価償却</label>
+        <label class="rp-topic" id="bo-6-5"><input type="checkbox" data-key="bo_6_5" data-group="bo" onchange="rpChk(this)"> 固定資産の取得・売却・廃棄の処理</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">VII. 法人税・税務</div>
+        <label class="rp-topic" id="bo-7-0"><input type="checkbox" data-key="bo_7_0" data-group="bo" onchange="rpChk(this)"> 法人税課税のしくみ・所得金額の求め方</label>
+        <label class="rp-topic" id="bo-7-1"><input type="checkbox" data-key="bo_7_1" data-group="bo" onchange="rpChk(this)"> 「決算書の利益」と「法人税の所得金額」の違い</label>
+        <label class="rp-topic" id="bo-7-2"><input type="checkbox" data-key="bo_7_2" data-group="bo" onchange="rpChk(this)"> 法人税の計算構造（4パターンの申告調整）</label>
+        <label class="rp-topic" id="bo-7-3"><input type="checkbox" data-key="bo_7_3" data-group="bo" onchange="rpChk(this)"> 収益の計上時期</label>
+        <label class="rp-topic" id="bo-7-4"><input type="checkbox" data-key="bo_7_4" data-group="bo" onchange="rpChk(this)"> 売上原価の計算方法</label>
+        <label class="rp-topic" id="bo-7-5"><input type="checkbox" data-key="bo_7_5" data-group="bo" onchange="rpChk(this)"> 役員給与の取扱い</label>
+        <label class="rp-topic" id="bo-7-6"><input type="checkbox" data-key="bo_7_6" data-group="bo" onchange="rpChk(this)"> 交際費・寄付金・租税公課の取扱い</label>
+        <label class="rp-topic" id="bo-7-7"><input type="checkbox" data-key="bo_7_7" data-group="bo" onchange="rpChk(this)"> 受取配当等の益金不算入</label>
+        <label class="rp-topic" id="bo-7-8"><input type="checkbox" data-key="bo_7_8" data-group="bo" onchange="rpChk(this)"> 貸倒引当金と貸倒損失の違い</label>
+        <label class="rp-topic" id="bo-7-9"><input type="checkbox" data-key="bo_7_9" data-group="bo" onchange="rpChk(this)"> 繰越欠損金と繰戻し還付</label>
+        <label class="rp-topic" id="bo-7-10"><input type="checkbox" data-key="bo_7_10" data-group="bo" onchange="rpChk(this)"> 申告と納税の期限</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">VIII. 消費税</div>
+        <label class="rp-topic" id="bo-8-0"><input type="checkbox" data-key="bo_8_0" data-group="bo" onchange="rpChk(this)"> 消費税の課税対象</label>
+        <label class="rp-topic" id="bo-8-1"><input type="checkbox" data-key="bo_8_1" data-group="bo" onchange="rpChk(this)"> 消費税の計算方法（2通り）</label>
+        <label class="rp-topic" id="bo-8-2"><input type="checkbox" data-key="bo_8_2" data-group="bo" onchange="rpChk(this)"> 消費税の申告と納税の期限</label>
+        <label class="rp-topic" id="bo-8-3"><input type="checkbox" data-key="bo_8_3" data-group="bo" onchange="rpChk(this)"> 納税義務の判定（課税事業者・免税事業者）</label>
+        <label class="rp-topic" id="bo-8-4"><input type="checkbox" data-key="bo_8_4" data-group="bo" onchange="rpChk(this)"> 簡易課税制度</label>
+        <label class="rp-topic" id="bo-8-5"><input type="checkbox" data-key="bo_8_5" data-group="bo" onchange="rpChk(this)"> 消費税確認のポイント（試算表作成時）</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">IX. 貸倒れ・債権管理</div>
+        <label class="rp-topic" id="bo-9-0"><input type="checkbox" data-key="bo_9_0" data-group="bo" onchange="rpChk(this)"> 貸倒損失とは</label>
+        <label class="rp-topic" id="bo-9-1"><input type="checkbox" data-key="bo_9_1" data-group="bo" onchange="rpChk(this)"> 子会社等の債権放棄（損金として認められる条件）</label>
+        <label class="rp-topic" id="bo-9-2"><input type="checkbox" data-key="bo_9_2" data-group="bo" onchange="rpChk(this)"> 「貸倒損失」と「子会社支援」の相違点</label>
+        <label class="rp-topic" id="bo-9-3"><input type="checkbox" data-key="bo_9_3" data-group="bo" onchange="rpChk(this)"> 一括評価金銭債権に係る貸倒引当金</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">X. 労務・給与計算</div>
+        <label class="rp-topic" id="bo-10-0"><input type="checkbox" data-key="bo_10_0" data-group="bo" onchange="rpChk(this)"> 労務とは（入社〜退職における業務）</label>
+        <label class="rp-topic" id="bo-10-1"><input type="checkbox" data-key="bo_10_1" data-group="bo" onchange="rpChk(this)"> 保険の基礎（公的保険・私的保険）</label>
+        <label class="rp-topic" id="bo-10-2"><input type="checkbox" data-key="bo_10_2" data-group="bo" onchange="rpChk(this)"> 社会保険の仕組み（健康保険・厚生年金・介護保険）</label>
+        <label class="rp-topic" id="bo-10-3"><input type="checkbox" data-key="bo_10_3" data-group="bo" onchange="rpChk(this)"> 社会保険料の計算</label>
+        <label class="rp-topic" id="bo-10-4"><input type="checkbox" data-key="bo_10_4" data-group="bo" onchange="rpChk(this)"> 算定基礎届・月額変更届</label>
+        <label class="rp-topic" id="bo-10-5"><input type="checkbox" data-key="bo_10_5" data-group="bo" onchange="rpChk(this)"> 年度更新（労働保険の手続き）</label>
+        <label class="rp-topic" id="bo-10-6"><input type="checkbox" data-key="bo_10_6" data-group="bo" onchange="rpChk(this)"> 労働保険（労災保険・雇用保険）の基本ルール</label>
+        <label class="rp-topic" id="bo-10-7"><input type="checkbox" data-key="bo_10_7" data-group="bo" onchange="rpChk(this)"> 雇用保険の給付</label>
+        <label class="rp-topic" id="bo-10-8"><input type="checkbox" data-key="bo_10_8" data-group="bo" onchange="rpChk(this)"> 給与計算の流れ（総支給額→控除→手取り）</label>
+        <label class="rp-topic" id="bo-10-9"><input type="checkbox" data-key="bo_10_9" data-group="bo" onchange="rpChk(this)"> 源泉徴収（甲欄・乙欄）と納付ルール</label>
+        <label class="rp-topic" id="bo-10-10"><input type="checkbox" data-key="bo_10_10" data-group="bo" onchange="rpChk(this)"> 住民税の特別ルール</label>
+        <label class="rp-topic" id="bo-10-11"><input type="checkbox" data-key="bo_10_11" data-group="bo" onchange="rpChk(this)"> 年末調整</label>
+        <label class="rp-topic" id="bo-10-12"><input type="checkbox" data-key="bo_10_12" data-group="bo" onchange="rpChk(this)"> 扶養親族の範囲と分類</label>
+        <label class="rp-topic" id="bo-10-13"><input type="checkbox" data-key="bo_10_13" data-group="bo" onchange="rpChk(this)"> 役員報酬・役員賞与・役員退職金</label>
+        <label class="rp-topic" id="bo-10-14"><input type="checkbox" data-key="bo_10_14" data-group="bo" onchange="rpChk(this)"> 就業規則</label>
+      </div>
+      <div class="rp-chapter">
+        <div class="rp-ch-title">XI. 法律・資格</div>
+        <label class="rp-topic" id="bo-11-0"><input type="checkbox" data-key="bo_11_0" data-group="bo" onchange="rpChk(this)"> 税理士法（独占業務）</label>
+        <label class="rp-topic" id="bo-11-1"><input type="checkbox" data-key="bo_11_1" data-group="bo" onchange="rpChk(this)"> 社労士法（独占業務）</label>
+        <label class="rp-topic" id="bo-11-2"><input type="checkbox" data-key="bo_11_2" data-group="bo" onchange="rpChk(this)"> 個人情報保護法</label>
+        <label class="rp-topic" id="bo-11-3"><input type="checkbox" data-key="bo_11_3" data-group="bo" onchange="rpChk(this)"> 抑えるべき法律の全体像</label>
+      </div>
+    </div>
+
+    <!-- 5月の目標 -->
+    <div class="rp-section">
+      <div class="rp-title">5月の目標</div>
+      <div class="rp-theme">💼 給与計算アサインをスムーズにスタートする<div class="rp-theme-dead">→ labor-law フォルダをマスター（期限：5/12）</div></div>
+      <div class="rp-theme">📒 簿記3級を受験する<div class="rp-theme-dead">→ 5月中に受験。試験日は進捗を見て決める</div></div>
+      <div class="rp-theme">🌏 TOEIC 6月受験の準備をキープ<div class="rp-theme-dead">→ 通勤時間で毎日少しずつ</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── SCHEDULE DATA ─────────────────────────────────────
+const BLOCKS = [
+  { id:1,  start:"15:30", end:"16:30", dur:60, type:"study", subject:"簿記", color:"#60a5fa",
+    title:"簿記 第1問①",
+    link:"../../bookkeeping-3/Q1Samples/Q1samples-1.pdf", linkLabel:"📄 Q1samples-1.pdf",
+    tasks:["サンプル問題を1問解く","解答確認・解説を読む","間違えた仕訳を3回ノートに書く","Claudeに「第1問やったよ」と報告"] },
+
+  { id:2,  start:"16:30", end:"16:45", dur:15, type:"break", color:"#fbbf24",
+    title:"☕ 休憩①",
+    tasks:[] },
+
+  { id:3,  start:"16:45", end:"17:45", dur:60, type:"study", subject:"簿記", color:"#60a5fa",
+    title:"簿記 第1問②",
+    link:"../../bookkeeping-3/Q1Samples/Q1samples-2.pdf", linkLabel:"📄 Q1samples-2.pdf",
+    tasks:["サンプル問題を1問解く","解答確認・解説を読む","間違えたパターンを整理する"] },
+
+  { id:4,  start:"17:45", end:"18:15", dur:30, type:"study", subject:"英語", color:"#34d399",
+    title:"TOEIC 単語 or リスニング①",
+    tasks:["TOEIC単語を10〜15個確認する","または：Part1〜2 のリスニング問題を解く","覚えた単語は vocab-trainer に追加する"] },
+
+  { id:5,  start:"18:15", end:"18:45", dur:30, type:"break", color:"#fbbf24",
+    title:"🍽 夕食休憩",
+    tasks:[] },
+
+  { id:6,  start:"18:45", end:"19:30", dur:45, type:"study", subject:"労務", color:"#a78bfa",
+    title:"労務 Ch2 理解度チェック",
+    link:"../../labor-law/kyuyo-keisan (1).html", linkLabel:"📖 給与計算ガイド", linkClass:"labor",
+    tasks:["「税の扶養（103万円の壁）」を自分の言葉で説明する","「社保の扶養（130万円の壁）」を自分の言葉で説明する","106万円の壁について説明する","Claudeに理解度チェックをしてもらう"] },
+
+  { id:7,  start:"19:30", end:"19:45", dur:15, type:"break", color:"#fbbf24",
+    title:"🧘 休憩②",
+    tasks:[] },
+
+  { id:8,  start:"19:45", end:"20:45", dur:60, type:"study", subject:"簿記", color:"#60a5fa",
+    title:"簿記 第1問③",
+    link:"../../bookkeeping-3/Q1Samples/Q1samples-3.pdf", linkLabel:"📄 Q1samples-3.pdf",
+    tasks:["サンプル問題を1問解く（前回ミスした分野を重点に）","解答確認・解説を読む","苦手パターンをまとめる"] },
+
+  { id:9,  start:"20:45", end:"21:30", dur:45, type:"study", subject:"英語", color:"#34d399",
+    title:"TOEIC 単語 or リスニング②",
+    tasks:["TOEIC単語を10〜15個確認する","または：Part3〜4 のリスニング問題を解く","覚えた単語は vocab-trainer に追加する"] },
+
+  { id:10, start:"21:30", end:"21:45", dur:15, type:"break", color:"#fbbf24",
+    title:"🌙 休憩③",
+    tasks:[] },
+
+  { id:11, start:"21:45", end:"22:30", dur:45, type:"study", subject:"労務", color:"#a78bfa",
+    title:"労務 Ch3",
+    link:"../../labor-law/kyuyo-keisan (1).html", linkLabel:"📖 給与計算ガイド", linkClass:"labor",
+    tasks:["「給与計算ガイドのCh3やりたい」とClaudeに伝える","内容を一緒に読む","理解度チェックを受ける","OKなら progress.html を更新"] },
+
+  { id:12, start:"22:30", end:"22:45", dur:15, type:"break", color:"#fbbf24",
+    title:"💧 休憩④",
+    tasks:[] },
+
+  { id:13, start:"22:45", end:"00:00", dur:75, type:"study", subject:"簿記", color:"#60a5fa",
+    title:"簿記 第1問④ ＋ 振り返り",
+    link:"../../bookkeeping-3/Q1Samples/Q1samples-4.pdf", linkLabel:"📄 Q1samples-4.pdf",
+    tasks:["サンプル問題を1問解く","今日の簿記まとめ：得意/苦手を整理する","Claudeに「勉強終わり」と伝えてsession-logを更新"] },
+];
+
+// ── RENDER: LEFT PANE ────────────────────────────────
+function renderSchedule() {
+  const wrap = document.getElementById('schedule');
+  BLOCKS.forEach(b => {
+    const isBreak = b.type === 'break';
+    const card = document.createElement('div');
+    card.className = 'blk-card' + (isBreak ? ' break-card' : '');
+    card.id = 'card-' + b.id;
+
+    const tasks = b.tasks.map((t, i) => {
+      const k = `t_20260504_${b.id}_${i}`;
+      const checked = localStorage.getItem(k) === '1';
+      return `<label class="task-item${checked ? ' done' : ''}" id="li-${k}">
+        <input type="checkbox" ${checked ? 'checked' : ''} onchange="chk('${k}',this)">
+        <span class="task-txt">${t}</span>
+      </label>`;
+    }).join('');
+
+    const linkHtml = b.link
+      ? `<a class="blk-link${b.linkClass ? ' ' + b.linkClass : ''}" href="${b.link}" target="_blank">${b.linkLabel}</a>`
+      : '';
+
+    card.innerHTML = `
+      <div class="blk-head">
+        <div class="blk-left">
+          <div class="dot" style="background:${b.color}"></div>
+          <div>
+            <div class="blk-time">${b.start} – ${b.end}</div>
+            <div class="blk-title">${b.title}</div>
+            ${linkHtml}
+          </div>
+        </div>
+        <span class="dur-badge">${b.dur}分</span>
+        <button class="go-btn" onclick="activateBlk(${b.id})">
+          ${isBreak ? '☕ 休憩開始' : '▶ 開始'}
+        </button>
+      </div>
+      ${!isBreak && b.tasks.length ? `<div class="task-list">${tasks}</div>` : ''}`;
+    wrap.appendChild(card);
+  });
+  updateProg();
+}
+
+function chk(k, cb) {
+  const li = document.getElementById('li-' + k);
+  if (cb.checked) { localStorage.setItem(k, '1'); li.classList.add('done'); }
+  else            { localStorage.removeItem(k);    li.classList.remove('done'); }
+  updateProg();
+}
+
+function updateProg() {
+  const all  = document.querySelectorAll('#schedule .task-item input[type="checkbox"]').length;
+  const done = document.querySelectorAll('#schedule .task-item input[type="checkbox"]:checked').length;
+  const pct  = all ? Math.round(done / all * 100) : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progTxt').textContent  = `${done} / ${all} タスク完了（${pct}%）`;
+}
+
+// ── RIGHT PANE: PROGRESS TRACKING ────────────────────
+function rpChk(el) {
+  const key = el.dataset.key;
+  if (el.checked) localStorage.setItem(key, '1');
+  else            localStorage.removeItem(key);
+  const row = el.closest('.rp-topic, .rp-goal');
+  if (row) row.classList.toggle('done', el.checked);
+  refreshProgBars();
+}
+
+function pdfChk(name, cb) {
+  const key = 'pdf_' + name;
+  const row = document.getElementById('pdfrow-' + name);
+  if (cb.checked) { localStorage.setItem(key, '1'); row.classList.add('done'); }
+  else            { localStorage.removeItem(key);   row.classList.remove('done'); }
+  refreshProgBars();
+}
+
+function refreshProgBars() {
+  [['bo','bo'],['labor','labor'],['boki','pdf']].forEach(([prefix, group]) => {
+    const all  = document.querySelectorAll(`[data-group="${group}"]`);
+    const done = document.querySelectorAll(`[data-group="${group}"]:checked`);
+    const pct  = all.length ? Math.round(done.length / all.length * 100) : 0;
+    const fill = document.getElementById(prefix + '-fill');
+    const cnt  = document.getElementById(prefix + '-cnt');
+    if (fill) fill.style.width = pct + '%';
+    if (cnt)  cnt.textContent  = `${done.length} / ${all.length}`;
+  });
+  const pAll  = document.querySelectorAll('[data-group="pdf"]').length;
+  const pDone = document.querySelectorAll('[data-group="pdf"]:checked').length;
+  const pPct  = pAll ? Math.round(pDone / pAll * 100) : 0;
+  const stat  = document.getElementById('pdfStat');
+  if (stat) stat.textContent = `${pDone} / ${pAll} 完了（${pPct}%）`;
+}
+
+function initProgress() {
+  document.querySelectorAll('[data-key]').forEach(el => {
+    if (localStorage.getItem(el.dataset.key) === '1') {
+      el.checked = true;
+      const row = el.closest('.rp-topic, .rp-goal, .pdf-row');
+      if (row) row.classList.add('done');
+    }
+  });
+  refreshProgBars();
+}
+
+// ── WORD COUNTER ─────────────────────────────────────
+function loadWords() {
+  const m = parseInt(localStorage.getItem('vocabMastered') || '0');
+  document.getElementById('masteredCount').textContent = m;
+}
+
+// ── TOEIC MOCK TRACKER ───────────────────────────────
+const TM_PRE = 'toeicMock_2026-05-04_';
+function toeicMock(n, cb) {
+  localStorage.setItem(TM_PRE + n, cb.checked ? '1' : '0');
+  document.getElementById('tmock-' + n).classList.toggle('done', cb.checked);
+}
+function toeicScore(n, v) {
+  localStorage.setItem(TM_PRE + 'score' + n, v);
+  updateToeicAvg();
+}
+function updateToeicAvg() {
+  const s1 = parseInt(localStorage.getItem(TM_PRE + 'score1') || '0');
+  const s2 = parseInt(localStorage.getItem(TM_PRE + 'score2') || '0');
+  const el = document.getElementById('toeic-avg');
+  if (s1 && s2) el.textContent = '今週平均: ' + Math.round((s1 + s2) / 2) + ' 点';
+  else if (s1 || s2) el.textContent = '記録済み: ' + (s1 || s2) + ' 点';
+  else el.textContent = '';
+}
+function loadToeicMock() {
+  [1, 2].forEach(n => {
+    if (localStorage.getItem(TM_PRE + n) === '1') {
+      const cb = document.querySelector('#tmock-' + n + ' input');
+      if (cb) cb.checked = true;
+      document.getElementById('tmock-' + n).classList.add('done');
+    }
+    const score = localStorage.getItem(TM_PRE + 'score' + n);
+    if (score) document.getElementById('tscore-' + n).value = score;
+  });
+  updateToeicAvg();
+}
+
+// ── CLOCK ────────────────────────────────────────────
+setInterval(() => {
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    [n.getHours(), n.getMinutes(), n.getSeconds()].map(v => String(v).padStart(2,'0')).join(':');
+}, 1000);
+
+// ── BLOCK TIMER ──────────────────────────────────────
+let blkRem = 0, blkRun = false, blkIsBreak = false, blkIv = null, curId = null;
+
+function activateBlk(id) {
+  if (curId) document.getElementById('card-' + curId)?.classList.remove('active');
+  const b = BLOCKS.find(x => x.id === id);
+  curId = id; blkIsBreak = b.type === 'break'; blkRem = b.dur * 60;
+  document.getElementById('blkName').textContent = b.title;
+  document.getElementById('card-' + id).classList.add('active');
+  document.getElementById('card-' + id).scrollIntoView({ behavior:'smooth', block:'nearest' });
+  clearInterval(blkIv); blkRun = true;
+  blkIsBreak ? pauseStudy() : startStudy();
+  blkIv = setInterval(tickBlk, 1000);
+  drawBlk();
+}
+
+function tickBlk() {
+  blkRem--; drawBlk();
+  if (blkRem <= 0) {
+    clearInterval(blkIv); blkRun = false; pauseStudy();
+    document.getElementById('blkName').textContent = '⏰ 時間です！';
+    beep();
+  }
+}
+
+function resumeBlk() {
+  if (!blkRun && blkRem > 0) {
+    blkRun = true;
+    if (!blkIsBreak) startStudy();
+    blkIv = setInterval(tickBlk, 1000);
+  }
+}
+function pauseBlk() { if (blkRun) { blkRun = false; clearInterval(blkIv); pauseStudy(); } }
+function resetBlk() {
+  clearInterval(blkIv); blkRun = false; pauseStudy();
+  const b = BLOCKS.find(x => x.id === curId);
+  if (b) { blkRem = b.dur * 60; drawBlk(); }
+}
+
+function drawBlk() {
+  const m = Math.floor(blkRem / 60), s = blkRem % 60;
+  const el = document.getElementById('blkCD');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('urgent', blkRem > 0 && blkRem <= 60);
+}
+
+// ── STUDY TIMER ──────────────────────────────────────
+const S_KEY = 'studyElap_2026-05-04';
+let studyElap = 0, studyRun = false, studyIv = null;
+
+function drawStudy() {
+  const h = Math.floor(studyElap/3600), m = Math.floor(studyElap%3600/60), s = studyElap%60;
+  document.getElementById('studyDisp').textContent =
+    `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function startStudy() {
+  if (studyRun) return;
+  studyRun = true;
+  studyIv = setInterval(() => {
+    studyElap++;
+    localStorage.setItem(S_KEY, studyElap);
+    drawStudy();
+  }, 1000);
+}
+function pauseStudy() { studyRun = false; clearInterval(studyIv); }
+
+// ── ALARM ────────────────────────────────────────────
+function beep() {
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    [0, .55, 1.1].forEach(d => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = 'sine'; o.frequency.value = 880;
+      g.gain.setValueAtTime(.4, ac.currentTime + d);
+      g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d + .45);
+      o.start(ac.currentTime + d); o.stop(ac.currentTime + d + .5);
+    });
+  } catch(e) {}
+}
+
+// ── INIT ─────────────────────────────────────────────
+renderSchedule();
+initProgress();
+loadWords();
+loadToeicMock();
+studyElap = parseInt(localStorage.getItem(S_KEY) || '0');
+drawStudy();
+</script>
+</body>
+</html>

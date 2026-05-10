@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バックオフィス知識 — 経理・税務・労務の基礎テキスト</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1f2e;
+    --paper: #f4f6fa;
+    --cream: #eaedf5;
+    --accent: #2a5298;
+    --gold: #b8892a;
+    --muted: #6a7490;
+    --divider: #d0d6e8;
+    --card-bg: #fafbfd;
+    --highlight: #eef3ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.85;
+    font-size: 15px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 64px 48px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      -45deg, transparent, transparent 20px,
+      rgba(255,255,255,0.012) 20px, rgba(255,255,255,0.012) 40px
+    );
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent));
+  }
+  .header-label {
+    font-size: 11px; font-weight: 500; letter-spacing: 0.25em;
+    color: var(--gold); text-transform: uppercase;
+    margin-bottom: 16px; position: relative;
+  }
+  header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(26px, 4vw, 44px);
+    font-weight: 700; line-height: 1.3;
+    position: relative; margin-bottom: 20px;
+  }
+  header h1 span {
+    display: block; font-size: 0.55em; font-weight: 300;
+    color: rgba(244,246,250,0.6); letter-spacing: 0.08em; margin-top: 8px;
+  }
+  .header-meta {
+    position: relative; font-size: 13px;
+    color: rgba(244,246,250,0.5); letter-spacing: 0.05em;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--cream);
+    border-bottom: 2px solid var(--divider);
+    padding: 0 48px;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; gap: 0; overflow-x: auto; scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    display: block; padding: 14px 16px;
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    text-decoration: none; white-space: nowrap;
+    border-bottom: 3px solid transparent; transition: all 0.2s;
+  }
+  nav a:hover  { color: var(--ink); border-bottom-color: var(--accent); }
+  nav a.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 700; background: rgba(42,82,152,.06); }
+
+  /* ── CHAPTER NAV ── */
+  .ch-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 52px; padding-top: 24px;
+    border-top: 1.5px solid var(--divider);
+  }
+  .ch-nav-btn {
+    padding: 10px 22px; border: 1.5px solid var(--divider); border-radius: 8px;
+    background: var(--card-bg); color: var(--accent);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s;
+  }
+  .ch-nav-btn:hover { background: var(--highlight); border-color: var(--accent); }
+
+  /* ── MAIN ── */
+  main { max-width: 860px; margin: 0 auto; padding: 56px 48px 100px; }
+
+  /* ── CHAPTER ── */
+  .chapter { display: none; }
+  .chapter.active { display: block; margin-bottom: 80px; animation: fadeUp 0.4s ease both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .chapter-header {
+    display: flex; align-items: flex-start; gap: 20px;
+    margin-bottom: 28px; padding-bottom: 20px;
+    border-bottom: 1.5px solid var(--divider);
+  }
+  .chapter-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px; color: var(--accent);
+    line-height: 1; opacity: 0.2; min-width: 56px; text-align: right;
+  }
+  .chapter-title-wrap { flex: 1; }
+  .chapter-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .chapter h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px; font-weight: 700; color: var(--ink); line-height: 1.4;
+  }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 36px; }
+  .section h3 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px; font-weight: 600; color: var(--ink);
+    margin-bottom: 12px; padding-left: 14px;
+    border-left: 3px solid var(--accent);
+  }
+  .section p {
+    font-size: 14.5px; line-height: 1.9; color: #2e3348; margin-bottom: 12px;
+  }
+
+  /* ── CARDS ── */
+  .cards {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px; margin: 16px 0 24px;
+  }
+  .card {
+    background: var(--card-bg); border: 1px solid var(--divider);
+    border-radius: 8px; padding: 18px 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+  .card-icon { font-size: 22px; margin-bottom: 8px; }
+  .card h4 { font-size: 13.5px; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+  .card p { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    margin: 16px 0 24px; border-radius: 8px;
+    overflow: hidden; border: 1px solid var(--divider);
+  }
+  .data-table th {
+    background: var(--ink); color: var(--paper);
+    padding: 11px 16px; font-weight: 600; text-align: left;
+    font-size: 12px; letter-spacing: 0.04em;
+  }
+  .data-table td {
+    padding: 11px 16px; border-bottom: 1px solid var(--divider);
+    vertical-align: top; line-height: 1.7; font-size: 13px;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--highlight); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-radius: 8px; padding: 18px 22px; margin: 20px 0;
+    font-size: 13.5px; line-height: 1.8;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .callout.warn  { background: #fff8e6; border-left: 4px solid var(--gold); color: #5a4a1a; }
+  .callout.info  { background: var(--highlight); border-left: 4px solid var(--accent); color: #1a2a5a; }
+  .callout.danger{ background: #fdf0ef; border-left: 4px solid #c0392b; color: #5a1a1a; }
+  .callout-icon  { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout strong{ display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+
+  /* ── TWO-COL LIST ── */
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin: 16px 0 24px;
+  }
+  .col-box {
+    background: var(--card-bg); border: 1px solid var(--divider);
+    border-radius: 8px; padding: 16px 20px;
+  }
+  .col-box h4 { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .col-box ul { padding-left: 18px; font-size: 13px; color: var(--muted); }
+  .col-box ul li { margin-bottom: 6px; line-height: 1.6; }
+  .col-ok  h4 { color: #1a7a4a; }
+  .col-ok  { border-top: 3px solid #27ae60; }
+  .col-ng  h4 { color: #b02020; }
+  .col-ng  { border-top: 3px solid #c0392b; }
+
+  /* ── COMING SOON ── */
+  .coming-soon {
+    background: var(--cream); border: 1px dashed var(--divider);
+    border-radius: 10px; padding: 40px; text-align: center;
+    color: var(--muted); font-size: 13.5px;
+  }
+  .coming-soon .icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* ── CHECKLIST ── */
+  .check-list {
+    background: var(--card-bg); border: 1px solid var(--divider);
+    border-radius: 8px; overflow: hidden; margin: 16px 0;
+  }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 13px 20px; border-bottom: 1px solid var(--divider);
+    font-size: 13.5px; line-height: 1.6;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item input[type="checkbox"] {
+    width: 16px; height: 16px; margin-top: 3px;
+    accent-color: var(--accent); cursor: pointer; flex-shrink: 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 40px 24px;
+    font-size: 12px; color: var(--muted);
+    border-top: 1px solid var(--divider); letter-spacing: 0.08em;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    header { padding: 40px 24px 32px; }
+    nav { padding: 0 8px; }
+    main { padding: 36px 20px 80px; }
+    .cards { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .chapter-num { font-size: 36px; min-width: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Back Office Knowledge</div>
+  <h1>
+    バックオフィス知識
+    <span>— 経理・税務・会計・労務 の基礎テキスト —</span>
+  </h1>
+  <div class="header-meta">全11章 ／ 経理基礎・簿記・日常取引・決算・税務・労務など</div>
+</header>
+
+<nav>
+  <a href="#" data-ch="ch1"  onclick="showChapter('ch1'); return false;">Ⅰ 経理の基礎</a>
+  <a href="#" data-ch="ch2"  onclick="showChapter('ch2'); return false;">Ⅱ 簿記の基礎</a>
+  <a href="#" data-ch="ch3"  onclick="showChapter('ch3'); return false;">Ⅲ 日常取引</a>
+  <a href="#" data-ch="ch4"  onclick="showChapter('ch4'); return false;">Ⅳ 試算表・決算</a>
+  <a href="#" data-ch="ch5"  onclick="showChapter('ch5'); return false;">Ⅴ 勘定科目</a>
+  <a href="#" data-ch="ch6"  onclick="showChapter('ch6'); return false;">Ⅵ 固定資産</a>
+  <a href="#" data-ch="ch7"  onclick="showChapter('ch7'); return false;">Ⅶ 法人税</a>
+  <a href="#" data-ch="ch8"  onclick="showChapter('ch8'); return false;">Ⅷ 消費税</a>
+  <a href="#" data-ch="ch9"  onclick="showChapter('ch9'); return false;">Ⅸ 貸倒れ</a>
+  <a href="#" data-ch="ch10" onclick="showChapter('ch10'); return false;">Ⅹ 労務・給与</a>
+  <a href="#" data-ch="ch11" onclick="showChapter('ch11'); return false;">Ⅺ 法律・資格</a>
+</nav>
+
+<main>
+
+<!-- ====== CHAPTER I ====== -->
+<section class="chapter" id="ch1">
+  <div class="chapter-header">
+    <div class="chapter-num">I</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Accounting Fundamentals</div>
+      <h2>会社経理の基礎</h2>
+    </div>
+  </div>
+
+  <!-- 1. 役割・必要性 -->
+  <div class="section">
+    <h3>会社経理の役割・必要性</h3>
+    <p>経理とは、会社の「お金の動き」を記録・管理する仕事です。経理処理がなぜ必要かというと、目的は大きく2つあります。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📈</div>
+        <h4>① 業績を把握する</h4>
+        <p>「会社が儲かっているのか、損をしているのか」を数字で把握する。利益＝売上－費用で計算できる。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏦</div>
+        <h4>② 財政状態を把握する</h4>
+        <p>「今、会社にどんな資産・負債があるか」を把握する。売上だけでは会社の実力は測れない。</p>
+      </div>
+    </div>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>なぜ財政状態が重要か？</strong>
+        A社・B社とも売上5億円。しかし預金はA社1億円、B社500万円。銀行が融資するなら当然A社を選ぶ。
+        売上と利益だけでは、会社の実態は見えない。
+      </div>
+    </div>
+    <p>経理で生み出した情報は、会社に関わるさまざまな人（投資家・銀行・取引先・税務署）の重要な判断材料になります。日常的な経理処理をきちんと行うことは、会社経営の基本中の基本です。</p>
+  </div>
+
+  <!-- 2. 早く理解するコツ -->
+  <div class="section">
+    <h3>経理の仕事を早く理解するコツ</h3>
+    <p>経理を勉強しようとすると「処理はどうするのか？」「会計ソフトの使い方は？」と細かい部分が気になりがちです。しかし最初に把握すべきは<strong>「何のために経理が必要なのか」</strong>という目的です。</p>
+    <p>経理の日常業務は基本的に2つです。</p>
+    <table class="data-table">
+      <tr>
+        <th>業務</th>
+        <th>具体的な内容</th>
+      </tr>
+      <tr>
+        <td>① お金のやりとりを実行する</td>
+        <td>売上：請求書発行・入金確認<br>支払：支払予定表の作成・振込<br>社内事務：経費精算・月次報告書作成</td>
+      </tr>
+      <tr>
+        <td>② お金のやりとりを記録する</td>
+        <td>会計ソフトへの入力（仕訳）<br>目的：決算書類の作成・税金の申告・月々の収支把握</td>
+      </tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>「年度末までに入れればいい」は危険</strong>
+        現在の状況やこれからの見通しを立てるためには、できるだけタイムリーにデータを入力する必要があります。溜め込むと内容が思い出せなくなることも多いです。
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 管理会計と財務会計 -->
+  <div class="section">
+    <h3>管理会計と財務会計の違い</h3>
+    <p>会計には「管理会計」と「財務会計」の2種類があります。どちらも会社のお金を扱いますが、<strong>誰のための情報か</strong>が違います。</p>
+    <table class="data-table">
+      <tr>
+        <th>種類</th>
+        <th>目的</th>
+        <th>対象</th>
+        <th>法的拘束</th>
+      </tr>
+      <tr>
+        <td><strong>管理会計</strong></td>
+        <td>経営判断・内部管理</td>
+        <td>経営者・各部門</td>
+        <td>なし（自由な形式でOK）</td>
+      </tr>
+      <tr>
+        <td><strong>財務会計</strong></td>
+        <td>外部への情報開示</td>
+        <td>投資家・銀行・税務署</td>
+        <td>あり（会社法・税法などに従う）</td>
+      </tr>
+    </table>
+    <p>BPO（業務委託）として経理を担当する場合、主に財務会計の補助作業（仕訳入力・書類整理・振込処理など）を担います。管理会計（予算策定・部門別損益分析など）は通常クライアント企業の経営者・経理担当が行います。</p>
+  </div>
+
+  <!-- 4. 税金の種類 -->
+  <div class="section">
+    <h3>会社にかかる税金の種類</h3>
+    <p>会社には個人と異なるさまざまな税金が課されます。経理担当として把握しておくべき主な税金は以下のとおりです。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🏛️</div>
+        <h4>法人税（国税）</h4>
+        <p>会社の所得（利益）に課税。税率は原則23.2%。資本金1億円以下の中小企業は年800万円以下の部分に15%の軽減税率が適用される。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏙️</div>
+        <h4>法人住民税（地方税）</h4>
+        <p>都道府県・市区町村に納付。「法人税割」と「均等割」がある。均等割は赤字でも納付が必要。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏢</div>
+        <h4>法人事業税（地方税）</h4>
+        <p>事業活動を行うことへの課税。都道府県に納付。赤字の場合は課税されない（外形標準課税対象は除く）。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧾</div>
+        <h4>消費税（国税・地方税）</h4>
+        <p>商品・サービスの取引に課税。売上の消費税から仕入の消費税を控除して納付する。課税事業者のみ申告義務あり。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💴</div>
+        <h4>源泉所得税（国税）</h4>
+        <p>給与・報酬などから天引きして会社が代わりに納付。原則毎月10日までに納付。従業員10人未満は半年一括の特例あり。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏗️</div>
+        <h4>固定資産税・印紙税など</h4>
+        <p>固定資産税：土地・建物・機械等に課税（市区町村）。印紙税：契約書・領収書などの文書に課税。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 税務とBPOの違い -->
+  <div class="section">
+    <h3>税務とBPOの違い（独占業務の範囲）</h3>
+    <p>税理士法により、「税務に関する業務」は<strong>税理士の独占業務</strong>とされています。BPOスタッフが税理士の代わりに税務業務を行うことは違法です。</p>
+    <table class="data-table">
+      <tr>
+        <th>独占業務の種類</th>
+        <th>具体的な内容</th>
+      </tr>
+      <tr>
+        <td><strong>税務代理</strong></td>
+        <td>税務署への申告・申請・届出・不服申立の代理</td>
+      </tr>
+      <tr>
+        <td><strong>税務書類作成</strong></td>
+        <td>確定申告書・法人税申告書・消費税申告書などの作成</td>
+      </tr>
+      <tr>
+        <td><strong>税務相談</strong></td>
+        <td>具体的な税務問題への回答・判断・アドバイス（有償・無償問わず）</td>
+      </tr>
+    </table>
+    <div class="callout danger">
+      <span class="callout-icon">🚫</span>
+      <div>
+        <strong>無償であっても違法</strong>
+        「無料だから大丈夫」は通用しません。税理士法は有償・無償に関わらず、税理士でない者が税務代理・税務書類作成・税務相談を行うことを禁じています（税理士法第52条）。
+      </div>
+    </div>
+    <p>同様に、社会保険手続きや就業規則の作成は<strong>社労士の独占業務</strong>です。BPO業務を行う際は独占業務の境界線を常に意識する必要があります。</p>
+  </div>
+
+  <!-- 6. BPOでやっていいこと・いけないこと -->
+  <div class="section">
+    <h3>BPOとしてやっていいこと・やってはいけないこと</h3>
+    <p>独占業務の範囲を理解した上で、BPOスタッフが担える業務の具体例を整理します。</p>
+    <div class="two-col">
+      <div class="col-box col-ok">
+        <h4>✅ やっていいこと</h4>
+        <ul>
+          <li>会計データの入力補助（担当者の指示のもとで）</li>
+          <li>請求書・領収書の整理・仕分け・ファイリング</li>
+          <li>振込データ作成・支払処理の補助</li>
+          <li>帳簿類・証憑書類の整理・保管</li>
+          <li>給与計算データ入力補助（担当者の確認のもと）</li>
+          <li>試算表の印刷・数値の転記・配布</li>
+          <li>経費精算の受付・チェック補助</li>
+        </ul>
+      </div>
+      <div class="col-box col-ng">
+        <h4>❌ やってはいけないこと</h4>
+        <ul>
+          <li>確定申告書・法人税申告書の作成</li>
+          <li>税務相談への判断・回答（「この費用は経費になる？」など）</li>
+          <li>税務署への申告・届出の代行</li>
+          <li>社会保険手続きの代行（社労士の独占業務）</li>
+          <li>就業規則の作成・変更</li>
+          <li>給与計算の最終確定・支給決定</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>判断に迷ったら「最終決定が誰か」で考える</strong>
+        BPOスタッフの役割は「補助・サポート」。数字の入力・書類の整理・データ準備は担える。しかし、税務上の判断・申告の責任・法的な手続きは必ず有資格者（税理士・社労士）または会社の担当者が行う必要がある。
+      </div>
+    </div>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list" id="ch1-check">
+        <label class="check-item"><input type="checkbox" data-key="bo_1_0"> 経理の目的2つ（業績把握・財政状態把握）を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_1_1"> 経理の日常業務2つ（実行・記録）を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_1_2"> 管理会計と財務会計の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_1_3"> 会社にかかる主要な税金を3つ以上挙げられる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_1_4"> 税理士の独占業務3種類を言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_1_5"> BPOとしてやっていいこと・いけないことの線引きを説明できる</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== CHAPTERS II〜XI（準備中）====== -->
+<section class="chapter" id="ch2">
+  <div class="chapter-header">
+    <div class="chapter-num">II</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Bookkeeping Basics</div>
+      <h2>簿記の基礎知識</h2>
+    </div>
+  </div>
+
+  <!-- 1. 簿記とは -->
+  <div class="section">
+    <h3>簿記とは何か・簿記のルール</h3>
+    <p>簿記とは、会社のすべての取引を一定のルールに従って帳簿に記録し、財産や損益の状態を明らかにする技術です。法人には「複式簿記」が求められます（会社法・税法の要件）。</p>
+    <div class="callout info">
+      <span class="callout-icon">📖</span>
+      <div>
+        <strong>複式簿記とは</strong>
+        1つの取引を「借方（左）」と「貸方（右）」の2つの側面から記録する方法。どんな取引も借方合計と貸方合計は必ず一致する。この「バランスが取れる」仕組みが記録の正確性を保証する。
+      </div>
+    </div>
+    <table class="data-table">
+      <tr><th>種類</th><th>特徴</th><th>主な利用場面</th></tr>
+      <tr><td><strong>単式簿記</strong></td><td>収入・支出だけを記録（家計簿感覚）</td><td>個人・小規模事業者</td></tr>
+      <tr><td><strong>複式簿記</strong></td><td>取引を2つの側面から記録。B/S・P/Lが自動的に作成される</td><td>法人（義務）</td></tr>
+    </table>
+  </div>
+
+  <!-- 2. 帳簿の種類 -->
+  <div class="section">
+    <h3>帳簿の種類</h3>
+    <p>帳簿は「主要簿」と「補助簿」に分かれます。会計ソフトを使えばほぼ自動で作成されますが、何が記録されているかを理解しておくことが重要です。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📒</div>
+        <h4>仕訳帳（主要簿）</h4>
+        <p>すべての取引を発生順に借方・貸方で記録する帳簿。会計の根幹。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📗</div>
+        <h4>総勘定元帳（主要簿）</h4>
+        <p>勘定科目ごとの増減・残高を集約した帳簿。試算表・決算書の元になる。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💰</div>
+        <h4>現金出納帳（補助簿）</h4>
+        <p>現金の収入・支出を日付順に記録。手元現金と帳簿の照合に使う。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏦</div>
+        <h4>預金出納帳（補助簿）</h4>
+        <p>銀行口座ごとの入出金を記録。通帳と照合して残高確認に使う。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📤</div>
+        <h4>売掛金元帳（補助簿）</h4>
+        <p>得意先ごとの売掛金残高を管理。未回収の確認に使う。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📥</div>
+        <h4>固定資産台帳（補助簿）</h4>
+        <p>固定資産の取得日・取得価額・減価償却累計額などを管理する台帳。</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div><strong>帳簿の保存義務</strong>法人の帳簿・証憑書類の保存期間は原則7年（欠損金がある場合は10年）。電子帳簿保存法に基づく電子保存も認められている。</div>
+    </div>
+  </div>
+
+  <!-- 3. 取引とは -->
+  <div class="section">
+    <h3>「取引」とはどんな場合か・どの時点か</h3>
+    <p>日常会話の「取引」と会計上の「取引」は異なります。会計では<strong>資産・負債・資本・収益・費用のいずれかが増減する出来事</strong>を取引と呼びます。</p>
+    <table class="data-table">
+      <tr><th>出来事</th><th>会計上の取引？</th><th>理由</th></tr>
+      <tr><td>商品を50万円で注文した</td><td>❌ 取引ではない</td><td>まだ商品も代金も動いていない</td></tr>
+      <tr><td>商品を50万円で納品・受け取った</td><td>✅ 取引</td><td>資産（商品）が増え、負債（買掛金）が増加</td></tr>
+      <tr><td>建物が火災で焼失した</td><td>✅ 取引</td><td>資産（建物）が減少</td></tr>
+      <tr><td>現金5万円を紛失した</td><td>✅ 取引</td><td>資産（現金）が減少、費用（雑損失）が発生</td></tr>
+    </table>
+    <p>いつ取引として記録するかは「<strong>発生主義</strong>」に基づきます（詳細はトピック10で解説）。商品の場合は「引き渡し・受領」時点、サービスの場合は「提供・受領完了」時点が基本です。</p>
+  </div>
+
+  <!-- 4. 収益・費用 -->
+  <div class="section">
+    <h3>収益・費用とは</h3>
+    <p>収益と費用は、会社の「儲け（利益）」を計算するための2大要素です。損益計算書（P/L）に記載されます。</p>
+    <div class="two-col">
+      <div class="col-box" style="border-top:3px solid #2a5298">
+        <h4 style="color:#2a5298">📈 収益</h4>
+        <ul>
+          <li>会社の純資産を<strong>増やす</strong>原因</li>
+          <li>売上高・受取利息・受取配当金</li>
+          <li>固定資産売却益・為替差益 など</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid #c0392b">
+        <h4 style="color:#c0392b">📉 費用</h4>
+        <ul>
+          <li>会社の純資産を<strong>減らす</strong>原因</li>
+          <li>仕入・給料・地代家賃・減価償却費</li>
+          <li>支払利息・広告宣伝費 など</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div><strong>利益 = 収益 − 費用</strong><br>この計算式が損益計算書（P/L）の基本構造です。当期純利益はB/Sの純資産（繰越利益剰余金）に加算されます。</div>
+    </div>
+  </div>
+
+  <!-- 5. 資産・負債・資本 -->
+  <div class="section">
+    <h3>資産・負債・資本とは</h3>
+    <p>資産・負債・純資産（資本）は、貸借対照表（B/S）を構成する3要素です。ある時点での会社の財政状態を示します。</p>
+    <table class="data-table">
+      <tr><th>要素</th><th>意味</th><th>主な具体例</th></tr>
+      <tr><td><strong>資産</strong></td><td>会社が保有する財産（プラスのもの）</td><td>現金・預金・売掛金・商品・建物・土地</td></tr>
+      <tr><td><strong>負債</strong></td><td>返済義務のある債務（マイナスのもの）</td><td>借入金・買掛金・未払金・未払費用・預り金</td></tr>
+      <tr><td><strong>純資産</strong></td><td>資産から負債を引いた正味財産</td><td>資本金・利益剰余金（繰越利益剰余金）</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div><strong>会計等式：資産 ＝ 負債 ＋ 純資産</strong><br>B/Sは必ずこの等式が成り立つ。左側（資産）＝右側（負債＋純資産）でバランスが取れる。</div>
+    </div>
+  </div>
+
+  <!-- 6. 会計の5要素 -->
+  <div class="section">
+    <h3>会計の5要素</h3>
+    <p>会計では、あらゆる取引を<strong>「資産・負債・純資産・収益・費用」の5つの要素</strong>に分類して記録します。すべての仕訳はこの5要素の増減で表現されます。</p>
+    <table class="data-table">
+      <tr><th>要素</th><th>対応する財務諸表</th><th>増加側（通常残高）</th></tr>
+      <tr><td>資産</td><td>貸借対照表（B/S）左側</td><td>借方（左）</td></tr>
+      <tr><td>負債</td><td>貸借対照表（B/S）右側</td><td>貸方（右）</td></tr>
+      <tr><td>純資産</td><td>貸借対照表（B/S）右側</td><td>貸方（右）</td></tr>
+      <tr><td>収益</td><td>損益計算書（P/L）右側</td><td>貸方（右）</td></tr>
+      <tr><td>費用</td><td>損益計算書（P/L）左側</td><td>借方（左）</td></tr>
+    </table>
+    <p>この5要素の分類が理解できると、仕訳の借方・貸方がどちらに来るかが判断できるようになります。</p>
+  </div>
+
+  <!-- 7. 勘定科目 -->
+  <div class="section">
+    <h3>勘定科目の必要性</h3>
+    <p>勘定科目とは、取引の内容を分類するための「名前のタグ」です。同じ「お金が出た」でも、その目的によって記録する科目が変わります。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🛒</div>
+        <h4>仕入高</h4>
+        <p>商品・製品を購入した費用。売上原価の計算に使う。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">👤</div>
+        <h4>給与手当</h4>
+        <p>従業員への給与。人件費として損益計算書に反映される。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏠</div>
+        <h4>地代家賃</h4>
+        <p>オフィス・倉庫などの賃料。経費として計上。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📣</div>
+        <h4>広告宣伝費</h4>
+        <p>広告・PR活動の費用。交際費と混同しないよう注意。</p>
+      </div>
+    </div>
+    <p>勘定科目を統一することで、月次・年次の比較や経営判断に使える数字が初めて意味を持ちます。会社ごとに科目体系が若干異なりますが、BPOスタッフはクライアントの科目体系に合わせて入力することが基本です。</p>
+  </div>
+
+  <!-- 8. 仕訳 -->
+  <div class="section">
+    <h3>仕訳のやり方・基本パターン</h3>
+    <p>仕訳とは、取引を5要素に分類し「借方（左）・貸方（右）」に記録することです。以下のルールで借方・貸方を判断します。</p>
+    <table class="data-table">
+      <tr><th>要素</th><th>増加するとき</th><th>減少するとき</th></tr>
+      <tr><td>資産</td><td>借方（左）に記入</td><td>貸方（右）に記入</td></tr>
+      <tr><td>負債</td><td>貸方（右）に記入</td><td>借方（左）に記入</td></tr>
+      <tr><td>純資産</td><td>貸方（右）に記入</td><td>借方（左）に記入</td></tr>
+      <tr><td>収益</td><td>貸方（右）に記入</td><td>借方（左）に記入</td></tr>
+      <tr><td>費用</td><td>借方（左）に記入</td><td>貸方（右）に記入</td></tr>
+    </table>
+    <p><strong>仕訳の例：</strong></p>
+    <table class="data-table">
+      <tr><th>取引内容</th><th>借方</th><th>貸方</th></tr>
+      <tr><td>売上50万円を現金で受け取った</td><td>現金 500,000</td><td>売上高 500,000</td></tr>
+      <tr><td>家賃10万円を普通預金から支払った</td><td>地代家賃 100,000</td><td>普通預金 100,000</td></tr>
+      <tr><td>商品20万円を仕入れ、代金は後払いとした</td><td>仕入高 200,000</td><td>買掛金 200,000</td></tr>
+      <tr><td>買掛金20万円を普通預金から振り込んだ</td><td>買掛金 200,000</td><td>普通預金 200,000</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div><strong>借方・貸方の覚え方</strong><br>「借方は左（かりかた←）、貸方は右（かしかた→）」。語呂合わせで覚えると定着しやすい。</div>
+    </div>
+  </div>
+
+  <!-- 9. P/LとB/Sの関係 -->
+  <div class="section">
+    <h3>損益計算書（P/L）と貸借対照表（B/S）の関係</h3>
+    <p>財務諸表の中で最も重要な2つが、P/Lと B/Sです。この2つはバラバラではなく、<strong>利益という橋でつながっています。</strong></p>
+    <table class="data-table">
+      <tr><th>財務諸表</th><th>英語名</th><th>示す内容</th><th>時間軸</th></tr>
+      <tr><td><strong>損益計算書</strong></td><td>P/L（Profit &amp; Loss）</td><td>収益・費用・利益（儲けの流れ）</td><td>一定期間（1年間など）</td></tr>
+      <tr><td><strong>貸借対照表</strong></td><td>B/S（Balance Sheet）</td><td>資産・負債・純資産（財産の状態）</td><td>ある時点（期末など）</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">🔗</span>
+      <div>
+        <strong>2つをつなぐ「当期純利益」</strong><br>
+        P/Lで計算された当期純利益は、B/Sの純資産（繰越利益剰余金）に加算される。
+        つまり「今期どれだけ儲けたか（P/L）」が「会社の正味財産がいくら増えたか（B/S）」に直結する。
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. 発生主義と現金主義 -->
+  <div class="section">
+    <h3>発生主義と現金主義</h3>
+    <p>収益・費用をいつ記録するかには2つの考え方があります。法人の経理では<strong>発生主義</strong>が原則です。</p>
+    <table class="data-table">
+      <tr><th>考え方</th><th>記録のタイミング</th><th>特徴</th></tr>
+      <tr><td><strong>現金主義</strong></td><td>現金が実際に動いた時点</td><td>シンプルだが、期間損益が正確に把握できない</td></tr>
+      <tr><td><strong>発生主義</strong></td><td>経済的事実が発生した時点</td><td>法人の基本原則。正確な期間損益が把握できる</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>発生主義の具体例</strong><br>
+        6月2日に35万円の仕入を行い、代金は後日振込で支払うこととした。
+        この場合、費用（仕入）が計上されるのは<strong>現金が動く支払日ではなく、仕入が発生した6月2日</strong>。
+        7月10日に振り込んだ際は「買掛金（負債）が減少した」として処理する。
+      </div>
+    </div>
+    <p>発生主義を正確に適用するために、期末には「前払費用（まだサービスを受けていない分）」「未払費用（サービスを受けたがまだ支払っていない分）」などの調整処理（決算整理）が必要になります。</p>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_2_0"> 複式簿記とは何かを説明できる（借方・貸方の意味）</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_1"> 主要簿と補助簿の違いと種類を言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_2"> 会計上の「取引」と日常の「取引」の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_3"> 収益と費用の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_4"> 会計等式（資産＝負債＋純資産）を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_5"> 会計の5要素と借方・貸方の対応を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_6"> 簡単な仕訳（売上・仕入・支払）を書ける</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_7"> P/LとB/Sの違いと「当期純利益」でつながる関係を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_8"> 発生主義と現金主義の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_2_9"> 発生主義の具体例（仕入→買掛金→振込の流れ）を説明できる</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch3">
+  <div class="chapter-header">
+    <div class="chapter-num">III</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Daily Transactions</div>
+      <h2>日常取引の事務の流れ</h2>
+    </div>
+  </div>
+
+  <!-- 1. 売上処理の流れ -->
+  <div class="section">
+    <h3>売上処理の流れ（受注→請求→入金→消込）</h3>
+    <p>売上に関する事務は、取引の発生から代金回収まで一連の流れで管理します。どこかで止まると「入金されたのに帳簿に残っている」「請求を忘れていた」といったミスにつながります。</p>
+    <table class="data-table">
+      <tr><th>ステップ</th><th>内容</th><th>経理上の処理</th></tr>
+      <tr><td>① 受注・納品</td><td>商品・サービスを提供</td><td>売上高を計上（発生主義）</td></tr>
+      <tr><td>② 請求書発行</td><td>相手先に請求書を送付</td><td>売掛金として計上</td></tr>
+      <tr><td>③ 入金確認</td><td>銀行口座への入金を確認</td><td>預金の増加を確認</td></tr>
+      <tr><td>④ 消込</td><td>売掛金台帳と入金を照合・消し込む</td><td>売掛金を消去、預金に振替</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>「回収サイト」とは</strong><br>
+        請求書を発行してから実際に入金されるまでの期間のこと。「月末締め翌月末払い」なら、5月末に請求した分は6月末に入金される。売掛金の残高が膨らんでいないか、期日通りに回収されているかを定期的にチェックすることが重要。
+      </div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>インボイス制度（2023年10月〜）</strong><br>
+        消費税の仕入税額控除を受けるには、適格請求書（インボイス）が必要。請求書には登録番号・税率・消費税額の記載が必須。BPOスタッフは請求書受領時にインボイス要件を満たしているかチェックする場面が増えている。
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 仕入・支払の流れ -->
+  <div class="section">
+    <h3>仕入・経費支払いの流れ（発注→受領→支払→消込）</h3>
+    <p>仕入・外注費・諸経費の支払いは、発注から支払完了まで書類の照合が重要です。特に3つの書類が一致しているかの確認（スリーウェイマッチング）はミス防止の基本です。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <h4>① 発注書</h4>
+        <p>会社が発注した内容・金額・納期が記載された書類。「何を頼んだか」の証拠。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <h4>② 納品書（検収書）</h4>
+        <p>実際に届いた・サービス提供を受けた証拠。発注内容と一致しているかを確認。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧾</div>
+        <h4>③ 請求書</h4>
+        <p>仕入先から届く請求金額の書類。①②と金額・内容が一致しているか照合する。</p>
+      </div>
+    </div>
+    <p>3つが一致したら、支払予定表に登録→承認→振込の流れで処理します。振込完了後、買掛金台帳を消込みます。</p>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>仕訳のタイミング</strong><br>
+        仕入計上は「納品された時点（発生主義）」。支払は「振込した時点」。
+        つまり納品時に「仕入高 / 買掛金」→振込時に「買掛金 / 普通預金」という2段階の仕訳が発生する。
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 経費精算 -->
+  <div class="section">
+    <h3>経費精算の手順</h3>
+    <p>従業員が業務上の費用を立て替えた場合、精算手続きを経て会社が返金します。承認なしに支払うと不正リスクが高まるため、必ず承認フローを経ることが重要です。</p>
+    <table class="data-table">
+      <tr><th>ステップ</th><th>内容</th></tr>
+      <tr><td>① 立替・領収書保管</td><td>業務上の支出を立替え、領収書を保管する</td></tr>
+      <tr><td>② 申請</td><td>経費精算フォーム（または申請システム）に記入・証憑を添付して申請</td></tr>
+      <tr><td>③ 上長承認</td><td>業務関連性・金額の妥当性をチェックして承認</td></tr>
+      <tr><td>④ 経理処理・振込</td><td>精算内容を確認・仕訳入力し、給与振込日や別途指定日に本人口座へ振込</td></tr>
+    </table>
+    <div class="two-col">
+      <div class="col-box col-ok">
+        <h4>✅ 経費として認められるもの（例）</h4>
+        <ul>
+          <li>出張旅費・交通費（業務目的）</li>
+          <li>取引先との飲食（交際費）</li>
+          <li>書籍・研修費（業務関連）</li>
+          <li>消耗品・事務用品</li>
+          <li>通信費・インターネット費用（業務分）</li>
+        </ul>
+      </div>
+      <div class="col-box col-ng">
+        <h4>❌ 注意が必要なもの</h4>
+        <ul>
+          <li>プライベートの飲食・旅行</li>
+          <li>接待交際費の過剰計上（法人税上の損金算入制限あり）</li>
+          <li>領収書なし・宛名が空白</li>
+          <li>業務との関連性が不明な支出</li>
+          <li>役員への過大な報酬・贈答品</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>交際費の税務上の扱い</strong><br>
+        接待飲食費は1人あたり5,000円以下なら会議費・交際費の区分が重要。中小企業は年800万円まで損金算入可（法人税上の特別ルール）。飲食費は人数・相手先・目的を記録しておく必要がある。
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 現金・小口現金 -->
+  <div class="section">
+    <h3>現金・小口現金の管理</h3>
+    <p>現金は紛失・横領リスクが高く、帳簿と実際の現金が一致しているか定期的に確認することが重要です。多くの会社では「小口現金制度」を設けて少額の日常経費に対応しています。</p>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>インプレスト・システム（定額補充法）</strong><br>
+        小口現金を一定額（例：3万円）に常に維持する仕組み。月末などに使用分を集計し、同額を補充する。管理がシンプルで、手元現金の上限が決まるため管理リスクが低い。
+      </div>
+    </div>
+    <table class="data-table">
+      <tr><th>処理</th><th>仕訳</th></tr>
+      <tr><td>小口現金を補充（3万円）</td><td>小口現金 30,000 ／ 当座預金 30,000</td></tr>
+      <tr><td>消耗品800円を小口現金で支払</td><td>消耗品費 800 ／ 小口現金 800</td></tr>
+      <tr><td>現金過不足が発生（帳簿より500円不足）</td><td>現金過不足 500 ／ 現金 500</td></tr>
+      <tr><td>期末に原因不明のまま決算（不足）</td><td>雑損失 500 ／ 現金過不足 500</td></tr>
+    </table>
+  </div>
+
+  <!-- 5. 銀行口座管理 -->
+  <div class="section">
+    <h3>銀行口座の管理・通帳照合</h3>
+    <p>月末に帳簿の「普通預金残高」と銀行の「口座残高」を照合する作業を<strong>銀行勘定調整</strong>といいます。両者が一致しない場合は、タイムラグか入力ミスが原因です。</p>
+    <table class="data-table">
+      <tr><th>不一致の原因</th><th>内容</th></tr>
+      <tr><td>未取付小切手</td><td>振り出したが、まだ銀行に呈示されていない小切手</td></tr>
+      <tr><td>未渡し小切手</td><td>振り出したが、まだ相手に渡していない小切手（帳簿修正が必要）</td></tr>
+      <tr><td>未取立小切手</td><td>受け取ったが、まだ銀行に持ち込んでいない小切手</td></tr>
+      <tr><td>入金の帳簿未記入</td><td>銀行には入金されているが、帳簿への入力が漏れている</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>残高証明書</strong><br>
+        決算期末には、銀行に「残高証明書」を請求して帳簿残高との一致を確認する。監査・税務調査でも証拠資料として求められる重要書類。
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 証憑管理・電子帳簿保存法 -->
+  <div class="section">
+    <h3>証憑書類の管理・電子帳簿保存法</h3>
+    <p>証憑（しょうひょう）とは、取引の証拠となる書類のことです。領収書・請求書・契約書・納品書などが該当します。税務調査時に提出できる状態で保管することが義務付けられています。</p>
+    <table class="data-table">
+      <tr><th>書類の種類</th><th>保存期間（法人）</th></tr>
+      <tr><td>帳簿（仕訳帳・総勘定元帳など）</td><td>7年（欠損金がある場合10年）</td></tr>
+      <tr><td>決算書類（貸借対照表・損益計算書）</td><td>7年（同上）</td></tr>
+      <tr><td>証憑書類（領収書・請求書・契約書）</td><td>7年（同上）</td></tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>電子帳簿保存法（2024年1月〜完全義務化）</strong><br>
+        電子取引（メール・Web受領の請求書など）は<strong>電子データのまま保存することが義務</strong>（印刷して紙保存は原則不可）。検索できる形式での保存が求められる。BPOでは受領した電子請求書をそのままシステムに取り込む運用が主流。
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. 月次締め作業 -->
+  <div class="section">
+    <h3>月次締め作業の流れ</h3>
+    <p>月末（または翌月初）に行う一連の締め作業は、翌月の経営判断に使える数字を確定させるために欠かせません。BPOスタッフが担う補助作業も多くあります。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">✅</div>
+        <h4>① 仕訳入力の確認</h4>
+        <p>当月の全取引が会計ソフトに入力されているかチェック。未入力の請求書・領収書がないか確認。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏦</div>
+        <h4>② 銀行・現金の照合</h4>
+        <p>帳簿残高と通帳・現金の実残を照合。差異があれば原因を特定して修正。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📤</div>
+        <h4>③ 売掛金・買掛金の確認</h4>
+        <p>未回収・未払いの残高を確認。期日超過のものは担当者に連絡・催促。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h4>④ 仮払金・仮受金の整理</h4>
+        <p>一時的に計上した仮払金・仮受金を正しい科目に振り替えて残高をゼロにする。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h4>⑤ 試算表の確認</h4>
+        <p>月次試算表を出力。前月比・前年同月比に大きな異常がないか概要確認。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📁</div>
+        <h4>⑥ 証憑のファイリング</h4>
+        <p>当月の領収書・請求書・振込明細を種類別・日付順に整理してファイリング。</p>
+      </div>
+    </div>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_3_0"> 売上処理の4ステップ（受注→請求→入金→消込）を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_3_1"> 3way matchingとは何か・なぜ必要かを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_3_2"> 経費精算の承認フローと、経費として認められないものの例を言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_3_3"> インプレスト・システムの仕組みを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_3_4"> 銀行勘定調整が必要な理由と、不一致の主な原因を2つ言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_3_5"> 電子帳簿保存法で何が義務になったかを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_3_6"> 月次締め作業の主な手順を4つ以上挙げられる</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch4">
+  <div class="chapter-header">
+    <div class="chapter-num">IV</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Trial Balance &amp; Closing</div>
+      <h2>試算表・決算</h2>
+    </div>
+  </div>
+
+  <!-- 1. 試算表 -->
+  <div class="section">
+    <h3>試算表とは何か</h3>
+    <p>試算表とは、総勘定元帳のすべての勘定科目の借方・貸方の合計または残高を一覧にした表です。決算書を作る前の「中間チェックリスト」として機能します。</p>
+    <table class="data-table">
+      <tr><th>種類</th><th>記載内容</th><th>特徴</th></tr>
+      <tr><td><strong>合計試算表</strong></td><td>各科目の借方・貸方の合計金額</td><td>仕訳の入力漏れチェックに有効</td></tr>
+      <tr><td><strong>残高試算表</strong></td><td>各科目の借方・貸方の差額（残高）</td><td>B/S・P/Lに近い形。月次管理に使う</td></tr>
+      <tr><td><strong>合計残高試算表</strong></td><td>上記2つを合わせた形式</td><td>最も詳細。決算書作成の直接の元になる</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>試算表で何をチェックするか</strong><br>
+        ①借方合計＝貸方合計（バランスが取れているか）②残高がマイナスになっていないか（入力ミスのサイン）③前月比で大きく変動している科目がないか——の3点が基本的なチェックポイント。
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 決算整理 -->
+  <div class="section">
+    <h3>決算整理仕訳</h3>
+    <p>期中の仕訳だけでは正確な利益・財産状態が把握できません。期末（決算期末）に追加で行う仕訳を<strong>決算整理仕訳</strong>といいます。これを行って初めて正しい決算書が完成します。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📉</div>
+        <h4>減価償却</h4>
+        <p>固定資産の価値の目減りを費用として計上。「減価償却費 ／ 減価償却累計額（または資産勘定）」で仕訳。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📅</div>
+        <h4>前払費用・未払費用</h4>
+        <p>前払費用：来期分を今期に支払った費用を資産へ振替。未払費用：今期分でまだ支払っていない費用を計上。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <h4>棚卸資産の評価</h4>
+        <p>期末に残っている商品（在庫）の数量・金額を確定させる。売上原価＝期首棚卸＋当期仕入－期末棚卸で計算。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💳</div>
+        <h4>貸倒引当金</h4>
+        <p>回収できなくなりそうな売掛金に備えて費用を見積もり計上。「貸倒引当金繰入 ／ 貸倒引当金」で仕訳。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧾</div>
+        <h4>法人税等の計上</h4>
+        <p>当期の税引前利益に基づき法人税・法人住民税・法人事業税を概算計上。「法人税等 ／ 未払法人税等」で仕訳。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h4>仮払金・仮受金の精算</h4>
+        <p>期中に一時計上した仮払金・仮受金を正しい科目に振り替えて残高をゼロにする。</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>BPOスタッフの役割</strong><br>
+        決算整理仕訳の「判断・確定」は税理士またはクライアント経理担当者が行います。BPOスタッフは資料収集（固定資産台帳・棚卸表・未払リストの整理など）の補助を担います。
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 財務諸表の種類 -->
+  <div class="section">
+    <h3>財務諸表の種類と構成</h3>
+    <p>決算が完了すると「財務諸表」が完成します。会社の会計情報を外部に開示するための書類セットです。法人が作成義務を持つ主な書類は以下のとおりです。</p>
+    <table class="data-table">
+      <tr><th>書類名</th><th>英略称</th><th>内容</th></tr>
+      <tr><td><strong>貸借対照表</strong></td><td>B/S</td><td>期末時点の資産・負債・純資産の残高。会社の財政状態を示す。</td></tr>
+      <tr><td><strong>損益計算書</strong></td><td>P/L</td><td>期間中の収益・費用・利益の流れ。儲けの結果を示す。</td></tr>
+      <tr><td><strong>株主資本等変動計算書</strong></td><td>S/S</td><td>期中の純資産の変動を示す。増資・配当・当期純利益の反映など。</td></tr>
+      <tr><td><strong>キャッシュフロー計算書</strong></td><td>C/F</td><td>現金の増減とその原因（営業・投資・財務の3区分）を示す。</td></tr>
+      <tr><td><strong>個別注記表</strong></td><td>—</td><td>財務諸表の補足説明。会計方針・偶発債務など重要事項を記載。</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>中小企業はすべて必要？</strong><br>
+        会社法上、大会社（資本金5億円以上または負債200億円以上）はキャッシュフロー計算書の作成義務がある。中小企業はB/S・P/L・株主資本等変動計算書・個別注記表の4つが基本。ただし銀行融資審査ではC/Fの提出を求められることも多い。
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 決算スケジュール -->
+  <div class="section">
+    <h3>決算の流れ・スケジュール</h3>
+    <p>決算は「期末日（例：3月31日）」からさかのぼって準備が必要です。一般的な3月決算の法人を例に、決算のスケジュールを確認します。</p>
+    <table class="data-table">
+      <tr><th>時期</th><th>作業内容</th></tr>
+      <tr><td>3月初〜中旬</td><td>棚卸計画・固定資産確認・未払リスト作成</td></tr>
+      <tr><td>3月31日</td><td>期末棚卸実施・仮払金仮受金の精算</td></tr>
+      <tr><td>4月上〜中旬</td><td>決算整理仕訳入力・試算表の最終確認</td></tr>
+      <tr><td>4月下旬〜5月</td><td>税理士による申告書作成・チェック</td></tr>
+      <tr><td>5月31日まで</td><td>法人税・消費税の申告・納付（決算日から2ヶ月以内）</td></tr>
+      <tr><td>6月</td><td>株主総会・決算書の確定・公告</td></tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>申告期限の延長</strong><br>
+        会計監査が必要な大会社など、2ヶ月では間に合わない場合は「申告期限の延長申請」を行うことができる。延長できるのは法人税・消費税など。固定資産税（市区町村）など地方税は延長対象外の場合がある。
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 月次決算と年次決算 -->
+  <div class="section">
+    <h3>月次決算と年次決算の違い</h3>
+    <p>決算には1年に一度の「年次決算（本決算）」と、毎月行う「月次決算」があります。BPOスタッフが日常的に関わるのは月次決算の補助作業です。</p>
+    <div class="two-col">
+      <div class="col-box" style="border-top:3px solid #2a5298">
+        <h4 style="color:#2a5298">📅 月次決算</h4>
+        <ul>
+          <li>毎月行う簡易版の決算</li>
+          <li>目的：当月の業績を早期に把握し経営判断に活用</li>
+          <li>確定ではなく「暫定値」として扱う</li>
+          <li>締め日は翌月10日前後が多い</li>
+          <li>減価償却など一部を月割で計上する場合がある</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid var(--gold)">
+        <h4 style="color:var(--gold)">📊 年次決算（本決算）</h4>
+        <ul>
+          <li>事業年度終了後に行う正式な決算</li>
+          <li>目的：公式な財務諸表の作成・税務申告</li>
+          <li>税理士・会計士が関与することが多い</li>
+          <li>監査対象法人は外部監査が必要</li>
+          <li>法的な申告義務と納税義務が発生</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_4_0"> 合計試算表・残高試算表・合計残高試算表の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_4_1"> 決算整理仕訳が必要な理由と、主な項目を3つ以上挙げられる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_4_2"> B/S・P/L・C/Fそれぞれが何を示す書類かを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_4_3"> 3月決算の法人の申告期限がいつかを言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_4_4"> 月次決算と年次決算の目的の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_4_5"> BPOスタッフが決算時に担う補助作業の具体例を2つ以上言える</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch5">
+  <div class="chapter-header">
+    <div class="chapter-num">V</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Accounts &amp; Journals</div>
+      <h2>勘定科目・仕訳の実務</h2>
+    </div>
+  </div>
+
+  <!-- 1. 勘定科目の体系 -->
+  <div class="section">
+    <h3>勘定科目の体系（B/S科目とP/L科目）</h3>
+    <p>勘定科目は「どの財務諸表に載るか」によって大きく2つに分かれます。この分類を理解すると、仕訳で使う科目が借方・貸方どちらに来るかが自然に判断できるようになります。</p>
+    <table class="data-table">
+      <tr><th>分類</th><th>対応表</th><th>性質</th><th>主な科目</th></tr>
+      <tr><td><strong>資産科目</strong></td><td rowspan="3">B/S科目</td><td>残高が繰り越される</td><td>現金・預金・売掛金・建物・土地</td></tr>
+      <tr><td><strong>負債科目</strong></td><td>残高が繰り越される</td><td>買掛金・借入金・未払金・預り金</td></tr>
+      <tr><td><strong>純資産科目</strong></td><td>残高が繰り越される</td><td>資本金・繰越利益剰余金</td></tr>
+      <tr><td><strong>収益科目</strong></td><td rowspan="2">P/L科目</td><td>決算でゼロリセット</td><td>売上高・受取利息・雑収入</td></tr>
+      <tr><td><strong>費用科目</strong></td><td>決算でゼロリセット</td><td>仕入・給与手当・地代家賃・減価償却費</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>「ゼロリセット」とは</strong><br>
+        収益・費用科目は1年間の損益を計算するためのもの。決算時に利益（収益−費用）を計算してB/Sの純資産に反映し、P/L科目の残高は翌期にはゼロから始まる。B/S科目の残高は翌期にそのまま引き継がれる（繰越）。
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. よく使う資産・負債科目 -->
+  <div class="section">
+    <h3>よく使う資産・負債科目</h3>
+    <p>BPOの仕訳入力でよく登場する科目を整理します。名前と性質（B/S上の位置づけ）を合わせて覚えることが重要です。</p>
+    <table class="data-table">
+      <tr><th>科目名</th><th>分類</th><th>内容・使うシーン</th></tr>
+      <tr><td>現金</td><td>流動資産</td><td>手元現金。小口現金もここに含む</td></tr>
+      <tr><td>普通預金・当座預金</td><td>流動資産</td><td>銀行口座残高。口座ごとに科目を分けることが多い</td></tr>
+      <tr><td>売掛金</td><td>流動資産</td><td>商品・サービスを提供したがまだ代金を受け取っていない</td></tr>
+      <tr><td>未収入金</td><td>流動資産</td><td>主たる営業活動以外で発生した未収金（固定資産売却代金など）</td></tr>
+      <tr><td>前払費用</td><td>流動資産</td><td>来期以降に対応する費用を今期に支払った（保険料の年払いなど）</td></tr>
+      <tr><td>仮払金</td><td>流動資産</td><td>出張旅費など、内容・金額が確定していない仮の支払い</td></tr>
+      <tr><td>買掛金</td><td>流動負債</td><td>商品・サービスを受けたがまだ代金を支払っていない</td></tr>
+      <tr><td>未払金</td><td>流動負債</td><td>買掛金以外の未払い（固定資産購入代金・広告費など）</td></tr>
+      <tr><td>未払費用</td><td>流動負債</td><td>すでに費用が発生しているがまだ支払っていない（月末の未払給与など）</td></tr>
+      <tr><td>前受金</td><td>流動負債</td><td>サービス提供前に代金を受け取った（手付金・前払い予約など）</td></tr>
+      <tr><td>預り金</td><td>流動負債</td><td>従業員の源泉所得税・社会保険料など、代わりに預かっている金額</td></tr>
+      <tr><td>仮受金</td><td>流動負債</td><td>内容不明の入金を一時的に計上する科目</td></tr>
+    </table>
+  </div>
+
+  <!-- 3. よく使う収益・費用科目 -->
+  <div class="section">
+    <h3>よく使う収益・費用科目</h3>
+    <table class="data-table">
+      <tr><th>科目名</th><th>分類</th><th>内容・使うシーン</th></tr>
+      <tr><td>売上高</td><td>収益</td><td>主たる営業活動による収益</td></tr>
+      <tr><td>受取利息</td><td>収益（営業外）</td><td>預金・貸付金から受け取る利息</td></tr>
+      <tr><td>雑収入</td><td>収益（特別）</td><td>少額・不規則な収益（廃材売却益など）</td></tr>
+      <tr><td>仕入高</td><td>費用（売上原価）</td><td>商品・原材料の仕入れ費用</td></tr>
+      <tr><td>給与手当</td><td>費用（販管費）</td><td>従業員への給与・各種手当</td></tr>
+      <tr><td>法定福利費</td><td>費用（販管費）</td><td>会社負担の社会保険料（健康保険・厚生年金など）</td></tr>
+      <tr><td>地代家賃</td><td>費用（販管費）</td><td>オフィス・倉庫・駐車場の賃料</td></tr>
+      <tr><td>通信費</td><td>費用（販管費）</td><td>電話・インターネット・郵便費用</td></tr>
+      <tr><td>消耗品費</td><td>費用（販管費）</td><td>文具・コピー用紙など使い切りの事務用品（10万円未満）</td></tr>
+      <tr><td>減価償却費</td><td>費用（販管費）</td><td>固定資産の価値減少分を費用化したもの</td></tr>
+      <tr><td>支払利息</td><td>費用（営業外）</td><td>借入金に対して支払う利息</td></tr>
+    </table>
+  </div>
+
+  <!-- 4. 間違えやすい科目の使い分け -->
+  <div class="section">
+    <h3>間違えやすい科目の使い分け</h3>
+    <p>実務で迷いやすい科目の使い分けをまとめます。似た名前でも税務上の取り扱いが異なるものがあるため、区別を正確に覚えることが重要です。</p>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>交際費 vs 会議費</strong><br>
+        飲食費は「1人あたり5,000円超」なら交際費、「5,000円以下で、かつ会議・商談目的」なら会議費に分類できる（令和6年度改正で1万円に引き上げ予定）。交際費は損金算入に上限があるが、会議費は全額損金算入できる。領収書に参加人数・相手先・目的を必ず記録する。
+      </div>
+    </div>
+    <table class="data-table">
+      <tr><th>区分</th><th>A</th><th>B</th><th>見分け方</th></tr>
+      <tr><td>消耗品費 vs 備品（資産）</td><td>消耗品費：10万円未満の物品</td><td>備品（資産）：10万円以上で耐用年数1年以上</td><td>取得価額が10万円未満かどうか</td></tr>
+      <tr><td>修繕費 vs 資本的支出</td><td>修繕費：原状回復・維持管理（全額費用）</td><td>資本的支出：機能向上・寿命延長（資産に加算）</td><td>20万円未満は修繕費が原則。それ以上は実態判断</td></tr>
+      <tr><td>売掛金 vs 未収入金</td><td>売掛金：主たる事業の未収代金</td><td>未収入金：それ以外の未収（固定資産売却など）</td><td>通常の売上から発生しているかどうか</td></tr>
+      <tr><td>未払金 vs 未払費用</td><td>未払金：代金が確定しているがまだ未払い</td><td>未払費用：サービスは受けたが金額未確定・未請求</td><td>請求書が届いているかどうか</td></tr>
+      <tr><td>前払費用 vs 前払金</td><td>前払費用：継続サービスの先払い（保険料・家賃）</td><td>前払金：商品・資産の手付金・内金</td><td>継続するサービスへの先払いかどうか</td></tr>
+    </table>
+  </div>
+
+  <!-- 5. 複合仕訳 -->
+  <div class="section">
+    <h3>複合仕訳（3つ以上の科目が絡む仕訳）</h3>
+    <p>実務では1つの取引に複数の科目が絡む「複合仕訳」が頻繁に登場します。借方合計と貸方合計が一致することを確認しながら記録します。</p>
+    <table class="data-table">
+      <tr><th>取引内容</th><th>借方</th><th>貸方</th></tr>
+      <tr>
+        <td>給与50万円を支給。源泉所得税2万円・健康保険料1.5万円を控除し、残額を振込</td>
+        <td>給与手当 500,000</td>
+        <td>預り金（源泉）20,000<br>預り金（社保）15,000<br>普通預金 465,000</td>
+      </tr>
+      <tr>
+        <td>出張費を概算3万円で仮払い</td>
+        <td>仮払金 30,000</td>
+        <td>現金 30,000</td>
+      </tr>
+      <tr>
+        <td>帰社後、実費2.8万円と精算。残額2,000円を返金</td>
+        <td>旅費交通費 28,000<br>現金 2,000</td>
+        <td>仮払金 30,000</td>
+      </tr>
+      <tr>
+        <td>備品50万円を購入。30万円は現金払い、残りは翌月払い</td>
+        <td>備品 500,000</td>
+        <td>現金 300,000<br>未払金 200,000</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 6. よく出る実務仕訳パターン -->
+  <div class="section">
+    <h3>よく出る実務仕訳パターン集</h3>
+    <p>BPOの日常業務で頻繁に登場する仕訳をカテゴリ別に整理します。</p>
+    <table class="data-table">
+      <tr><th>シーン</th><th>借方</th><th>貸方</th></tr>
+      <tr><td>売上の計上（掛け）</td><td>売掛金</td><td>売上高</td></tr>
+      <tr><td>売掛金の回収</td><td>普通預金</td><td>売掛金</td></tr>
+      <tr><td>仕入の計上（掛け）</td><td>仕入高</td><td>買掛金</td></tr>
+      <tr><td>買掛金の支払い</td><td>買掛金</td><td>普通預金</td></tr>
+      <tr><td>家賃の支払い</td><td>地代家賃</td><td>普通預金</td></tr>
+      <tr><td>源泉所得税の納付</td><td>預り金（源泉）</td><td>普通預金</td></tr>
+      <tr><td>法人税の中間申告・納付</td><td>仮払法人税等</td><td>普通預金</td></tr>
+      <tr><td>不明入金を一時計上</td><td>普通預金</td><td>仮受金</td></tr>
+      <tr><td>仮受金の内容が判明（売掛金の回収）</td><td>仮受金</td><td>売掛金</td></tr>
+    </table>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_5_0"> B/S科目とP/L科目の違いを「ゼロリセット」の観点で説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_5_1"> 仮払金・仮受金がなぜ使われるか・最終的にどう処理するかを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_5_2"> 交際費と会議費の使い分け基準を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_5_3"> 消耗品費と備品（資産）の判断基準を言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_5_4"> 修繕費と資本的支出の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_5_5"> 給与支払い時の複合仕訳（預り金を含む）を書ける</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch6">
+  <div class="chapter-header">
+    <div class="chapter-num">VI</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Fixed Assets</div>
+      <h2>固定資産・減価償却</h2>
+    </div>
+  </div>
+
+  <!-- 1. 固定資産とは -->
+  <div class="section">
+    <h3>固定資産とは何か</h3>
+    <p>固定資産とは、1年を超えて使用する目的で保有する資産のことです。短期間で使い切る消耗品や商品とは異なり、長期にわたって会社の事業活動に貢献します。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🏢</div>
+        <h4>有形固定資産</h4>
+        <p>実体のある固定資産。建物・機械装置・車両運搬具・工具器具備品・土地など。土地以外は減価償却の対象。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">💻</div>
+        <h4>無形固定資産</h4>
+        <p>形のない固定資産。ソフトウェア・特許権・商標権・のれんなど。こちらも原則として償却対象。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📈</div>
+        <h4>投資その他の資産</h4>
+        <p>長期保有目的の株式・債券・長期前払費用・差入保証金（敷金）など。通常は事業に直接使用しない。</p>
+      </div>
+    </div>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>「固定資産」の判断基準</strong><br>
+        ①取得価額が10万円以上（10万円未満は消耗品費で全額費用処理可）②耐用年数が1年以上——の両方を満たすものが固定資産。なお20万円未満は「一括償却資産」として3年均等償却する特例も使える。
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 取得・資本的支出 -->
+  <div class="section">
+    <h3>固定資産の取得と「資本的支出」</h3>
+    <p>固定資産を新たに取得したときは、取得価額で資産に計上します。既存の固定資産に対して支出した場合は「修繕費（費用）」か「資本的支出（資産に加算）」かを判断する必要があります。</p>
+    <table class="data-table">
+      <tr><th>区分</th><th>判断基準</th><th>会計処理</th></tr>
+      <tr><td><strong>修繕費</strong></td><td>原状回復・維持管理が目的<br>（例：エアコンの修理、外壁の塗り直し）</td><td>全額を当期費用として計上</td></tr>
+      <tr><td><strong>資本的支出</strong></td><td>機能向上・耐用年数延長が目的<br>（例：設備の増強、フロアの増築）</td><td>固定資産の取得価額に加算して減価償却</td></tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>判断の難しいケース</strong><br>
+        1つの工事で修繕と改良が混在する場合、合理的に区分する。区分困難なときは「支出額の30%または60万円のいずれか少ない金額」を修繕費とみなす「形式基準」も活用できる（税務上の規定）。
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 減価償却の仕組み -->
+  <div class="section">
+    <h3>減価償却の仕組み（定額法・定率法）</h3>
+    <p>固定資産は時間とともに価値が減っていきます。この価値の目減りを毎年費用として計上する手続きが<strong>減価償却</strong>です。土地・美術品など価値が減らないものは償却しません。</p>
+    <table class="data-table">
+      <tr><th>方法</th><th>計算式</th><th>特徴</th></tr>
+      <tr>
+        <td><strong>定額法</strong></td>
+        <td>取得価額 × 定額法償却率<br>（償却率 = 1 ÷ 耐用年数）</td>
+        <td>毎年同額を費用化。管理が簡単。建物・ソフトウェアなど</td>
+      </tr>
+      <tr>
+        <td><strong>定率法</strong></td>
+        <td>未償却残高 × 定率法償却率</td>
+        <td>初年度ほど償却額が大きく、年々逓減。機械・車両など</td>
+      </tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>定額法の計算例</strong><br>
+        取得価額200万円・耐用年数5年のPCを定額法で償却する場合：<br>
+        償却率 = 1 ÷ 5 = 0.2　→　毎年 200万円 × 0.2 = <strong>40万円</strong>を5年間費用計上。<br>
+        5年後の帳簿価額は1円（備忘価額）。
+      </div>
+    </div>
+    <table class="data-table">
+      <tr><th>主な資産の法定耐用年数</th><th>耐用年数</th><th>法人の原則償却方法</th></tr>
+      <tr><td>建物（鉄筋コンクリート）</td><td>50年</td><td>定額法</td></tr>
+      <tr><td>建物（木造）</td><td>22年</td><td>定額法</td></tr>
+      <tr><td>車両（乗用車）</td><td>6年</td><td>定率法</td></tr>
+      <tr><td>工具器具備品（PC・サーバー）</td><td>4年</td><td>定率法</td></tr>
+      <tr><td>ソフトウェア（自社利用）</td><td>5年</td><td>定額法</td></tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>2007年の税制改正に注意</strong><br>
+        2007年4月以降に取得した資産は旧定率法・旧定額法ではなく「新定率法（250%→200%定率法）」が適用される。また建物は2016年4月以降取得分は定額法のみ（定率法が廃止）。取得時期によって適用ルールが異なる。
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 固定資産台帳 -->
+  <div class="section">
+    <h3>固定資産台帳の管理</h3>
+    <p>固定資産台帳は、会社が保有するすべての固定資産を一覧管理する補助簿です。減価償却の計算・税務申告・保険の見直しなど、多くの場面で参照される重要書類です。</p>
+    <table class="data-table">
+      <tr><th>台帳に記録する主な項目</th><th>内容・用途</th></tr>
+      <tr><td>資産名・種類</td><td>「PC（Dell XPS）」「本社ビル」など固有の識別</td></tr>
+      <tr><td>取得日・取得価額</td><td>減価償却計算の起点。インボイスと紐付けて保管</td></tr>
+      <tr><td>耐用年数・償却方法</td><td>法定耐用年数に基づく。定額法か定率法かを記録</td></tr>
+      <tr><td>期首帳簿価額</td><td>前期末の残高。当期償却額を差し引いて期末価額を算出</td></tr>
+      <tr><td>当期償却額</td><td>今期に費用計上する金額</td></tr>
+      <tr><td>期末帳簿価額</td><td>期首帳簿価額 − 当期償却額</td></tr>
+      <tr><td>除却・売却日</td><td>資産がなくなった日。台帳から削除・除却損の計算に使用</td></tr>
+    </table>
+  </div>
+
+  <!-- 5. 除却・売却 -->
+  <div class="section">
+    <h3>固定資産の除却・売却時の処理</h3>
+    <p>固定資産を廃棄・売却した場合は、帳簿から取り除く（除去する）処理が必要です。帳簿価額と売却価額の差が「固定資産売却損益」になります。</p>
+    <table class="data-table">
+      <tr><th>取引内容</th><th>借方</th><th>貸方</th></tr>
+      <tr>
+        <td>帳簿価額30万円の備品を廃棄（除却）</td>
+        <td>固定資産除却損 300,000</td>
+        <td>備品 300,000</td>
+      </tr>
+      <tr>
+        <td>帳簿価額30万円の備品を50万円で売却（現金）</td>
+        <td>現金 500,000</td>
+        <td>備品 300,000<br>固定資産売却益 200,000</td>
+      </tr>
+      <tr>
+        <td>帳簿価額30万円の備品を15万円で売却（現金）</td>
+        <td>現金 150,000<br>固定資産売却損 150,000</td>
+        <td>備品 300,000</td>
+      </tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>減価償却累計額を使っている場合（間接法）</strong><br>
+        間接法で記帳している場合、除却・売却時には「備品」と「減価償却累計額」の両方を相殺して帳簿価額を求める。例：取得200万円・累計170万円の備品の帳簿価額は30万円。仕訳では「減価償却累計額1,700,000 / 備品2,000,000」のように両方を貸方・借方に立てる。
+      </div>
+    </div>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_6_0"> 有形・無形・投資その他の固定資産の違いと例を言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_6_1"> 修繕費と資本的支出の違いを具体例で説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_6_2"> 定額法と定率法の計算方法の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_6_3"> 取得価額200万円・耐用年数5年の定額法償却額を計算できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_6_4"> 固定資産売却時に「売却益」「売却損」が出るケースの仕訳を書ける</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch7">
+  <div class="chapter-header">
+    <div class="chapter-num">VII</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Corporate Tax</div>
+      <h2>法人税・税務</h2>
+    </div>
+  </div>
+
+  <!-- 1. 法人税とは -->
+  <div class="section">
+    <h3>法人税とは何か</h3>
+    <p>法人税とは、<strong>法人（会社）が1年間に得た「もうけ（課税所得）」に対してかかる国税</strong>です。個人の所得税と同様の位置づけで、国に納める税金です。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🏢</div>
+        <h4>法人税率（普通法人）</h4>
+        <p>原則23.2%。資本金1億円以下の中小法人は、年800万円以下の所得部分は15%の軽減税率が適用される。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h4>法人税 ＋ 地方税</h4>
+        <p>法人税に加えて、法人住民税（都道府県・市区町村）と法人事業税も課される。実効税率は約30〜35%になる。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📅</div>
+        <h4>申告・納付期限</h4>
+        <p>決算日（期末）から原則2ヶ月以内に申告・納付。3月末決算なら5月31日が期限。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 課税所得の計算 -->
+  <div class="section">
+    <h3>課税所得の計算（益金・損金）</h3>
+    <p>法人税は「利益」ではなく「課税所得」に対してかかります。会計上の利益と税務上の課税所得は<strong>ズレる</strong>ことがあり、その調整を「税務調整」といいます。</p>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>課税所得 ＝ 益金 − 損金</strong><br>
+        益金＝税務上の収益（≒会計上の収益）、損金＝税務上の費用（≒会計上の費用）。会計と税務は基本的に同じだが、一部の項目で取り扱いが異なる。
+      </div>
+    </div>
+    <table class="data-table">
+      <tr><th>区分</th><th>内容</th><th>効果</th></tr>
+      <tr><td><strong>損金不算入</strong></td><td>会計上は費用だが、税務上は損金にできない項目</td><td>課税所得が増える（税負担が増える）</td></tr>
+      <tr><td><strong>損金算入</strong></td><td>会計上は費用でないが、税務上は損金にできる項目</td><td>課税所得が減る</td></tr>
+      <tr><td><strong>益金不算入</strong></td><td>会計上は収益だが、税務上は益金にならない項目</td><td>課税所得が減る</td></tr>
+      <tr><td><strong>益金算入</strong></td><td>会計上は収益でないが、税務上は益金になる項目</td><td>課税所得が増える</td></tr>
+    </table>
+    <p><strong>計算の流れ：</strong>会計上の当期純利益 ＋ 加算項目（損金不算入・益金算入）− 減算項目（益金不算入・損金算入）＝ 課税所得</p>
+  </div>
+
+  <!-- 3. 損金不算入の主な項目 -->
+  <div class="section">
+    <h3>損金不算入の主な項目</h3>
+    <p>会計上は費用として計上していても、税務上は損金として認められない（または制限される）項目があります。BPOスタッフが知っておくべき代表的な項目を確認します。</p>
+    <table class="data-table">
+      <tr><th>項目</th><th>内容</th><th>BPO実務での注意点</th></tr>
+      <tr><td><strong>交際費（一部）</strong></td><td>接待飲食費等。大法人は全額不算入。中小法人は年800万円超の部分が不算入</td><td>交際費か会議費かの科目区分が重要</td></tr>
+      <tr><td><strong>役員報酬（不定期な加算）</strong></td><td>事前確定届出をしていない役員賞与は損金不算入</td><td>役員報酬は定期同額給与が原則</td></tr>
+      <tr><td><strong>過大な役員退職金</strong></td><td>功績倍率法などで算定した相当額を超える部分は損金不算入</td><td>顧問や経理担当への説明資料に使う場面も</td></tr>
+      <tr><td><strong>罰課金・過怠税</strong></td><td>税務上の延滞税・加算税・罰金など。制裁的な性格のものは損金不算入</td><td>納税遅延が生じないよう期限管理が重要</td></tr>
+      <tr><td><strong>減価償却の超過額</strong></td><td>税務上の償却限度額を超えた減価償却費は損金不算入</td><td>法定耐用年数・償却方法の届出を確認</td></tr>
+    </table>
+  </div>
+
+  <!-- 4. 中間申告 -->
+  <div class="section">
+    <h3>中間申告と確定申告</h3>
+    <p>法人税の申告には、期中に行う「中間申告」と期末後に行う「確定申告」の2種類があります。</p>
+    <div class="two-col">
+      <div class="col-box" style="border-top:3px solid #2a5298">
+        <h4 style="color:#2a5298">📋 中間申告（中間納付）</h4>
+        <ul>
+          <li>事業年度開始から6ヶ月経過後2ヶ月以内に実施</li>
+          <li>前期の法人税額が20万円超の法人が対象</li>
+          <li>前期実績の1/2を仮払い（予定申告）または仮決算で計算</li>
+          <li>仕訳：仮払法人税等 / 普通預金</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid var(--gold)">
+        <h4 style="color:var(--gold)">📊 確定申告（期末後2ヶ月以内）</h4>
+        <ul>
+          <li>決算確定後、課税所得を正式に計算して申告</li>
+          <li>税理士が申告書を作成・チェック・提出</li>
+          <li>中間納付額を差し引いた残額を追加納付</li>
+          <li>仕訳：法人税等 / 仮払法人税等、普通預金</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>BPOスタッフの役割</strong><br>
+        申告書の作成は税理士が行うことがほとんど。BPOスタッフは①月次の帳簿データの正確な入力・管理、②証憑（領収書・契約書等）の整理・保管、③税理士への資料提供サポートが主な役割になる。
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 税効果会計 -->
+  <div class="section">
+    <h3>繰延税金資産・税効果会計（概要）</h3>
+    <p>会計上の費用と税務上の損金のタイミングのズレが生じると、「将来取り戻せる税金」（繰延税金資産）や「将来追加で払う税金」（繰延税金負債）を計上する「税効果会計」が必要になります。</p>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>実務での出現場面</strong><br>
+        棚卸評価損・貸倒引当金など、会計上は費用として計上したが税務上まだ損金にならない場合に繰延税金資産を計上。BPOスタッフが直接計算することは少ないが、財務諸表を読む際に「法人税等調整額」として登場する。
+      </div>
+    </div>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_7_0"> 法人税の課税対象（課税所得）と、会計上の利益との違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_7_1"> 益金・損金の意味と、損金不算入が生じる代表例を2つ挙げられる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_7_2"> 中間申告が必要になる条件と、そのタイミングを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_7_3"> 法人税確定申告の期限（3月末決算の場合）を言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_7_4"> 中間申告時と確定申告時の仕訳（仮払法人税等）を書ける</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_7_5"> BPOスタッフが税務申告サポートとして担う作業を2つ説明できる</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch8">
+  <div class="chapter-header">
+    <div class="chapter-num">VIII</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Consumption Tax</div>
+      <h2>消費税</h2>
+    </div>
+  </div>
+
+  <!-- 1. 消費税の仕組み -->
+  <div class="section">
+    <h3>消費税の仕組みと取引の分類</h3>
+    <p>消費税は、<strong>消費者が負担し、事業者が代わりに国に納める間接税</strong>です。売上で受け取った消費税から、仕入・経費で支払った消費税を差し引いた差額を納付します。</p>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>納付額 ＝ 売上消費税 − 仕入消費税</strong><br>
+        例：売上1,100万円（税込）の場合、受け取り消費税は100万円。仕入・経費で550万円（税込）支払っていれば、支払消費税は50万円。差額50万円を国に納付する。
+      </div>
+    </div>
+    <table class="data-table">
+      <tr><th>取引の種類</th><th>内容</th><th>例</th></tr>
+      <tr><td><strong>課税取引</strong></td><td>消費税がかかる（原則的な取引）</td><td>商品の販売・サービスの提供・建物の賃貸</td></tr>
+      <tr><td><strong>非課税取引</strong></td><td>消費税がかからない（政策的理由等）</td><td>土地の売買・住宅の家賃・医療・介護・学校の授業料・有価証券</td></tr>
+      <tr><td><strong>不課税取引</strong></td><td>そもそも消費税の対象外</td><td>給与・賃金・保険金の受取・寄付・配当金</td></tr>
+      <tr><td><strong>免税取引（ゼロ税率）</strong></td><td>税率0%で課税（輸出等）</td><td>輸出売上・国際輸送</td></tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>非課税と不課税の違い</strong><br>
+        非課税取引は「消費税の対象だが免除されている」取引。不課税取引は「そもそも消費税の対象外」の取引。仕訳入力時にどちらに分類するかで、仕入税額控除の計算が変わるため正確な区分が重要。
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 課税事業者と免税事業者 -->
+  <div class="section">
+    <h3>課税事業者と免税事業者</h3>
+    <p>すべての事業者が消費税を納めるわけではありません。前々事業年度（2期前）の課税売上高が<strong>1,000万円以下</strong>の事業者は、消費税の申告・納付が免除されます（免税事業者）。</p>
+    <table class="data-table">
+      <tr><th>区分</th><th>課税売上高の目安</th><th>消費税の扱い</th></tr>
+      <tr><td><strong>課税事業者</strong></td><td>前々期の課税売上が1,000万円超</td><td>消費税を申告・納付する義務がある</td></tr>
+      <tr><td><strong>免税事業者</strong></td><td>前々期の課税売上が1,000万円以下</td><td>消費税の納付義務なし（ただし後述のインボイス問題に注意）</td></tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>インボイス制度導入後の変化（2023年10月〜）</strong><br>
+        免税事業者はインボイス（適格請求書）を発行できないため、取引先が仕入税額控除を受けられなくなる。このため「課税事業者への登録を求められる」ケースが増えている。BPO業務でフリーランス・外部委託業者への発注がある場合は相手先の登録状況確認が必要。
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 仕入税額控除とインボイス -->
+  <div class="section">
+    <h3>仕入税額控除とインボイス制度</h3>
+    <p>消費税の納付額は「売上消費税 − 仕入消費税」で計算しますが、この「仕入消費税の控除（仕入税額控除）」を受けるためには、<strong>2023年10月以降、適格請求書（インボイス）の保存が必要</strong>になりました。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🔢</div>
+        <h4>登録番号</h4>
+        <p>適格請求書発行事業者の登録番号（T＋13桁）が記載されていること。番号の存在は国税庁サイトで確認可能。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <h4>必須記載事項</h4>
+        <p>①発行者の氏名・名称と登録番号、②取引年月日、③取引内容、④税率ごとの対価・消費税額、⑤受取側の氏名・名称。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📁</div>
+        <h4>保存義務</h4>
+        <p>受け取ったインボイスは7年間の保存義務。電子保存でも可。要件を満たさないと仕入税額控除が受けられない。</p>
+      </div>
+    </div>
+    <table class="data-table">
+      <tr><th>対応状況</th><th>仕入税額控除の扱い</th></tr>
+      <tr><td>適格請求書（インボイス）あり</td><td>100%控除可能</td></tr>
+      <tr><td>免税事業者からの仕入（経過措置：2026年9月まで）</td><td>仕入税額の80%を控除可能</td></tr>
+      <tr><td>免税事業者からの仕入（経過措置：2029年9月まで）</td><td>仕入税額の50%を控除可能</td></tr>
+      <tr><td>経過措置終了後、インボイスなし</td><td>控除不可（全額自社負担）</td></tr>
+    </table>
+  </div>
+
+  <!-- 4. 税込経理と税抜経理 -->
+  <div class="section">
+    <h3>税込経理と税抜経理</h3>
+    <p>消費税の経理処理には「税込経理方式」と「税抜経理方式」の2つがあります。どちらを採用するかによって仕訳の形式が変わります。</p>
+    <div class="two-col">
+      <div class="col-box" style="border-top:3px solid #2a5298">
+        <h4 style="color:#2a5298">税込経理方式</h4>
+        <ul>
+          <li>消費税を含めた金額で仕訳を記録</li>
+          <li>中小企業・免税事業者に多い</li>
+          <li>期末に消費税を一括で費用（租税公課）に計上</li>
+          <li>仕訳がシンプルで日常の処理が楽</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid var(--gold)">
+        <h4 style="color:var(--gold)">税抜経理方式</h4>
+        <ul>
+          <li>消費税を本体価格と分けて仕訳を記録</li>
+          <li>上場企業・大企業が多く採用</li>
+          <li>売上時は「仮受消費税」、仕入時は「仮払消費税」で処理</li>
+          <li>期末に仮受消費税−仮払消費税の差額を未払消費税に</li>
+        </ul>
+      </div>
+    </div>
+    <p><strong>税抜経理の仕訳例：</strong></p>
+    <table class="data-table">
+      <tr><th>取引</th><th>借方</th><th>貸方</th></tr>
+      <tr><td>売上1,100円（税込）の計上</td><td>売掛金 1,100</td><td>売上高 1,000 / 仮受消費税 100</td></tr>
+      <tr><td>仕入550円（税込）の計上</td><td>仕入高 500 / 仮払消費税 50</td><td>買掛金 550</td></tr>
+      <tr><td>期末：消費税の精算</td><td>仮受消費税 100</td><td>仮払消費税 50 / 未払消費税 50</td></tr>
+    </table>
+  </div>
+
+  <!-- 5. 申告・納付 -->
+  <div class="section">
+    <h3>消費税の申告・納付</h3>
+    <p>課税事業者は、原則として年1回（事業年度終了後2ヶ月以内）に消費税の確定申告を行います。売上規模が大きい場合は中間申告・納付が必要です。</p>
+    <table class="data-table">
+      <tr><th>前期の消費税額</th><th>中間申告の回数</th></tr>
+      <tr><td>48万円以下</td><td>中間申告不要（年1回確定申告のみ）</td></tr>
+      <tr><td>48万円超〜400万円以下</td><td>年1回（6ヶ月経過後2ヶ月以内）</td></tr>
+      <tr><td>400万円超〜4,800万円以下</td><td>年3回（3ヶ月ごと）</td></tr>
+      <tr><td>4,800万円超</td><td>年11回（毎月）</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>簡易課税制度</strong><br>
+        前々期の課税売上が5,000万円以下の中小事業者は「簡易課税制度」を選択可能。実際の仕入消費税を計算せず、売上消費税×みなし仕入率（業種ごとに40〜90%）で仕入消費税を計算できる。管理の手間が大幅に減る。
+      </div>
+    </div>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_8_0"> 消費税の「課税・非課税・不課税・免税」の違いと具体例を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_8_1"> 課税事業者と免税事業者の判定基準を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_8_2"> インボイス制度の概要と、仕入税額控除を受けるための条件を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_8_3"> 税込経理と税抜経理の違いを説明でき、税抜経理の仕訳を書ける</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_8_4"> 消費税確定申告の期限（3月末決算の場合）を言える</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_8_5"> 簡易課税制度が使える条件と、そのメリットを説明できる</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch9">
+  <div class="chapter-header">
+    <div class="chapter-num">IX</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Bad Debts</div>
+      <h2>貸倒れ・債権管理</h2>
+    </div>
+  </div>
+
+  <!-- 1. 貸倒れとは -->
+  <div class="section">
+    <h3>貸倒れとは何か</h3>
+    <p>売掛金や貸付金などの債権が、相手先の倒産や長期未払いなどにより<strong>回収できなくなること</strong>を「貸倒れ」といいます。経理では損失として処理する必要があります。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📄</div>
+        <h4>貸倒れになりやすい債権</h4>
+        <p>売掛金・受取手形・貸付金・未収入金など。取引先が突然倒産したり、長期間入金がない場合に発生する。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚠️</div>
+        <h4>貸倒れが確定する条件</h4>
+        <p>①取引先が破産・民事再生などの法的手続きに入った、②債務免除・和解など書面で確定した、③一定期間（1年以上）回収の見込みがない など。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h4>経理処理の方向性</h4>
+        <p>貸倒れが「確定前」→ 引当金で備える。「確定後」→ 貸倒損失として費用計上し、債権を帳簿から消す。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 貸倒引当金 -->
+  <div class="section">
+    <h3>貸倒引当金（事前の備え）</h3>
+    <p>決算時に「将来回収できないかもしれない分」をあらかじめ費用として見積もっておく勘定科目です。実際に貸倒れが確定する前に計上します。</p>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>なぜ引当金を積むのか</strong><br>
+        費用と収益を同じ期間に対応させる「費用収益対応の原則」のため。売上を計上した年度に、その回収リスクも費用として見積もっておく必要がある。
+      </div>
+    </div>
+    <table class="data-table">
+      <tr><th>仕訳</th><th>借方</th><th>貸方</th></tr>
+      <tr><td>決算時（引当金繰り入れ）</td><td>貸倒引当金繰入（費用）</td><td>貸倒引当金（評価勘定）</td></tr>
+      <tr><td>翌期・貸倒れ確定時</td><td>貸倒引当金（取り崩し）</td><td>売掛金</td></tr>
+      <tr><td>引当金を超える損失が出た場合</td><td>貸倒損失（差額分）</td><td>売掛金（差額分）</td></tr>
+    </table>
+    <p>例：売掛金100万円に対して2%の引当金を設定 → 貸倒引当金繰入 2,000円 ／ 貸倒引当金 2,000円</p>
+  </div>
+
+  <!-- 3. 貸倒れ確定時の仕訳 -->
+  <div class="section">
+    <h3>貸倒れ確定時の仕訳パターン</h3>
+    <p>貸倒れが正式に確定したときは、債権を帳簿から取り除きます。状況に応じて3つのパターンがあります。</p>
+    <table class="data-table">
+      <tr><th>パターン</th><th>仕訳（借方）</th><th>仕訳（貸方）</th><th>状況</th></tr>
+      <tr><td>①引当金の範囲内</td><td>貸倒引当金</td><td>売掛金</td><td>引当金を設定していた債権が確定的に回収不能になった</td></tr>
+      <tr><td>②引当金なし（当期発生）</td><td>貸倒損失</td><td>売掛金</td><td>引当金を設定していなかった / 当期の売掛金が貸倒れた</td></tr>
+      <tr><td>③償却後に回収できた</td><td>現金・普通預金</td><td>償却債権取立益</td><td>一度貸倒れとして処理した後、一部または全額が回収できた</td></tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>消費税の処理に注意</strong><br>
+        売掛金には消費税が含まれているため、貸倒れが確定した場合は「貸倒れに係る消費税額」を仕入税額控除（控除対象外）として処理できる。消費税申告時に調整が必要。
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 債権管理の実務 -->
+  <div class="section">
+    <h3>債権管理の実務フロー</h3>
+    <p>貸倒れを防ぐために、日頃から売掛金の残高と入金状況を管理することが重要です。</p>
+    <div class="two-col">
+      <div class="col-box" style="border-top:3px solid #2a5298">
+        <h4 style="color:#2a5298">📋 売掛金管理の基本</h4>
+        <ul>
+          <li>売掛金残高一覧表（得意先ごと）を月次で確認</li>
+          <li>入金予定日との照合（入金消込）</li>
+          <li>滞留債権（期日を超えた未入金）の早期把握</li>
+          <li>年齢表（エイジング分析）で滞留日数を可視化</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid var(--gold)">
+        <h4 style="color:var(--gold)">📞 督促・回収のステップ</h4>
+        <ul>
+          <li>入金遅れ → まず電話・メールで確認</li>
+          <li>滞留長期化 → 内容証明郵便・法的措置の検討</li>
+          <li>取引停止・与信限度の見直しも視野に</li>
+          <li>法的手続き（支払督促・少額訴訟）は顧問弁護士と連携</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_9_0"> 貸倒れとは何か、どのような状況で発生するか説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_9_1"> 貸倒引当金を決算時に計上する理由（費用収益対応の原則）を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_9_2"> 貸倒引当金繰入の仕訳と、貸倒れ確定時の取り崩し仕訳を書ける</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_9_3"> 引当金あり・なしの場合の貸倒れ仕訳の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_9_4"> 償却債権取立益が発生するのはどのような場面か説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_9_5"> 債権管理の実務（売掛金残高確認・入金消込・滞留管理）の流れを説明できる</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch10">
+  <div class="chapter-header">
+    <div class="chapter-num">X</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Labor &amp; Payroll</div>
+      <h2>労務・給与計算</h2>
+    </div>
+  </div>
+
+  <!-- 1. 給与計算と経理の関わり -->
+  <div class="section">
+    <h3>給与計算における経理の役割</h3>
+    <p>給与計算の実務は人事・労務部門が担うことが多いですが、経理部門は<strong>仕訳処理・納付管理・費用計上</strong>という形で深く関わります。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">👥</div>
+        <h4>人事・労務部門が担う部分</h4>
+        <p>勤怠データ集計・給与計算・明細作成・社会保険の算定手続きなど。給与計算ソフトで処理することが多い。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📒</div>
+        <h4>経理部門が担う部分</h4>
+        <p>給与支払時の仕訳・社会保険料の納付管理・源泉所得税の納付・住民税の特別徴収・年次の人件費集計など。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔗</div>
+        <h4>連携ポイント</h4>
+        <p>給与計算ソフトのデータを会計ソフトに取り込む連携作業が発生することが多い。仕訳データの受け渡し方法を把握しておく。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 給与・賞与の仕訳 -->
+  <div class="section">
+    <h3>給与・賞与の仕訳</h3>
+    <p>給与を支払うときは、総支給額から各種控除を差し引いた手取り額を支払います。経理では<strong>総支給額を費用として計上</strong>し、控除分は預り金として処理します。</p>
+    <table class="data-table">
+      <tr><th>仕訳のタイミング</th><th>借方</th><th>貸方</th></tr>
+      <tr><td>給与支払時</td><td>給料（総支給額）</td><td>普通預金（手取り額）／ 預り金（源泉所得税・住民税・社会保険料本人負担分）</td></tr>
+      <tr><td>会社負担の社会保険料</td><td>法定福利費</td><td>未払費用（翌月納付分）</td></tr>
+      <tr><td>社会保険料納付時</td><td>預り金 ＋ 未払費用</td><td>普通預金</td></tr>
+      <tr><td>賞与支払時</td><td>賞与（総支給額）</td><td>普通預金 ／ 預り金（各控除額）</td></tr>
+    </table>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>預り金の内訳</strong><br>
+        従業員から天引きした①源泉所得税、②住民税（特別徴収）、③社会保険料（本人負担分）はすべて「預り金」で管理し、会社がまとめて納付する。
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 源泉徴収・住民税 -->
+  <div class="section">
+    <h3>源泉徴収・住民税の実務</h3>
+    <p>給与から天引きした税金は、会社が代わりに税務署・市区町村へ納付する義務があります。<strong>納付期限の管理が経理の重要な仕事</strong>です。</p>
+    <div class="two-col">
+      <div class="col-box" style="border-top:3px solid #2a5298">
+        <h4 style="color:#2a5298">📋 源泉所得税の納付</h4>
+        <ul>
+          <li>毎月の給与・賞与から天引きした源泉税を翌月10日までに税務署へ納付</li>
+          <li>従業員10人未満の場合、「納期特例」を申請すれば年2回（1〜6月分を7月10日、7〜12月分を翌1月20日）にまとめられる</li>
+          <li>e-Taxまたは金融機関窓口で納付</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid var(--gold)">
+        <h4 style="color:var(--gold)">🏙️ 住民税の特別徴収</h4>
+        <ul>
+          <li>従業員の住民税を給与から天引きして市区町村に納付（特別徴収）</li>
+          <li>毎月の給与から控除し、翌月10日までに各市区町村へ納付</li>
+          <li>6月に税額が改定（前年の所得に基づき計算）</li>
+          <li>退職者が出たときは「普通徴収」への切り替え手続きが必要</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>年末調整とは</strong><br>
+        1年間に源泉徴収した所得税の合計と、本来納めるべき税額を照らし合わせて過不足を精算する手続き。12月の給与支払い時または翌1月に実施。経理は年末調整後の精算仕訳（源泉税の過不足調整）と、法定調書の作成サポートを担う。
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 人件費の全体像 -->
+  <div class="section">
+    <h3>人件費の全体像と管理</h3>
+    <p>給与以外にも、会社が負担するコストは多岐にわたります。経理では<strong>人件費の総額</strong>を正確に把握・管理することが求められます。</p>
+    <table class="data-table">
+      <tr><th>費用科目</th><th>内容</th></tr>
+      <tr><td>給料・賃金</td><td>正社員・契約社員・パートなどへの給与</td></tr>
+      <tr><td>役員報酬</td><td>取締役などへの報酬（事前確定届出が必要）</td></tr>
+      <tr><td>賞与</td><td>夏・冬のボーナス</td></tr>
+      <tr><td>法定福利費</td><td>会社負担の社会保険料（健康保険・厚生年金・雇用保険・労災保険）</td></tr>
+      <tr><td>福利厚生費</td><td>慶弔費・社員食堂・健康診断費用など</td></tr>
+      <tr><td>退職給付費用</td><td>将来の退職金支払いに備えた引当て（大企業中心）</td></tr>
+    </table>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_10_0"> 給与計算において経理部門が担う役割（仕訳・納付管理）を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_10_1"> 給与支払時の仕訳（総支給額・預り金・普通預金）を書ける</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_10_2"> 法定福利費と福利厚生費の違いを説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_10_3"> 源泉所得税の納付期限（通常・納期特例）を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_10_4"> 住民税の特別徴収の仕組みと、6月に税額が変わる理由を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_10_5"> 年末調整が何をするための手続きか、一言で説明できる</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch11">
+  <div class="chapter-header">
+    <div class="chapter-num">XI</div>
+    <div class="chapter-title-wrap">
+      <div class="chapter-tag">Laws &amp; Current Rules</div>
+      <h2>法律・最新制度・資格</h2>
+    </div>
+  </div>
+
+  <!-- 1. 経理担当者が知っておくべき主要法令 -->
+  <div class="section">
+    <h3>経理担当者が知っておくべき主要法令</h3>
+    <p>経理の仕事は多くの法律に関わっています。詳細は専門家（税理士・弁護士）が担いますが、<strong>どの法律がどの業務に関係するか</strong>を把握しておくことが大切です。</p>
+    <table class="data-table">
+      <tr><th>法律</th><th>経理との関係</th></tr>
+      <tr><td><strong>会社法</strong></td><td>計算書類（財務諸表）の作成義務・株主総会への提出・配当の規制など</td></tr>
+      <tr><td><strong>法人税法</strong></td><td>課税所得・損金不算入・申告期限など税務処理の根拠法</td></tr>
+      <tr><td><strong>消費税法</strong></td><td>仕入税額控除・課税区分・インボイス制度の根拠法</td></tr>
+      <tr><td><strong>金融商品取引法</strong></td><td>上場企業に内部統制報告書（J-SOX）の作成・監査を義務づけ</td></tr>
+      <tr><td><strong>労働基準法</strong></td><td>給与の支払い方法・残業代計算の基準・賃金台帳の保存義務など</td></tr>
+      <tr><td><strong>印紙税法</strong></td><td>契約書・領収書などに印紙を貼る義務。文書の種類・金額によって税額が変わる</td></tr>
+    </table>
+  </div>
+
+  <!-- 2. インボイス制度 -->
+  <div class="section">
+    <h3>インボイス制度（適格請求書等保存方式）</h3>
+    <p>2023年10月から始まった制度です。消費税の仕入税額控除を受けるためには、<strong>登録を受けた事業者が発行した「適格請求書（インボイス）」の保存</strong>が必要になりました。</p>
+    <div class="callout info">
+      <span class="callout-icon">💡</span>
+      <div>
+        <strong>なぜ導入されたのか</strong><br>
+        従来は免税事業者（年間売上1,000万円以下）への支払いでも仕入税額控除ができていた。インボイス制度により、消費税を正しく納めている登録事業者からの請求書でないと控除できなくなった。税収の正確な把握と益税の解消が目的。
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="col-box" style="border-top:3px solid #2a5298">
+        <h4 style="color:#2a5298">📋 適格請求書の必須記載事項</h4>
+        <ul>
+          <li>発行者の氏名・名称と<strong>登録番号（T + 13桁）</strong></li>
+          <li>取引年月日</li>
+          <li>取引内容（軽減税率対象の場合はその旨）</li>
+          <li>税率ごとに区分した税抜き金額・税込み金額</li>
+          <li>税率ごとの消費税額</li>
+          <li>受領者の氏名・名称</li>
+        </ul>
+      </div>
+      <div class="col-box" style="border-top:3px solid var(--gold)">
+        <h4 style="color:var(--gold)">💼 経理の実務ポイント</h4>
+        <ul>
+          <li>受け取った請求書の登録番号を確認する（国税庁のサイトで検索可）</li>
+          <li>登録番号のない請求書は控除割合に制限がかかる（経過措置あり）</li>
+          <li>自社がインボイスを発行する場合は登録番号を記載する</li>
+          <li>免税事業者との取引では仕入税額控除に注意が必要</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 電子帳簿保存法 -->
+  <div class="section">
+    <h3>電子帳簿保存法（電帳法）</h3>
+    <p>帳簿や証憑（領収書・請求書など）を電子データで保存するルールを定めた法律です。2024年1月から<strong>電子取引データの電子保存が義務化</strong>されました。</p>
+    <table class="data-table">
+      <tr><th>制度の種類</th><th>内容</th><th>ポイント</th></tr>
+      <tr><td><strong>電子帳簿等保存</strong></td><td>会計ソフトで作成した帳簿・決算書を電子保存</td><td>任意（紙でもOK）。電子保存すると優良な電子帳簿として税制上の優遇あり</td></tr>
+      <tr><td><strong>スキャナ保存</strong></td><td>紙の請求書・領収書をスキャンして電子保存</td><td>任意。一定の要件（解像度・タイムスタンプ等）を満たす必要あり</td></tr>
+      <tr><td><strong>電子取引データ保存</strong></td><td>メール・クラウド等で受け取った請求書・領収書を電子保存</td><td><strong>義務。</strong>印刷して紙保存することが原則禁止に（2024年1月〜）</td></tr>
+    </table>
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <div>
+        <strong>実務での注意点</strong><br>
+        メールで届いたPDFの請求書・領収書は電子データのまま保存が必要。保存ルール（ファイル名のつけ方・フォルダ管理・検索できる状態の維持）を社内で整備する必要がある。
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 経理・会計の主な資格 -->
+  <div class="section">
+    <h3>経理・会計の主な資格</h3>
+    <p>経理職として働く上でキャリアに直結する資格を整理します。</p>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📒</div>
+        <h4>日商簿記検定</h4>
+        <p>3級：個人商店レベルの基礎。2級：企業会計の基礎〜中級。1級：公認会計士・税理士の登竜門。経理職への就職・実務には2級が一般的な基準。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏛️</div>
+        <h4>税理士・公認会計士</h4>
+        <p>税理士：税務申告・税務相談の専門家。科目合格制で取得可能。公認会計士：監査・会計の国家資格。難関だが会計プロフェッショナルの最高峰。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h4>FASS検定</h4>
+        <p>経理・財務の実務スキルを測る検定（Financial Accounting Skills Standard）。A〜E評価で実力が可視化される。BPO・経理実務職で評価されやすい。</p>
+      </div>
+    </div>
+
+    <!-- 理解度チェック -->
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--divider)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:var(--gold);margin-bottom:12px">CHAPTER CHECK — 理解度確認</div>
+      <div class="check-list">
+        <label class="check-item"><input type="checkbox" data-key="bo_11_0"> 会社法・法人税法・消費税法がそれぞれ経理のどの業務に関係するか説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_11_1"> インボイス制度が導入された背景と、適格請求書の必須記載事項を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_11_2"> 登録番号のない請求書を受け取った場合、仕入税額控除にどう影響するか説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_11_3"> 電子帳簿保存法の3つの制度と、義務化されているものはどれか説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_11_4"> メールで届いたPDF請求書の正しい保存方法を説明できる</label>
+        <label class="check-item"><input type="checkbox" data-key="bo_11_5"> 日商簿記2級とFASS検定がどのような場面で評価される資格か説明できる</label>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>バックオフィス知識テキスト — Chapter I〜XI 全章完成</footer>
+
+<script>
+document.querySelectorAll('.check-list input[type="checkbox"]').forEach(function(cb) {
+  var key = cb.dataset.key;
+  if (key && localStorage.getItem(key) === '1') cb.checked = true;
+  cb.addEventListener('change', function() {
+    if (key) {
+      if (this.checked) localStorage.setItem(key, '1');
+      else localStorage.removeItem(key);
+    }
+  });
+});
+
+var NAV_LABELS = {};
+document.querySelectorAll('nav a[data-ch]').forEach(function(a) {
+  NAV_LABELS[a.dataset.ch] = a.textContent;
+});
+
+function showChapter(id) {
+  document.querySelectorAll('.chapter').forEach(function(ch) {
+    ch.classList.remove('active');
+  });
+  document.querySelectorAll('nav a').forEach(function(a) {
+    a.classList.remove('active');
+  });
+  var ch = document.getElementById(id);
+  if (ch) {
+    ch.classList.add('active');
+    ch.style.animation = 'none';
+    ch.offsetHeight;
+    ch.style.animation = '';
+    buildChapterNav(id);
+  }
+  var navA = document.querySelector('nav a[data-ch="' + id + '"]');
+  if (navA) navA.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function buildChapterNav(activeId) {
+  var ids = Array.from(document.querySelectorAll('.chapter')).map(function(c) { return c.id; });
+  var idx = ids.indexOf(activeId);
+  var ch = document.getElementById(activeId);
+  var existing = ch.querySelector('.ch-nav');
+  if (existing) existing.remove();
+
+  var prev = idx > 0 ? ids[idx - 1] : null;
+  var next = idx < ids.length - 1 ? ids[idx + 1] : null;
+
+  var navDiv = document.createElement('div');
+  navDiv.className = 'ch-nav';
+
+  var prevBtn = document.createElement('button');
+  prevBtn.className = 'ch-nav-btn';
+  if (prev) {
+    prevBtn.textContent = '← ' + NAV_LABELS[prev];
+    prevBtn.onclick = function() { showChapter(prev); };
+  } else {
+    prevBtn.style.visibility = 'hidden';
+  }
+
+  var nextBtn = document.createElement('button');
+  nextBtn.className = 'ch-nav-btn';
+  if (next) {
+    nextBtn.textContent = NAV_LABELS[next] + ' →';
+    nextBtn.onclick = function() { showChapter(next); };
+  } else {
+    nextBtn.style.visibility = 'hidden';
+  }
+
+  navDiv.appendChild(prevBtn);
+  navDiv.appendChild(nextBtn);
+  ch.appendChild(navDiv);
+}
+
+showChapter('ch1');
+</script>
+</body>
+</html>

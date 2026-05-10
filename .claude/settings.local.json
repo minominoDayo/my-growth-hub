@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Remove-Item \"C:\\\\claude-code\\\\projects\\\\myGrowth\\\\english\\\\toeic\\\\vocabulary\\\\review-words.txt\" -Force)",
+      "Bash(Remove-Item \"C:\\\\claude-code\\\\projects\\\\myGrowth\\\\accounting\\\\basics\\\\resources.md\" -Force)",
+      "Bash(Remove-Item \"C:\\\\claude-code\\\\projects\\\\myGrowth\\\\accounting\\\\trial-balance\\\\resources.md\" -Force)",
+      "Bash(Write-Output \"deleted\")",
+      "PowerShell(\\(Get-Content \"C:\\\\claude-code\\\\projects\\\\myGrowth\\\\monthly-plans\\\\progress.html\" | Measure-Object -Line\\).Lines)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

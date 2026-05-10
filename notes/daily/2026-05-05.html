@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>勉強プラン｜2026-05-05</title>
+  <style>
+    :root {
+      --bg:    #0f172a;
+      --card:  #1e293b;
+      --bdr:   #334155;
+      --txt:   #e2e8f0;
+      --muted: #94a3b8;
+      --brk:   #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background: var(--bg); color: var(--txt);
+      height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    /* TIMER BAR */
+    #timerBar {
+      flex-shrink: 0; background: #0a1120; border-bottom: 1px solid var(--bdr);
+      padding: 10px 20px; display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+    }
+    .t-section { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .t-label   { font-size: 0.6rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+    #clock      { font-size: 1.9rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    #studyDisp  { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; color: #34d399; }
+    .t-center { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+    #blkName  { font-size: 0.72rem; color: var(--muted); max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #blkCD    { font-size: 2.6rem; font-weight: 800; font-variant-numeric: tabular-nums; transition: color .3s; }
+    #blkCD.urgent { color: #f87171; animation: blink 1s step-start infinite; }
+    @keyframes blink { 50% { opacity: .4; } }
+    .ctrl-btns { display: flex; gap: 5px; }
+    .ctrl-btns button {
+      background: var(--card); border: 1px solid var(--bdr); color: var(--txt);
+      border-radius: 6px; padding: 3px 9px; font-size: 0.78rem; cursor: pointer;
+    }
+    .ctrl-btns button:hover { background: var(--bdr); }
+    .btn-go    { border-color: #34d399 !important; color: #34d399 !important; }
+    .btn-pause { border-color: #fbbf24 !important; color: #fbbf24 !important; }
+    .btn-reset { border-color: var(--muted) !important; color: var(--muted) !important; }
+
+    /* TWO-PANE */
+    .pane-wrap { flex: 1; display: flex; overflow: hidden; padding: 0 20px; }
+
+    /* LEFT PANE */
+    #leftPane { flex: 1; overflow-y: auto; min-width: 0; }
+    .left-inner { }
+    header { padding: 20px 20px 10px; }
+    header h1 { font-size: 1.1rem; font-weight: 700; }
+    header .sub { font-size: 0.82rem; color: var(--muted); margin-top: 3px; }
+    .pills { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+    .pill { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+    .prog-wrap { background: var(--bdr); border-radius: 999px; height: 5px; margin-top: 10px; }
+    .prog-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#60a5fa,#a78bfa); width: 0%; transition: width .4s; }
+    .prog-txt  { font-size: 0.72rem; color: var(--muted); text-align: right; margin-top: 3px; }
+    .schedule  { padding: 4px 16px 60px; }
+
+    .blk-card {
+      background: var(--card); border: 1px solid var(--bdr); border-radius: 12px;
+      margin-bottom: 10px; overflow: hidden; transition: border-color .2s, box-shadow .2s;
+    }
+    .blk-card.active { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96,165,250,.18); }
+    .blk-card.break-card { border-style: dashed; border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.04); }
+
+    .blk-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 11px 14px;
+    }
+    .blk-left { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .blk-time  { font-size: 0.68rem; color: var(--muted); }
+    .blk-title { font-size: 0.92rem; font-weight: 600; }
+    .break-card .blk-title { color: var(--brk); }
+    .dur-badge {
+      font-size: 0.68rem; padding: 2px 7px; border-radius: 999px;
+      background: rgba(255,255,255,.07); color: var(--muted); flex-shrink: 0;
+    }
+    .go-btn {
+      background: none; border: 1px solid var(--bdr); color: var(--muted);
+      border-radius: 7px; padding: 4px 11px; font-size: 0.75rem; cursor: pointer;
+      white-space: nowrap; flex-shrink: 0; transition: all .15s;
+    }
+    .go-btn:hover { border-color: #60a5fa; color: #60a5fa; }
+    .break-card .go-btn:hover { border-color: var(--brk); color: var(--brk); }
+    .blk-link {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.68rem; color: #60a5fa; text-decoration: none;
+      margin-top: 4px; padding: 2px 7px; border: 1px solid rgba(96,165,250,.3); border-radius: 4px;
+    }
+    .blk-link:hover { background: rgba(96,165,250,.1); }
+    .blk-link.labor { color: #a78bfa; border-color: rgba(167,139,250,.3); }
+    .blk-link.labor:hover { background: rgba(167,139,250,.1); }
+
+    .task-list { border-top: 1px solid var(--bdr); padding: 0 14px 10px; }
+    .task-item {
+      display: flex; align-items: flex-start; gap: 9px;
+      padding: 7px 0; border-bottom: 1px solid rgba(51,65,85,.5);
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-item input[type="checkbox"] {
+      margin-top: 2px; accent-color: #60a5fa; width: 15px; height: 15px;
+      flex-shrink: 0; cursor: pointer;
+    }
+    .task-txt { font-size: 0.86rem; line-height: 1.5; cursor: pointer; }
+    .task-item.done .task-txt { text-decoration: line-through; color: var(--muted); }
+
+    /* RIGHT PANE */
+    #rightPane {
+      width: 370px; flex-shrink: 0; overflow-y: auto;
+      border-left: 1px solid var(--bdr); background: #0c1628;
+      padding: 16px 14px 40px;
+    }
+    .rp-section { margin-bottom: 18px; }
+    .rp-title {
+      font-size: 0.63rem; text-transform: uppercase; letter-spacing: .12em;
+      color: var(--muted); margin-bottom: 10px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--bdr);
+    }
+    .rp-prog { margin-bottom: 10px; }
+    .rp-prog-lbl { display: flex; justify-content: space-between; font-size: 0.76rem; margin-bottom: 3px; }
+    .rp-prog-cnt { color: var(--muted); font-size: 0.7rem; }
+    .rp-prog-bg { height: 6px; background: var(--bdr); border-radius: 99px; overflow: hidden; }
+    .rp-prog-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg,#5b8dee,#48c9b0); transition: width .4s; }
+    .rb { display: inline-block; font-size: 0.62rem; padding: 1px 6px; border-radius: 99px; font-weight: bold; margin-left: 4px; vertical-align: middle; }
+    .rb-gray   { background: rgba(255,255,255,.06); color: var(--muted); }
+    .rb-yellow { background: rgba(243,156,18,.15); color: #f39c12; }
+    .rb-blue   { background: rgba(91,141,238,.2); color: #7aadff; }
+
+    /* Chapter-level rows (labor) */
+    .rp-ch-row {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 0; font-size: 0.76rem; color: #8aa0b8;
+      border-bottom: 1px solid rgba(51,65,85,.3); cursor: pointer;
+    }
+    .rp-ch-row:last-child { border-bottom: none; }
+    .rp-ch-row input { width: 13px; height: 13px; accent-color: #5b8dee; cursor: pointer; flex-shrink: 0; }
+    .rp-ch-row.done { color: var(--muted); text-decoration: line-through; }
+    .cs { display: inline-block; font-size: 0.6rem; padding: 1px 5px; border-radius: 99px; font-weight: bold; margin-left: auto; }
+    .cs-none  { background: rgba(255,255,255,.05); color: var(--muted); }
+    .cs-start { background: rgba(243,156,18,.12); color: #f39c12; }
+    .cs-done  { background: rgba(39,174,96,.12); color: #2ecc71; }
+
+    /* Weekly goals */
+    .rp-goal {
+      display: flex; align-items: flex-start; gap: 7px; padding: 5px 0;
+      font-size: 0.73rem; color: #8aa0b8; cursor: pointer;
+      border-bottom: 1px solid rgba(51,65,85,.4);
+    }
+    .rp-goal:last-child { border-bottom: none; }
+    .rp-goal input { margin-top: 2px; width: 13px; height: 13px; accent-color: #5b8dee; cursor: pointer; flex-shrink: 0; }
+    .rp-goal.done { color: var(--muted); text-decoration: line-through; }
+
+    /* TOEIC score table */
+    .toeic-tbl { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-bottom: 12px; }
+    .toeic-tbl th { font-size: 0.65rem; color: var(--muted); text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--bdr); font-weight: 600; }
+    .toeic-tbl td { padding: 4px 6px; color: #8aa0b8; border-bottom: 1px solid rgba(51,65,85,.3); }
+    .toeic-tbl td:last-child { text-align: center; }
+    .toeic-tbl tr:last-child td { border-bottom: none; }
+    .score-inp {
+      width: 48px; background: rgba(255,255,255,.06); border: 1px solid var(--bdr);
+      border-radius: 5px; color: var(--txt); font-size: 0.82rem;
+      padding: 2px 5px; text-align: center;
+    }
+    .toeic-totals { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+    .toeic-total-item {
+      background: var(--card); border: 1px solid var(--bdr);
+      border-radius: 8px; padding: 8px 10px; text-align: center;
+    }
+    .toeic-total-item .tt-label { font-size: 0.62rem; color: var(--muted); margin-bottom: 3px; }
+    .toeic-total-item .tt-inp {
+      width: 60px; background: transparent; border: none; border-bottom: 1px solid var(--bdr);
+      color: #7aadff; font-size: 1.1rem; font-weight: 700; text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .toeic-total-item .tt-max { font-size: 0.65rem; color: var(--muted); }
+    .toeic-grand {
+      background: rgba(91,141,238,.1); border: 1px solid rgba(91,141,238,.3);
+      border-radius: 8px; padding: 8px 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.8rem; margin-bottom: 6px;
+    }
+    .toeic-grand .tg-num { font-size: 1.4rem; font-weight: 800; color: #7aadff; }
+    .toeic-save-btn {
+      width: 100%; padding: 6px; background: rgba(91,141,238,.2);
+      border: 1px solid rgba(91,141,238,.4); border-radius: 7px;
+      color: #7aadff; font-size: 0.78rem; cursor: pointer;
+    }
+    .toeic-save-btn:hover { background: rgba(91,141,238,.35); }
+    .toeic-saved { font-size: 0.68rem; color: #2ecc71; text-align: center; margin-top: 4px; display: none; }
+
+    /* PDF */
+    .pdf-stat-bar { font-size: 0.72rem; color: #60a5fa; margin-bottom: 8px; padding: 3px 8px; background: rgba(96,165,250,.08); border-radius: 6px; border: 1px solid rgba(96,165,250,.18); }
+    .pdf-group { margin-bottom: 8px; }
+    .pdf-group-title { font-size: 0.68rem; font-weight: 600; color: var(--muted); margin-bottom: 3px; padding: 0 2px; }
+    .pdf-row { display: flex; align-items: center; padding: 4px 8px; border-radius: 7px; background: var(--card); margin-bottom: 2px; }
+    .pdf-row:hover { background: #1e3050; }
+    .pdf-row.done { opacity: .45; }
+    .pdf-row.done .pdf-name { text-decoration: line-through; color: var(--muted); }
+    .pdf-label { display: flex; align-items: center; gap: 7px; flex: 1; cursor: pointer; min-width: 0; }
+    .pdf-label input { accent-color: #60a5fa; width: 13px; height: 13px; flex-shrink: 0; cursor: pointer; }
+    .pdf-name { font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pdf-open { font-size: 0.62rem; color: #60a5fa; text-decoration: none; padding: 1px 5px; border: 1px solid rgba(96,165,250,.3); border-radius: 4px; flex-shrink: 0; margin-left: 5px; }
+    .pdf-open:hover { background: rgba(96,165,250,.12); }
+
+    /* Progress link button */
+    .prog-link-btn { display: block; text-align: center; padding: 8px; background: #2d3a6e; color: #7aadff; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: bold; margin-bottom: 14px; border: 1px solid #3d4e8e; }
+    .prog-link-btn:hover { background: #3a4a80; }
+
+    /* Vocab */
+    .vocab-form { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+    .vocab-inp {
+      flex: 1; min-width: 70px; padding: 6px 9px;
+      background: rgba(255,255,255,.05); border: 1.5px solid var(--bdr);
+      border-radius: 8px; color: var(--txt); font-size: 0.76rem;
+      font-family: inherit; outline: none; transition: border-color .15s;
+    }
+    .vocab-inp::placeholder { color: #4a5a70; }
+    .vocab-inp:focus { border-color: #5b8dee; background: rgba(91,141,238,.07); }
+    .vocab-sel {
+      padding: 6px 7px; background: rgba(255,255,255,.05); border: 1.5px solid var(--bdr);
+      border-radius: 8px; color: var(--txt); font-size: 0.76rem;
+      font-family: inherit; outline: none; cursor: pointer; transition: border-color .15s;
+    }
+    .vocab-sel:focus { border-color: #5b8dee; }
+    .vocab-add-btn {
+      padding: 6px 12px; background: linear-gradient(135deg,#5b8dee,#4a7fde);
+      color: #fff; border: none; border-radius: 8px; font-size: 0.76rem;
+      cursor: pointer; font-family: inherit; font-weight: 600;
+      box-shadow: 0 2px 6px rgba(91,141,238,.35); transition: opacity .15s;
+    }
+    .vocab-add-btn:hover { opacity: .85; }
+
+    /* Study time */
+    .time-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 0; border-bottom: 1px solid rgba(51,65,85,.3); font-size: 0.75rem;
+    }
+    .time-row:last-of-type { border-bottom: none; }
+    .time-subj { flex: 1; color: #8aa0b8; }
+    .time-val { font-size: 0.9rem; font-weight: 700; color: #7aadff; min-width: 36px; text-align: right; }
+
+    /* Bookkeeping cards */
+    .rp-boki-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .rp-boki-card { background: var(--card); border: 1px solid var(--bdr); border-radius: 9px; padding: 10px; }
+    .rp-boki-card .bk-q   { font-size: 0.78rem; font-weight: 600; }
+    .rp-boki-card .bk-sub { font-size: 0.65rem; color: var(--muted); margin-bottom: 4px; }
+    .rp-boki-card .bk-lv  { font-size: 1.05rem; font-weight: 700; color: #60a5fa; margin-bottom: 2px; }
+    .rp-boki-card .bk-dt  { font-size: 0.63rem; color: var(--muted); }
+
+    @media (max-width: 900px) {
+      body { height: auto; overflow: auto; }
+      .pane-wrap { flex-direction: column; overflow: visible; height: auto; }
+      #leftPane  { overflow-y: visible; height: auto; }
+      #rightPane { width: 100%; border-left: none; border-top: 1px solid var(--bdr); overflow-y: visible; height: auto; }
+      #timerBar  { position: sticky; top: 0; z-index: 100; }
+      .pane-wrap { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TIMER BAR -->
+<div id="timerBar">
+  <div class="t-section">
+    <div class="t-label">現在時刻</div>
+    <div id="clock">--:--:--</div>
+  </div>
+  <div class="t-center">
+    <div id="blkName">▼ 下のブロックを選んで開始</div>
+    <div id="blkCD">--:--</div>
+    <div class="ctrl-btns">
+      <button class="btn-go"    onclick="resumeBlk()">▶ 再開</button>
+      <button class="btn-pause" onclick="pauseBlk()">⏸ 一時停止</button>
+      <button class="btn-reset" onclick="resetBlk()">↺ リセット</button>
+    </div>
+  </div>
+  <div class="t-section">
+    <div class="t-label">今日の勉強時間</div>
+    <div id="studyDisp">0:00:00</div>
+  </div>
+</div>
+
+<!-- TWO-PANE -->
+<div class="pane-wrap">
+
+  <!-- ========== LEFT ========== -->
+  <div id="leftPane">
+  <div class="left-inner">
+    <header>
+      <h1>今日の勉強タスク</h1>
+      <div class="sub">2026年5月5日（火）｜16:30 → 1:30</div>
+      <div class="pills">
+        <span class="pill" style="background:rgba(167,139,250,.15);color:#a78bfa">労務 40%</span>
+        <span class="pill" style="background:rgba(96,165,250,.15);color:#60a5fa">簿記 36%</span>
+        <span class="pill" style="background:rgba(52,211,153,.15);color:#34d399">TOEIC 27%</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+      <div class="prog-txt" id="progTxt">0 / 0 タスク完了</div>
+    </header>
+    <div class="schedule" id="schedule"></div>
+  </div><!-- /left-inner -->
+  </div>
+
+  <!-- ========== RIGHT ========== -->
+  <div id="rightPane">
+
+    <!-- progress.html リンク -->
+    <a class="prog-link-btn" href="../../monthly-plans/progress.html" target="_blank">📊 進捗ダッシュボードを開く</a>
+
+    <!-- 全体進捗 -->
+    <div class="rp-section">
+      <div class="rp-title">全体進捗</div>
+      <div class="rp-prog">
+        <div class="rp-prog-lbl">
+          <span>📋 労務・給与計算 <span class="rb rb-yellow">進行中</span></span>
+          <span class="rp-prog-cnt" id="labor-cnt">0 / 20 章</span>
+        </div>
+        <div class="rp-prog-bg"><div class="rp-prog-fill" id="labor-fill" style="width:0%"></div></div>
+      </div>
+      <div class="rp-prog">
+        <div class="rp-prog-lbl">
+          <span>📒 簿記3級 <span class="rb rb-yellow">勉強中</span></span>
+          <span class="rp-prog-cnt" id="pdf-cnt">0 / 19</span>
+        </div>
+        <div class="rp-prog-bg"><div class="rp-prog-fill" id="pdf-fill" style="width:0%"></div></div>
+      </div>
+      <div class="rp-prog">
+        <div class="rp-prog-lbl">
+          <span>🌏 TOEIC <span class="rb rb-blue">通勤維持中</span></span>
+          <span class="rp-prog-cnt">受験日未確定</span>
+        </div>
+        <div class="rp-prog-bg"><div class="rp-prog-fill" style="width:20%"></div></div>
+      </div>
+    </div>
+
+    <!-- 週次チェックリスト -->
+    <div class="rp-section">
+      <div class="rp-title">今週のゴール（5/4〜5/10）</div>
+      <label class="rp-goal" id="wg0"><input type="checkbox" data-key="wkgoal_0" onchange="rpChk(this)"> 給与計算ガイド Ch1〜Ch7 理解度チェック完了</label>
+      <label class="rp-goal" id="wg1"><input type="checkbox" data-key="wkgoal_1" onchange="rpChk(this)"> 労務ハンドブック 第1〜3章 理解度チェック完了</label>
+      <label class="rp-goal" id="wg2"><input type="checkbox" data-key="wkgoal_2" onchange="rpChk(this)"> 簿記3級 第1問の仕訳練習 1セット完了</label>
+    </div>
+
+    <!-- 英語・TOEIC -->
+    <div class="rp-section">
+      <div class="rp-title">英語・TOEIC</div>
+      <div class="rp-title" style="font-size:0.75rem;margin-top:0;color:var(--muted)">模擬試験スコア（2026-05-05）</div>
+      <table class="toeic-tbl">
+        <tr><th>Part</th><th>内容</th><th>問題数</th><th>正答数</th></tr>
+        <tr><td>Part 1</td><td>写真描写</td><td>6問</td><td><input class="score-inp" type="number" id="tp1" min="0" max="6" placeholder="-" onchange="calcToeic()"></td></tr>
+        <tr><td>Part 2</td><td>応答問題</td><td>25問</td><td><input class="score-inp" type="number" id="tp2" min="0" max="25" placeholder="-" onchange="calcToeic()"></td></tr>
+        <tr><td>Part 3</td><td>会話問題</td><td>39問</td><td><input class="score-inp" type="number" id="tp3" min="0" max="39" placeholder="-" onchange="calcToeic()"></td></tr>
+        <tr><td>Part 4</td><td>説明文問題</td><td>30問</td><td><input class="score-inp" type="number" id="tp4" min="0" max="30" placeholder="-" onchange="calcToeic()"></td></tr>
+        <tr><td>Part 5</td><td>短文穴埋め</td><td>30問</td><td><input class="score-inp" type="number" id="tp5" min="0" max="30" placeholder="-" onchange="calcToeic()"></td></tr>
+        <tr><td>Part 6</td><td>長文穴埋め</td><td>16問</td><td><input class="score-inp" type="number" id="tp6" min="0" max="16" placeholder="-" onchange="calcToeic()"></td></tr>
+        <tr><td>Part 7</td><td>長文読解</td><td>54問</td><td><input class="score-inp" type="number" id="tp7" min="0" max="54" placeholder="-" onchange="calcToeic()"></td></tr>
+      </table>
+      <div class="toeic-totals">
+        <div class="toeic-total-item">
+          <div class="tt-label">Listening スコア</div>
+          <input class="tt-inp" type="number" id="tl" min="0" max="495" placeholder="---" onchange="calcToeic()">
+          <div class="tt-max">/ 495</div>
+        </div>
+        <div class="toeic-total-item">
+          <div class="tt-label">Reading スコア</div>
+          <input class="tt-inp" type="number" id="tr" min="0" max="495" placeholder="---" onchange="calcToeic()">
+          <div class="tt-max">/ 495</div>
+        </div>
+      </div>
+      <div class="toeic-grand">
+        <span>総合スコア</span>
+        <span class="tg-num"><span id="t-total">---</span> <span style="font-size:0.8rem;color:var(--muted)">/ 990</span></span>
+      </div>
+      <button class="toeic-save-btn" onclick="saveToeic()">💾 スコアを保存</button>
+      <div class="toeic-saved" id="toeic-saved">✓ 保存しました</div>
+
+      <!-- 英単語 -->
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr)">
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px">📚 英単語フラッシュカード</div>
+        <a href="../vocab-trainer.html" target="_blank" style="display:block;text-align:center;padding:7px;background:rgba(96,165,250,.12);color:#60a5fa;border:1px solid rgba(96,165,250,.3);border-radius:8px;font-size:0.78rem;text-decoration:none;">🔗 vocab-trainer を開く</a>
+      </div>
+    </div>
+
+    <!-- 経理・労務用語 -->
+    <div class="rp-section">
+      <div class="rp-title">経理・労務用語</div>
+      <div class="vocab-form">
+        <input class="vocab-inp" id="vocab-word" type="text" placeholder="用語">
+        <input class="vocab-inp" id="vocab-meaning" type="text" placeholder="意味">
+        <select class="vocab-sel" id="vocab-cat">
+          <option value="経理">経理</option>
+          <option value="労務">労務</option>
+        </select>
+        <button class="vocab-add-btn" onclick="addVocab()">追加</button>
+      </div>
+      <div style="font-size:0.67rem;color:var(--muted);margin:8px 0 4px">復習一覧（登録済み＋追加分）</div>
+      <div id="vocab-all-list" style="max-height:240px;overflow-y:auto;border:1px solid var(--bdr);border-radius:8px;padding:4px 8px;"></div>
+    </div>
+
+    <!-- 労務 -->
+    <div class="rp-section">
+      <div class="rp-title">労務</div>
+      <div style="font-size:0.73rem;color:var(--muted);margin-bottom:6px">給与計算ガイド（14章）</div>
+      <label class="rp-ch-row" id="kyc1"><input type="checkbox" data-key="kyuyo_ch1" data-group="labor" onchange="rpChk(this)"> Ch1：給与計算の全体構造 <span class="cs cs-start">着手済み</span></label>
+      <label class="rp-ch-row" id="kyc2"><input type="checkbox" data-key="kyuyo_ch2" data-group="labor" onchange="rpChk(this)"> Ch2：扶養の2つの基準 <span class="cs cs-start">着手済み</span></label>
+      <label class="rp-ch-row" id="kyc3"><input type="checkbox" data-key="kyuyo_ch3" data-group="labor" onchange="rpChk(this)"> Ch3：社会保険 vs 課税対象額 <span class="cs cs-done">完了</span></label>
+      <label class="rp-ch-row" id="kyc4"><input type="checkbox" data-key="kyuyo_ch4" data-group="labor" onchange="rpChk(this)"> Ch4：勤怠締めのチェックポイント <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc5"><input type="checkbox" data-key="kyuyo_ch5" data-group="labor" onchange="rpChk(this)"> Ch5：総支給額の計算 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc6"><input type="checkbox" data-key="kyuyo_ch6" data-group="labor" onchange="rpChk(this)"> Ch6：フレックス・変形労働時間制 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc7"><input type="checkbox" data-key="kyuyo_ch7" data-group="labor" onchange="rpChk(this)"> Ch7：通勤手当と立替経費 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc8"><input type="checkbox" data-key="kyuyo_ch8" data-group="labor" onchange="rpChk(this)"> Ch8：社会保険料の計算 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc9"><input type="checkbox" data-key="kyuyo_ch9" data-group="labor" onchange="rpChk(this)"> Ch9：随時改定・算定基礎届 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc10"><input type="checkbox" data-key="kyuyo_ch10" data-group="labor" onchange="rpChk(this)"> Ch10：労働保険料率のしくみ <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc11"><input type="checkbox" data-key="kyuyo_ch11" data-group="labor" onchange="rpChk(this)"> Ch11：税金の計算 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc12"><input type="checkbox" data-key="kyuyo_ch12" data-group="labor" onchange="rpChk(this)"> Ch12：給与計算シミュレーター <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc13"><input type="checkbox" data-key="kyuyo_ch13" data-group="labor" onchange="rpChk(this)"> Ch13：よくあるミスと対策 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row" id="kyc14"><input type="checkbox" data-key="kyuyo_ch14" data-group="labor" onchange="rpChk(this)"> Ch14：年間スケジュール <span class="cs cs-none">未着手</span></label>
+      <div style="font-size:0.73rem;color:var(--muted);margin:10px 0 6px">労務ハンドブック（6章）</div>
+      <label class="rp-ch-row"><input type="checkbox" data-key="roumu_ch1" data-group="labor" onchange="rpChk(this)"> 第1章：労働法・法令の基礎知識 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="roumu_ch2" data-group="labor" onchange="rpChk(this)"> 第2章：採用・入退社の手続き <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="roumu_ch3" data-group="labor" onchange="rpChk(this)"> 第3章：給与・社会保険の基礎 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="roumu_ch4" data-group="labor" onchange="rpChk(this)"> 第4章：勤怠・休暇管理 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="roumu_ch5" data-group="labor" onchange="rpChk(this)"> 第5章：ハラスメントへの対応 <span class="cs cs-none">未着手</span></label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="roumu_ch6" data-group="labor" onchange="rpChk(this)"> 第6章：就業規則・規程管理 <span class="cs cs-none">未着手</span></label>
+    </div>
+
+    <!-- 簿記3級 -->
+    <div class="rp-section">
+      <div class="rp-title">簿記3級</div>
+      <div class="rp-boki-grid">
+        <div class="rp-boki-card"><div class="bk-q">第1問</div><div class="bk-sub">仕訳（5問）</div><div class="bk-lv">未測定</div><div class="bk-dt">最終練習日：-</div></div>
+        <div class="rp-boki-card"><div class="bk-q">第2問①</div><div class="bk-sub">補助簿・伝票</div><div class="bk-lv">未測定</div><div class="bk-dt">最終練習日：-</div></div>
+        <div class="rp-boki-card"><div class="bk-q">第2問②</div><div class="bk-sub">帳簿記入</div><div class="bk-lv">未測定</div><div class="bk-dt">最終練習日：-</div></div>
+        <div class="rp-boki-card"><div class="bk-q">第3問</div><div class="bk-sub">試算表・精算表</div><div class="bk-lv">未測定</div><div class="bk-dt">最終練習日：-</div></div>
+      </div>
+      <div class="pdf-stat-bar" id="pdfStat">集計中…</div>
+      <div class="pdf-group">
+        <div class="pdf-group-title">第1問 (Q1)</div>
+        <div class="pdf-row" id="pr-Q1s1"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-1" data-group="pdf" onchange="pdfChk('Q1s1',this)"><span class="pdf-name">Q1samples-1</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-1.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q1s2"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-2" data-group="pdf" onchange="pdfChk('Q1s2',this)"><span class="pdf-name">Q1samples-2</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-2.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q1s3"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-3" data-group="pdf" onchange="pdfChk('Q1s3',this)"><span class="pdf-name">Q1samples-3</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-3.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q1s4"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-4" data-group="pdf" onchange="pdfChk('Q1s4',this)"><span class="pdf-name">Q1samples-4</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-4.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q1s5"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q1samples-5" data-group="pdf" onchange="pdfChk('Q1s5',this)"><span class="pdf-name">Q1samples-5</span></label><a class="pdf-open" href="../../bookkeeping-3/Q1Samples/Q1samples-5.pdf" target="_blank">開く</a></div>
+      </div>
+      <div class="pdf-group">
+        <div class="pdf-group-title">第2問① (Q21)</div>
+        <div class="pdf-row" id="pr-Q21s1"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q21samples-1" data-group="pdf" onchange="pdfChk('Q21s1',this)"><span class="pdf-name">Q21samples-1</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q21samples-1.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q21s2"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q21samples-2" data-group="pdf" onchange="pdfChk('Q21s2',this)"><span class="pdf-name">Q21samples-2</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q21samples-2.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q21s3"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q21samples-3" data-group="pdf" onchange="pdfChk('Q21s3',this)"><span class="pdf-name">Q21samples-3</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q21samples-3.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q21s4"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q21samples-4" data-group="pdf" onchange="pdfChk('Q21s4',this)"><span class="pdf-name">Q21samples-4</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q21samples-4.pdf" target="_blank">開く</a></div>
+      </div>
+      <div class="pdf-group">
+        <div class="pdf-group-title">第2問② (Q22)</div>
+        <div class="pdf-row" id="pr-Q22s1"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-1" data-group="pdf" onchange="pdfChk('Q22s1',this)"><span class="pdf-name">Q22samples-1</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-1.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q22s2"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-2" data-group="pdf" onchange="pdfChk('Q22s2',this)"><span class="pdf-name">Q22samples-2</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-2.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q22s3"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-3" data-group="pdf" onchange="pdfChk('Q22s3',this)"><span class="pdf-name">Q22samples-3</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-3.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q22s4"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-4" data-group="pdf" onchange="pdfChk('Q22s4',this)"><span class="pdf-name">Q22samples-4</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-4.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q22s5"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q22samples-5" data-group="pdf" onchange="pdfChk('Q22s5',this)"><span class="pdf-name">Q22samples-5</span></label><a class="pdf-open" href="../../bookkeeping-3/Q2Samples/Q22samples-5.pdf" target="_blank">開く</a></div>
+      </div>
+      <div class="pdf-group">
+        <div class="pdf-group-title">第3問 (Q3)</div>
+        <div class="pdf-row" id="pr-Q3s1"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-1" data-group="pdf" onchange="pdfChk('Q3s1',this)"><span class="pdf-name">Q3samples-1</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-1.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q3s2"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-2" data-group="pdf" onchange="pdfChk('Q3s2',this)"><span class="pdf-name">Q3samples-2</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-2.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q3s3"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-3" data-group="pdf" onchange="pdfChk('Q3s3',this)"><span class="pdf-name">Q3samples-3</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-3.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q3s4"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-4" data-group="pdf" onchange="pdfChk('Q3s4',this)"><span class="pdf-name">Q3samples-4</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-4.pdf" target="_blank">開く</a></div>
+        <div class="pdf-row" id="pr-Q3s5"><label class="pdf-label"><input type="checkbox" data-key="pdf_Q3samples-5" data-group="pdf" onchange="pdfChk('Q3s5',this)"><span class="pdf-name">Q3samples-5</span></label><a class="pdf-open" href="../../bookkeeping-3/Q3Samples/Q3samples-5.pdf" target="_blank">開く</a></div>
+      </div>
+    </div>
+
+    <!-- プライベートTODO -->
+    <div class="rp-section">
+      <div class="rp-title">プライベートTODO</div>
+      <div style="font-size:0.73rem;color:var(--muted);margin-bottom:6px">今日やること</div>
+      <div id="priv-today-list"></div>
+      <div class="vocab-form" style="margin-top:6px">
+        <input class="vocab-inp" id="priv-today-inp" type="text" placeholder="追加する">
+        <button class="vocab-add-btn" onclick="addPrivToday()">追加</button>
+      </div>
+      <div style="font-size:0.73rem;color:var(--muted);margin:14px 0 6px">短期タスク</div>
+      <label class="rp-ch-row"><input type="checkbox" data-key="priv_tax_return" onchange="rpChk(this)"> Tax return（確定申告）</label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="priv_whitening" onchange="rpChk(this)"> ホワイトニング購入</label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="priv_cashflow" onchange="rpChk(this)"> 収支計算</label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="priv_toeic_reserve" onchange="rpChk(this)"> TOEIC試験予約</label>
+      <label class="rp-ch-row"><input type="checkbox" data-key="priv_boki_reserve" onchange="rpChk(this)"> 簿記試験予約</label>
+    </div>
+
+    <!-- 月間勉強時間 -->
+    <div class="rp-section">
+      <div class="rp-title">月間勉強時間（5月）</div>
+      <div class="time-row"><span class="time-subj">📋 労務・給与計算</span><span class="time-val" id="mt-labor">0h</span></div>
+      <div class="time-row"><span class="time-subj">📒 簿記3級</span><span class="time-val" id="mt-boki">0h</span></div>
+      <div class="time-row"><span class="time-subj">🌏 英語・TOEIC</span><span class="time-val" id="mt-eigo">0h</span></div>
+      <div class="time-row"><span class="time-subj">🏢 バックオフィス</span><span class="time-val" id="mt-bo">0h</span></div>
+    </div>
+
+  </div><!-- /rightPane -->
+</div><!-- /pane-wrap -->
+
+<script>
+// ── SCHEDULE ─────────────────────────────────────────
+const BLOCKS = [
+  { id:1, start:"16:30", end:"18:30", dur:120, type:"study", color:"#a78bfa", subjectKey:"labor",
+    title:"労務 給与計算ガイド Ch4〜Ch7",
+    link:"../../labor-law/kyuyo-keisan (1).html", linkLabel:"📖 給与計算ガイド", linkClass:"labor",
+    tasks:[
+      {text:"Ch4：勤怠締めのチェックポイント", chKey:"kyuyo_ch4"},
+      {text:"Ch5：総支給額の計算",             chKey:"kyuyo_ch5"},
+      {text:"Ch6：フレックス・変形労働時間制", chKey:"kyuyo_ch6"},
+      {text:"Ch7：通勤手当と立替経費",         chKey:"kyuyo_ch7"}
+    ] },
+
+  { id:2, start:"18:30", end:"18:45", dur:15, type:"break", color:"#fbbf24", title:"☕ 休憩①", tasks:[] },
+
+  { id:3, start:"18:45", end:"20:45", dur:120, type:"study", color:"#60a5fa", subjectKey:"boki",
+    title:"簿記3級 第1問 × 2セット",
+    tasks:[
+      {text:"Q1samples-4.pdf", chKey:"pdf_Q1samples-4"},
+      {text:"Q1samples-5.pdf", chKey:"pdf_Q1samples-5"}
+    ] },
+
+  { id:4, start:"20:45", end:"21:00", dur:15, type:"break", color:"#fbbf24", title:"🌙 休憩②", tasks:[] },
+
+  { id:5, start:"21:00", end:"23:00", dur:120, type:"study", color:"#34d399", subjectKey:"eigo",
+    title:"TOEIC 模擬試験（本番形式・通し）",
+    link:"https://englishteststore.net/index.php?option=com_content&view=article&id=14406&Itemid=577#gsc.tab=0&gsc.q=Full%20TOEIC%20Practice%20Test%20Online%20&gsc.sort=", linkLabel:"🌐 模擬試験を開く",
+    tasks:[] },
+
+  { id:6, start:"23:00", end:"23:30", dur:30, type:"study", color:"#34d399", subjectKey:"eigo",
+    title:"TOEIC 振り返り・スコア入力",
+    tasks:[
+      {text:"右ペインにパート別スコアを入力して保存"},
+      {text:"間違えた問題に印をつけた"}
+    ] },
+
+  { id:7, start:"23:30", end:"23:45", dur:15, type:"break", color:"#fbbf24", title:"💧 休憩③", tasks:[] },
+
+  { id:8, start:"23:45", end:"01:00", dur:75, type:"study", color:"#60a5fa", subjectKey:"boki",
+    title:"簿記3級 第2問① 1セット",
+    tasks:[
+      {text:"Q21samples-1.pdf", chKey:"pdf_Q21samples-1"}
+    ] },
+
+  { id:9, start:"01:00", end:"01:30", dur:30, type:"study", color:"#a78bfa", subjectKey:"labor",
+    title:"労務 Ch8〜（進める分だけ）",
+    link:"../../labor-law/kyuyo-keisan (1).html", linkLabel:"📖 給与計算ガイド", linkClass:"labor",
+    tasks:[
+      {text:"Ch8：社会保険料の計算（できれば Ch9まで）", chKey:"kyuyo_ch8"}
+    ] },
+];
+
+// ── RENDER ───────────────────────────────────────────
+function renderSchedule() {
+  const wrap = document.getElementById('schedule');
+  BLOCKS.forEach(b => {
+    const isBreak = b.type === 'break';
+    const card = document.createElement('div');
+    card.className = 'blk-card' + (isBreak ? ' break-card' : '');
+    card.id = 'card-' + b.id;
+
+    const tasks = b.tasks.map((t, i) => {
+      const k = `t_20260505_${b.id}_${i}`;
+      const checked = localStorage.getItem(k) === '1';
+      const chkeyAttr = t.chKey ? ` data-chkey="${t.chKey}"` : '';
+      return `<label class="task-item${checked?' done':''}" id="li-${k}">
+        <input type="checkbox" ${checked?'checked':''} onchange="chk('${k}',this)"${chkeyAttr}>
+        <span class="task-txt">${t.text}</span>
+      </label>`;
+    }).join('');
+
+    const linkHtml = b.link
+      ? `<a class="blk-link${b.linkClass?' '+b.linkClass:''}" href="${b.link}" target="_blank">${b.linkLabel}</a>`
+      : '';
+
+    card.innerHTML = `
+      <div class="blk-head">
+        <div class="blk-left">
+          <div class="dot" style="background:${b.color}"></div>
+          <div>
+            <div class="blk-time">${b.start} – ${b.end}</div>
+            <div class="blk-title">${b.title}</div>
+            ${linkHtml}
+          </div>
+        </div>
+        <span class="dur-badge">${b.dur}分</span>
+        <button class="go-btn" onclick="activateBlk(${b.id})">${isBreak?'☕ 休憩開始':'▶ 開始'}</button>
+      </div>
+      ${!isBreak && b.tasks.length ? `<div class="task-list">${tasks}</div>` : ''}`;
+    wrap.appendChild(card);
+  });
+  updateProg();
+}
+
+function chk(k, cb) {
+  const li = document.getElementById('li-' + k);
+  if (cb.checked) {
+    localStorage.setItem(k, '1');
+    li.classList.add('done');
+    if (cb.dataset.chkey) {
+      localStorage.setItem(cb.dataset.chkey, '1');
+      const rpCb = document.querySelector(`[data-key="${cb.dataset.chkey}"]`);
+      if (rpCb && rpCb.type === 'checkbox') {
+        rpCb.checked = true;
+        const row = rpCb.closest('.rp-ch-row, .rp-goal, .pdf-row');
+        if (row) row.classList.add('done');
+      }
+    }
+  } else {
+    localStorage.removeItem(k);
+    li.classList.remove('done');
+    // chKey は削除しない（左→右の一方向同期）
+  }
+  updateProg();
+  refreshBars();
+}
+
+function updateProg() {
+  const all  = document.querySelectorAll('#schedule .task-item input[type="checkbox"]').length;
+  const done = document.querySelectorAll('#schedule .task-item input[type="checkbox"]:checked').length;
+  const pct  = all ? Math.round(done / all * 100) : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progTxt').textContent  = `${done} / ${all} タスク完了（${pct}%）`;
+}
+
+// ── RIGHT PANE ───────────────────────────────────────
+function rpChk(el) {
+  const key = el.dataset.key;
+  if (el.checked) localStorage.setItem(key, '1');
+  else            localStorage.removeItem(key);
+  const row = el.closest('.rp-ch-row, .rp-goal');
+  if (row) row.classList.toggle('done', el.checked);
+  refreshBars();
+}
+
+function pdfChk(nameOrCb, cb) {
+  // 引数の形式を両対応（後方互換）
+  var checkbox = (cb === undefined) ? nameOrCb : cb;
+  var key = checkbox.dataset.key;
+  if (checkbox.checked) localStorage.setItem(key, '1');
+  else                  localStorage.removeItem(key);
+  var row = checkbox.closest('.pdf-row');
+  if (row) row.classList.toggle('done', checkbox.checked);
+  refreshBars();
+}
+
+function refreshBars() {
+  const lbAll  = document.querySelectorAll('[data-group="labor"]');
+  const lbDone = document.querySelectorAll('[data-group="labor"]:checked');
+  const lbPct  = lbAll.length ? Math.round(lbDone.length / lbAll.length * 100) : 0;
+  document.getElementById('labor-fill').style.width = lbPct + '%';
+  document.getElementById('labor-cnt').textContent  = `${lbDone.length} / ${lbAll.length} 章`;
+
+  const pdAll  = document.querySelectorAll('[data-group="pdf"]');
+  const pdDone = document.querySelectorAll('[data-group="pdf"]:checked');
+  const pdPct  = pdAll.length ? Math.round(pdDone.length / pdAll.length * 100) : 0;
+  document.getElementById('pdf-fill').style.width = pdPct + '%';
+  document.getElementById('pdf-cnt').textContent  = `${pdDone.length} / ${pdAll.length}`;
+  const stat = document.getElementById('pdfStat');
+  if (stat) stat.textContent = `${pdDone.length} / ${pdAll.length} 完了（${pdPct}%）`;
+}
+
+function initProgress() {
+  document.querySelectorAll('[data-key]').forEach(el => {
+    if (el.type !== 'checkbox') return;
+    if (localStorage.getItem(el.dataset.key) === '1') {
+      el.checked = true;
+      const row = el.closest('.rp-ch-row, .rp-goal, .pdf-row');
+      if (row) row.classList.add('done');
+    }
+  });
+  refreshBars();
+}
+
+// ── TOEIC SCORE ──────────────────────────────────────
+const TC = 'toeic_20260505_';
+
+function calcToeic() {
+  const l = parseInt(document.getElementById('tl').value) || 0;
+  const r = parseInt(document.getElementById('tr').value) || 0;
+  document.getElementById('t-total').textContent = (l && r) ? (l + r) : '---';
+}
+
+function saveToeic() {
+  ['tp1','tp2','tp3','tp4','tp5','tp6','tp7','tl','tr'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.value) localStorage.setItem(TC + id, el.value);
+  });
+  const l = parseInt(document.getElementById('tl').value) || 0;
+  const r = parseInt(document.getElementById('tr').value) || 0;
+  if (l && r) localStorage.setItem(TC + 'total', l + r);
+  const saved = document.getElementById('toeic-saved');
+  saved.style.display = 'block';
+  setTimeout(() => { saved.style.display = 'none'; }, 2000);
+}
+
+function loadToeic() {
+  ['tp1','tp2','tp3','tp4','tp5','tp6','tp7','tl','tr'].forEach(id => {
+    const v = localStorage.getItem(TC + id);
+    if (v) document.getElementById(id).value = v;
+  });
+  calcToeic();
+}
+
+// ── STUDY TIME ───────────────────────────────────────
+const MONTH = '2026_05';
+const DATE_KEY = '2026-05-05';
+const SUBJECTS = ['labor','boki','eigo','bo'];
+let curSubject = null, subjSecs = {};
+
+function getMonthTime(s) {
+  return parseFloat(localStorage.getItem(`studytime_${MONTH}_${s}`) || '0');
+}
+function flushSubjectTime() {
+  if (curSubject && subjSecs[curSubject]) {
+    const added = subjSecs[curSubject] / 3600;
+    // 月間キー
+    const prev = getMonthTime(curSubject);
+    localStorage.setItem(`studytime_${MONTH}_${curSubject}`, String(Math.round((prev + added) * 100) / 100));
+    // 日別キー
+    const dk = `studytime_daily_${DATE_KEY}_${curSubject}`;
+    const dprev = parseFloat(localStorage.getItem(dk) || '0');
+    localStorage.setItem(dk, String(Math.round((dprev + added) * 1000) / 1000));
+    subjSecs[curSubject] = 0;
+    refreshMonthTimes();
+  }
+}
+function refreshMonthTimes() {
+  ['labor','boki','eigo','bo'].forEach(s => {
+    const el = document.getElementById('mt-' + s);
+    if (el) el.textContent = getMonthTime(s) + 'h';
+  });
+}
+
+// ── CLOCK ────────────────────────────────────────────
+setInterval(() => {
+  const n = new Date();
+  document.getElementById('clock').textContent =
+    [n.getHours(), n.getMinutes(), n.getSeconds()].map(v => String(v).padStart(2,'0')).join(':');
+}, 1000);
+
+// ── BLOCK TIMER ──────────────────────────────────────
+let blkRem = 0, blkRun = false, blkIsBreak = false, blkIv = null, curId = null;
+
+function activateBlk(id) {
+  flushSubjectTime();
+  if (curId) document.getElementById('card-' + curId)?.classList.remove('active');
+  const b = BLOCKS.find(x => x.id === id);
+  curId = id; blkIsBreak = b.type === 'break'; blkRem = b.dur * 60;
+  curSubject = b.subjectKey || null;
+  document.getElementById('blkName').textContent = b.title;
+  document.getElementById('card-' + id).classList.add('active');
+  document.getElementById('card-' + id).scrollIntoView({ behavior:'smooth', block:'nearest' });
+  clearInterval(blkIv); blkRun = true;
+  blkIsBreak ? pauseStudy() : startStudy();
+  blkIv = setInterval(tickBlk, 1000);
+  drawBlk();
+}
+
+function tickBlk() {
+  blkRem--; drawBlk();
+  if (blkRem <= 0) {
+    clearInterval(blkIv); blkRun = false; pauseStudy();
+    document.getElementById('blkName').textContent = '⏰ 時間です！';
+    beep();
+  }
+}
+
+function resumeBlk() {
+  if (!blkRun && blkRem > 0) {
+    blkRun = true;
+    if (!blkIsBreak) startStudy();
+    blkIv = setInterval(tickBlk, 1000);
+  }
+}
+function pauseBlk() { if (blkRun) { blkRun = false; clearInterval(blkIv); pauseStudy(); } }
+function resetBlk() {
+  clearInterval(blkIv); blkRun = false; pauseStudy();
+  const b = BLOCKS.find(x => x.id === curId);
+  if (b) { blkRem = b.dur * 60; drawBlk(); }
+}
+
+function drawBlk() {
+  const m = Math.floor(blkRem/60), s = blkRem%60;
+  const el = document.getElementById('blkCD');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('urgent', blkRem > 0 && blkRem <= 60);
+}
+
+// ── STUDY TIMER ──────────────────────────────────────
+const S_KEY = 'studyElap_2026-05-05';
+let studyElap = 0, studyRun = false, studyIv = null;
+
+function drawStudy() {
+  const h = Math.floor(studyElap/3600), m = Math.floor(studyElap%3600/60), s = studyElap%60;
+  document.getElementById('studyDisp').textContent =
+    `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function startStudy() {
+  if (studyRun) return;
+  studyRun = true;
+  studyIv = setInterval(() => {
+    studyElap++;
+    localStorage.setItem(S_KEY, studyElap);
+    drawStudy();
+    if (curSubject) {
+      subjSecs[curSubject] = (subjSecs[curSubject] || 0) + 1;
+      if (studyElap % 60 === 0) flushSubjectTime();
+    }
+  }, 1000);
+}
+function pauseStudy() {
+  studyRun = false;
+  clearInterval(studyIv);
+  flushSubjectTime();
+}
+
+// ── ALARM ────────────────────────────────────────────
+function beep() {
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    [0, .55, 1.1].forEach(d => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = 'sine'; o.frequency.value = 880;
+      g.gain.setValueAtTime(.4, ac.currentTime + d);
+      g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + d + .45);
+      o.start(ac.currentTime + d); o.stop(ac.currentTime + d + .5);
+    });
+  } catch(e) {}
+}
+
+// ── INIT ─────────────────────────────────────────────
+// 初回起動時のみ既知の完了済み状態をセット（localStorageが空でも正しく表示）
+var INIT_KEY = 'init_20260505_v1';
+if (!localStorage.getItem(INIT_KEY)) {
+  // session-log から判明している完了済みチャプター・PDF
+  ['kyuyo_ch1','kyuyo_ch2','kyuyo_ch3',
+   'pdf_Q1samples-1','pdf_Q1samples-2','pdf_Q1samples-3'].forEach(function(k) {
+    localStorage.setItem(k, '1');
+  });
+  localStorage.setItem(INIT_KEY, '1');
+}
+
+renderSchedule();
+initProgress();
+loadToeic();
+refreshMonthTimes();
+studyElap = parseInt(localStorage.getItem(S_KEY) || '0');
+drawStudy();
+
+// ── VOCAB ─────────────────────────────────────────────
+const STATIC_VOCAB = [
+  {word:"貸倒引当金",       meaning:"回収できなくなりそうな売掛金などに備えて積み立てておく引当金", category:"経理"},
+  {word:"電子記録債権",     meaning:"手形に代わる電子的な債権。でんさいネット等で管理", category:"経理"},
+  {word:"税抜方式",         meaning:"消費税を「仮払消費税」「仮受消費税」として別途仕訳する方法", category:"経理"},
+  {word:"間接法で記帳",     meaning:"減価償却を「減価償却累計額」勘定を使って記帳する方法", category:"経理"},
+  {word:"貯蔵品勘定",       meaning:"未使用の切手・収入印紙・事務用品などの残高を表す勘定科目", category:"経理"},
+  {word:"差入保証金",       meaning:"賃貸物件の敷金など、将来返還される前提で相手に預けたお金（資産）", category:"経理"},
+  {word:"前受金と前払費用", meaning:"前受金：代金先受けで未提供（負債）。前払費用：先払いした費用（資産）", category:"経理"},
+  {word:"同社振り出し",     meaning:"自社が振り出した手形。自社が支払い義務を負う", category:"経理"},
+  {word:"手形借入金",       meaning:"約束手形を使って借り入れたお金。満期日に支払う義務がある", category:"経理"},
+  {word:"小切手と手形",     meaning:"小切手：提示するとすぐ換金（即引落し）。手形：指定期日まで換金不可", category:"経理"},
+  {word:"共通商品券",       meaning:"複数の店舗で使える商品券。受取時は「受取商品券」勘定", category:"経理"},
+  {word:"法定控除",         meaning:"法律で義務付けられた給与控除。所得税・住民税・社会保険料", category:"労務"},
+  {word:"協定控除",         meaning:"労使の24協定に基づく控除。財形・社宅費・組合費など", category:"労務"},
+  {word:"24協定",           meaning:"労働基準法第24条に基づく労使協定（賃金控除協定）", category:"労務"},
+  {word:"月変",             meaning:"随時改定の略。固定的賃金変動で標準報酬月額が2等級以上ズレたとき変更", category:"労務"},
+  {word:"雇用保険料",       meaning:"給与から天引きされる保険料。料率は業種によって異なる", category:"労務"},
+  {word:"住民税",           meaning:"前年所得をもとに計算。6月〜翌5月の給与から毎月天引き（特別徴収）", category:"労務"},
+  {word:"標準報酬月額",     meaning:"社会保険料計算のベース。1〜50等級に区分、4〜6月の平均で毎年9月見直し", category:"労務"},
+];
+
+function addVocab() {
+  const word    = document.getElementById('vocab-word').value.trim();
+  const meaning = document.getElementById('vocab-meaning').value.trim();
+  const cat     = document.getElementById('vocab-cat').value;
+  if (!word || !meaning) return;
+  const list = JSON.parse(localStorage.getItem('vocab_pending') || '[]');
+  list.unshift({ word, meaning, category: cat, date: DATE_KEY });
+  localStorage.setItem('vocab_pending', JSON.stringify(list));
+  document.getElementById('vocab-word').value = '';
+  document.getElementById('vocab-meaning').value = '';
+  renderVocabAllList();
+}
+
+function renderVocabAllList() {
+  const el = document.getElementById('vocab-all-list');
+  if (!el) return;
+  const pending = JSON.parse(localStorage.getItem('vocab_pending') || '[]');
+  const all = [...pending, ...STATIC_VOCAB];
+  el.innerHTML = all.map(v => {
+    const bg  = v.category === '経理' ? 'rgba(91,141,238,.2)'  : 'rgba(167,139,250,.2)';
+    const col = v.category === '経理' ? '#7aadff' : '#a78bfa';
+    return `<div style="padding:5px 2px;border-bottom:1px solid rgba(51,65,85,.4)">
+      <span style="font-weight:600;font-size:0.82rem;color:var(--txt)">${v.word}</span>
+      <span style="font-size:0.62rem;padding:1px 5px;border-radius:99px;background:${bg};color:${col};margin-left:4px">${v.category}</span>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:2px">${v.meaning}</div>
+    </div>`;
+  }).join('');
+}
+
+renderVocabAllList();
+
+// ── PRIVATE TODO ──────────────────────────────────────
+const PRIV_TODAY_KEY = 'priv_today_2026-05-05';
+
+function addPrivToday() {
+  const inp = document.getElementById('priv-today-inp');
+  const text = inp.value.trim();
+  if (!text) return;
+  const list = JSON.parse(localStorage.getItem(PRIV_TODAY_KEY) || '[]');
+  list.push({ text, done: false });
+  localStorage.setItem(PRIV_TODAY_KEY, JSON.stringify(list));
+  inp.value = '';
+  renderPrivToday();
+}
+
+function togglePrivToday(i) {
+  const list = JSON.parse(localStorage.getItem(PRIV_TODAY_KEY) || '[]');
+  if (list[i]) list[i].done = !list[i].done;
+  localStorage.setItem(PRIV_TODAY_KEY, JSON.stringify(list));
+  renderPrivToday();
+}
+
+function renderPrivToday() {
+  const el = document.getElementById('priv-today-list');
+  if (!el) return;
+  const list = JSON.parse(localStorage.getItem(PRIV_TODAY_KEY) || '[]');
+  if (list.length === 0) {
+    el.innerHTML = '<div style="font-size:0.72rem;color:var(--muted);padding:4px 0">まだ追加されていません</div>';
+    return;
+  }
+  el.innerHTML = list.map((item, i) => `
+    <label class="rp-ch-row${item.done ? ' done' : ''}" onclick="togglePrivToday(${i})" style="cursor:pointer">
+      <input type="checkbox" ${item.done ? 'checked' : ''} onclick="event.stopPropagation();togglePrivToday(${i})">
+      ${item.text}
+    </label>
+  `).join('');
+}
+
+document.getElementById('priv-today-inp').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') addPrivToday();
+});
+
+renderPrivToday();
+</script>
+</body>
+</html>

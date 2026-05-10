@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>労務担当ハンドブック — 新人のための基礎テキスト</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --cream: #ede8da;
+    --accent: #c0392b;
+    --gold: #b8892a;
+    --muted: #7a7060;
+    --divider: #d4c9b0;
+    --card-bg: #fdfaf4;
+    --highlight: #fff8e6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.85;
+    font-size: 15px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 64px 48px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      rgba(255,255,255,0.015) 20px,
+      rgba(255,255,255,0.015) 40px
+    );
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent));
+  }
+  .header-label {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 700;
+    line-height: 1.3;
+    position: relative;
+    margin-bottom: 20px;
+  }
+  header h1 span {
+    display: block;
+    font-size: 0.55em;
+    font-weight: 300;
+    color: rgba(245,240,232,0.65);
+    letter-spacing: 0.08em;
+    margin-top: 8px;
+  }
+  .header-meta {
+    position: relative;
+    font-size: 13px;
+    color: rgba(245,240,232,0.55);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--cream);
+    border-bottom: 2px solid var(--divider);
+    padding: 0 48px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    display: block;
+    padding: 16px 20px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--muted);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+  nav a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 48px 100px;
+  }
+
+  /* ── CHAPTER SECTIONS ── */
+  .chapter {
+    margin-bottom: 72px;
+    animation: fadeUp 0.6s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chapter:nth-child(1) { animation-delay: 0.1s; }
+  .chapter:nth-child(2) { animation-delay: 0.2s; }
+  .chapter:nth-child(3) { animation-delay: 0.3s; }
+  .chapter:nth-child(4) { animation-delay: 0.4s; }
+  .chapter:nth-child(5) { animation-delay: 0.5s; }
+  .chapter:nth-child(6) { animation-delay: 0.6s; }
+
+  .chapter-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1.5px solid var(--divider);
+  }
+  .chapter-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 52px;
+    color: var(--accent);
+    line-height: 1;
+    opacity: 0.25;
+    min-width: 56px;
+    text-align: right;
+  }
+  .chapter-title-wrap { flex: 1; }
+  .chapter-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .chapter h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  /* ── CONTENT BLOCKS ── */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section h3 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 12px;
+    padding-left: 14px;
+    border-left: 3px solid var(--accent);
+  }
+  .section p {
+    font-size: 14.5px;
+    line-height: 1.9;
+    color: #2e2e3a;
+    margin-bottom: 12px;
+  }
+
+  /* ── CARD TABLE ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 18px 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+  }
+  .card-icon { font-size: 22px; margin-bottom: 8px; }
+  .card h4 {
+    font-size: 13.5px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .card p { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+
+  /* ── CHECKLIST ── */
+  .checklist {
+    list-style: none;
+    background: var(--card-bg);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0 24px;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 20px;
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--divider);
+    line-height: 1.6;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--divider);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .check-box.checked {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-size: 10px;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 20px 0;
+    font-size: 13.5px;
+    line-height: 1.8;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .callout.warn {
+    background: #fff8e6;
+    border-left: 4px solid var(--gold);
+    color: #5a4a1a;
+  }
+  .callout.info {
+    background: #eef6fb;
+    border-left: 4px solid #4a90c0;
+    color: #1a3a5a;
+  }
+  .callout.danger {
+    background: #fdf0ef;
+    border-left: 4px solid var(--accent);
+    color: #5a1a1a;
+  }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout strong { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0 24px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--divider);
+  }
+  .data-table th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 11px 16px;
+    font-weight: 600;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  .data-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--divider);
+    vertical-align: top;
+    line-height: 1.7;
+    background: var(--card-bg);
+  }
+  .data-table tr:nth-child(even) td { background: var(--cream); }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  /* ── STEP FLOW ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0 24px;
+  }
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px 0;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 42px;
+    bottom: 0;
+    width: 2px;
+    background: var(--divider);
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .step-body { flex: 1; padding-top: 6px; }
+  .step-body strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .step-body p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 3px 9px;
+    border-radius: 100px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  .badge-red { background: #fde8e8; color: var(--accent); }
+  .badge-gold { background: #fdf3dc; color: var(--gold); }
+  .badge-blue { background: #e6f0f8; color: #2a6090; }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    background: var(--divider);
+    border-radius: 100px;
+    height: 6px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    width: 0;
+    transition: width 1s ease 0.5s;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 40px 24px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--divider);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    header { padding: 40px 24px 32px; }
+    nav { padding: 0 8px; }
+    main { padding: 36px 20px 80px; }
+    .cards { grid-template-columns: 1fr; }
+    .chapter-num { font-size: 36px; min-width: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Labour Management Handbook</div>
+  <h1>
+    労務担当ハンドブック
+    <span>— 新人・初心者のための実務基礎テキスト —</span>
+  </h1>
+  <div class="header-meta">全6章 ／ 労働法・採用・給与・勤怠・ハラスメント・就業規則</div>
+</header>
+
+<nav>
+  <a href="#ch1">① 労働法基礎</a>
+  <a href="#ch2">② 採用・入退社</a>
+  <a href="#ch3">③ 給与・社会保険</a>
+  <a href="#ch4">④ 勤怠・休暇</a>
+  <a href="#ch5">⑤ ハラスメント</a>
+  <a href="#ch6">⑥ 就業規則</a>
+</nav>
+
+<main>
+
+  <!-- ====== CHAPTER 1 ====== -->
+  <section class="chapter" id="ch1">
+    <div class="chapter-header">
+      <div class="chapter-num">01</div>
+      <div class="chapter-title-wrap">
+        <div class="chapter-tag">Labour Law Basics</div>
+        <h2>労働法・法令の基礎知識</h2>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>労務担当が必ず知るべき主要法令</h3>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">📘</div>
+          <h4>労働基準法</h4>
+          <p>賃金・労働時間・休日・解雇など、労働条件の最低基準を定める根幹法律。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤝</div>
+          <h4>労働契約法</h4>
+          <p>労働契約の締結・変更・終了に関するルールを規定。無期転換ルールも含む。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔒</div>
+          <h4>育児・介護休業法</h4>
+          <p>育休・介護休業の取得要件や会社の義務。法改正が頻繁なため最新版の確認が必須。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⚖️</div>
+          <h4>男女雇用機会均等法</h4>
+          <p>性別を理由とした差別禁止・マタハラ防止措置義務などを定める。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏢</div>
+          <h4>パートタイム・有期雇用労働法</h4>
+          <p>同一労働同一賃金の基本。正規・非正規の不合理な待遇差を禁止。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🛡️</div>
+          <h4>労働安全衛生法</h4>
+          <p>職場の安全衛生管理・健康診断・ストレスチェックの実施義務を規定。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>労働時間の基本ルール</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>区分</th><th>法定基準</th><th>備考</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>法定労働時間</td><td>1日8時間・週40時間</td><td>超過分は時間外割増賃金が必要</td></tr>
+          <tr><td>時間外労働の上限</td><td>月45時間・年360時間</td><td>36協定の締結・届出が前提</td></tr>
+          <tr><td>時間外割増率</td><td>25%以上</td><td>月60時間超は50%以上（中小企業も適用）</td></tr>
+          <tr><td>休憩</td><td>6h超→45分、8h超→1時間</td><td>労働時間の途中に与える</td></tr>
+          <tr><td>法定休日</td><td>週1日（または4週4日）</td><td>休日労働は35%以上の割増</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div><strong>新人がつまずきやすいポイント</strong>「所定労働時間」と「法定労働時間」は別物です。就業規則に定める所定時間を超えた分が「法内残業」、法定時間を超えた分が「法定外残業（割増対象）」になります。</div>
+    </div>
+  </section>
+
+  <!-- ====== CHAPTER 2 ====== -->
+  <section class="chapter" id="ch2">
+    <div class="chapter-header">
+      <div class="chapter-num">02</div>
+      <div class="chapter-title-wrap">
+        <div class="chapter-tag">Hiring & Onboarding</div>
+        <h2>採用・入退社の手続き</h2>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>入社時に行う主要手続き（チェックリスト）</h3>
+      <ul class="checklist" id="checklist-onboard">
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>労働条件通知書（または雇用契約書）の交付・署名</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>雇用保険被保険者資格取得届（翌月10日まで）</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>健康保険・厚生年金保険 資格取得届（5日以内）</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>扶養控除等申告書・給与所得者の保険料控除申告書の回収</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>マイナンバーの取得と安全管理措置</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>給与振込口座の登録</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>通勤経路・交通費申請書の受領</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>健康診断結果の確認（直近3ヶ月以内が目安）</span></li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h3>退社時の手続きフロー</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>退職届・退職願の受理</strong>
+            <p>退職日の確認。合意退職か辞職（一方的意思表示）かで手続きが異なる。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>健康保険・厚生年金の資格喪失届</strong>
+            <p>退職日翌日が喪失日。5日以内にハローワーク・年金事務所へ届出。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>雇用保険の資格喪失届・離職証明書</strong>
+            <p>翌日から10日以内。離職票の発行希望有無を本人に確認する。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>源泉徴収票の発行</strong>
+            <p>退職後1ヶ月以内に交付義務あり（所得税法第226条）。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>年金手帳・書類の返却</strong>
+            <p>貸与物品・健康保険証の回収。私物の返却対応も確認。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <div><strong>無期転換ルール（労働契約法第18条）に注意</strong>有期雇用契約が同一使用者との間で通算5年を超えた場合、労働者の申し込みにより無期労働契約に転換しなければなりません。更新のたびに通算年数を管理しましょう。</div>
+    </div>
+  </section>
+
+  <!-- ====== CHAPTER 3 ====== -->
+  <section class="chapter" id="ch3">
+    <div class="chapter-header">
+      <div class="chapter-num">03</div>
+      <div class="chapter-title-wrap">
+        <div class="chapter-tag">Payroll & Social Insurance</div>
+        <h2>給与・社会保険の基礎</h2>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>給与計算の基本構造</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>項目</th><th>内容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>総支給額</strong></td><td>基本給 ＋ 各種手当（通勤費・残業代・役職手当など）</td></tr>
+          <tr><td>健康保険料</td><td>標準報酬月額 × 保険料率 ÷ 2（労使折半）</td></tr>
+          <tr><td>介護保険料</td><td>40歳以上が対象。健康保険と同様に標準報酬月額で計算</td></tr>
+          <tr><td>厚生年金保険料</td><td>標準報酬月額 × 18.3% ÷ 2（労使折半）</td></tr>
+          <tr><td>雇用保険料</td><td>総支給額 × 料率（一般事業：労働者負担6/1000）</td></tr>
+          <tr><td>所得税（源泉徴収）</td><td>（総支給 − 社会保険料）を課税対象に税額表で算出</td></tr>
+          <tr><td>住民税</td><td>前年所得を基に市区町村が計算。6月改定・特別徴収が基本</td></tr>
+          <tr><td><strong>差引支給額（手取り）</strong></td><td>総支給額 − 社会保険料 − 税金 − その他控除</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>社会保険の加入要件（2024年〜2025年改正含む）</h3>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🏥</div>
+          <h4>健康保険・厚生年金</h4>
+          <p>正社員は原則全員加入。パート等は「週20時間以上＋月賃金8.8万円以上」が目安（従業員規模により要件が異なる）。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">💼</div>
+          <h4>雇用保険</h4>
+          <p>週20時間以上・31日以上の雇用見込みがあれば加入義務あり。65歳以上も高年齢被保険者として適用。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔧</div>
+          <h4>労災保険</h4>
+          <p>労働者を一人でも雇用すれば強制加入。保険料は全額事業主負担。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-icon">⚠️</div>
+      <div><strong>標準報酬月額の定時決定（算定基礎届）を忘れずに</strong>毎年7月に4〜6月の平均報酬を届け出る算定基礎届（8/31まで）が必要です。これを怠ると保険料が正しく計算されません。</div>
+    </div>
+  </section>
+
+  <!-- ====== CHAPTER 4 ====== -->
+  <section class="chapter" id="ch4">
+    <div class="chapter-header">
+      <div class="chapter-num">04</div>
+      <div class="chapter-title-wrap">
+        <div class="chapter-tag">Attendance & Leave Management</div>
+        <h2>勤怠・休暇管理</h2>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>年次有給休暇の基本ルール</h3>
+      <table class="data-table">
+        <thead>
+          <tr><th>勤続年数</th><th>付与日数（週5日以上）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>6ヶ月</td><td>10日</td></tr>
+          <tr><td>1年6ヶ月</td><td>11日</td></tr>
+          <tr><td>2年6ヶ月</td><td>12日</td></tr>
+          <tr><td>3年6ヶ月</td><td>14日</td></tr>
+          <tr><td>4年6ヶ月</td><td>16日</td></tr>
+          <tr><td>5年6ヶ月</td><td>18日</td></tr>
+          <tr><td>6年6ヶ月以上</td><td>20日</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12.5px; color: var(--muted); margin-top: -8px;">※ 付与要件：全労働日の8割以上出勤。時短・パートも週所定日数に応じて比例付与。</p>
+    </div>
+
+    <div class="section">
+      <h3>年5日の年次有給休暇の確実な取得（義務）</h3>
+      <div class="callout danger">
+        <div class="callout-icon">🚨</div>
+        <div><strong>違反すると30万円以下の罰金（労基法第120条）</strong>年10日以上の有給を付与された労働者に対し、使用者は年5日を時季指定して取得させる義務があります。取得状況を必ず管理台帳で追いましょう。</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>主な特別休暇・法定休業の種類</h3>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🤱</div>
+          <h4>育児休業</h4>
+          <p>子が1歳（最長2歳）になるまで取得可。父母ともに取得可能。パパ育休（産後パパ育休）は子の生後8週以内に最大28日。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">👴</div>
+          <h4>介護休業</h4>
+          <p>対象家族1人につき通算93日まで。3回まで分割取得可能。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏥</div>
+          <h4>産前産後休業</h4>
+          <p>産前6週（多胎14週）・産後8週（強制休業）。産後8週は原則就業不可。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🩺</div>
+          <h4>子の看護休暇</h4>
+          <p>小学校就学前の子1人なら年5日、2人以上は10日。時間単位取得も可。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== CHAPTER 5 ====== -->
+  <section class="chapter" id="ch5">
+    <div class="chapter-header">
+      <div class="chapter-num">05</div>
+      <div class="chapter-title-wrap">
+        <div class="chapter-tag">Harassment Prevention</div>
+        <h2>ハラスメントへの対応</h2>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>労務担当が押さえるべき主要ハラスメント</h3>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">⚡</div>
+          <h4>パワーハラスメント（パワハラ）</h4>
+          <p>優越的地位を背景に、業務の適正範囲を超えて身体的・精神的苦痛を与える行為。大企業は2020年〜、中小は2022年〜義務化。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🚫</div>
+          <h4>セクシュアルハラスメント（セクハラ）</h4>
+          <p>職場での性的言動で働く環境を悪化させる行為。均等法により事業主に防止措置義務あり。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤰</div>
+          <h4>マタニティハラスメント（マタハラ）</h4>
+          <p>妊娠・出産・育休取得を理由とした不利益取扱いや嫌がらせ。均等法・育介法が根拠。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">👵</div>
+          <h4>ケアハラスメント（ケアハラ）</h4>
+          <p>介護休業・介護休暇の取得を理由とした不利益取扱い。育介法が根拠。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>会社が取るべき必須措置（パワハラ・セクハラ共通）</h3>
+      <ul class="checklist">
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>事業主の方針（禁止・制裁）を就業規則等に明記し、従業員へ周知</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>相談窓口（内部・外部）の設置と担当者への研修</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>相談者・行為者のプライバシー保護と秘密保持の徹底</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>相談したことを理由とした不利益取扱いの禁止を明示</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>事案発生後の迅速な事実確認・再発防止策の実施</span></li>
+      </ul>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-icon">ℹ️</div>
+      <div><strong>相談を受けたときの初動が重要</strong>まず相談者の話をしっかり聞き、「中立的に調査する」と伝えること。初動で相談者に不信感を与えると、後の対応が困難になります。記録は必ず残しましょう。</div>
+    </div>
+  </section>
+
+  <!-- ====== CHAPTER 6 ====== -->
+  <section class="chapter" id="ch6">
+    <div class="chapter-header">
+      <div class="chapter-num">06</div>
+      <div class="chapter-title-wrap">
+        <div class="chapter-tag">Work Rules & Regulations</div>
+        <h2>就業規則・規程管理</h2>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>就業規則の基本</h3>
+      <p>常時10人以上の労働者を使用する事業場には、就業規則の<strong>作成・届出</strong>が義務付けられています（労基法第89条）。また、労働者代表の意見を聴取し、意見書を添付しなければなりません。</p>
+    </div>
+
+    <div class="section">
+      <h3>就業規則に必ず記載すべき事項（絶対的記載事項）</h3>
+      <ul class="checklist">
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>始業・終業の時刻、休憩時間、休日、休暇、交替制勤務のシフト</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>賃金の決定・計算・支払いの方法、賃金の締切日と支払日、昇給に関する事項</span></li>
+        <li><span class="check-box" onclick="toggleCheck(this)"></span><span>退職（解雇の事由を含む）に関する事項</span></li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h3>就業規則変更の手順</h3>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>変更内容の検討・起案</strong>
+            <p>法改正対応や社内ニーズを踏まえ、変更が必要な条文を洗い出す。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>労働者代表（または労働組合）から意見聴取</strong>
+            <p>過半数代表者に変更案を提示し、意見書をもらう（同意不要だが記録は必須）。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>労働基準監督署への届出</strong>
+            <p>意見書添付のうえ、所轄の労基署へ届出。電子申請も可能。</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>従業員への周知</strong>
+            <p>掲示・配布・イントラネット掲載などで全従業員がいつでも閲覧できる状態にする（周知義務）。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout danger">
+      <div class="callout-icon">🚨</div>
+      <div><strong>不利益変更には「合理的な理由」が必要</strong>就業規則の変更で労働条件を引き下げる場合、労働契約法第10条により「変更の必要性・相当性・代償措置・従業員への説明」など総合的に判断されます。変更前に必ず専門家（社労士・弁護士）に相談することを推奨します。</div>
+    </div>
+
+    <div class="section">
+      <h3>管理すべき主な規程一覧</h3>
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">📋</div>
+          <h4>就業規則（本則）</h4>
+          <p>労働条件の基本を定める最上位規程。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">💴</div>
+          <h4>賃金規程</h4>
+          <p>給与の計算方法・昇給・賞与・手当の詳細を規定。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏝️</div>
+          <h4>育児・介護休業規程</h4>
+          <p>法定以上の制度を設ける場合に整備。法改正のたびに更新が必要。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏠</div>
+          <h4>テレワーク規程</h4>
+          <p>在宅・リモートワーク時の費用負担・勤怠管理・安全衛生を定める。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔐</div>
+          <h4>個人情報取扱規程</h4>
+          <p>従業員データの収集・管理・廃棄に関するルール（個人情報保護法対応）。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🤝</div>
+          <h4>ハラスメント防止規程</h4>
+          <p>相談窓口・調査手順・懲戒処分の流れを明記。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © 労務担当ハンドブック — 新人・初心者向け実務基礎テキスト ／ 本資料は一般的な情報提供を目的としています。個別の法的判断は社会保険労務士または弁護士にご相談ください。
+</footer>
+
+<script>
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    el.textContent = el.classList.contains('checked') ? '✓' : '';
+  }
+
+  // Animate progress bars on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const fill = e.target.querySelector('.progress-fill');
+        if (fill) fill.style.width = fill.dataset.width;
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('.progress-bar').forEach(b => observer.observe(b));
+
+  // Active nav highlight
+  const sections = document.querySelectorAll('.chapter');
+  const navLinks = document.querySelectorAll('nav a');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.style.borderBottomColor = 'transparent');
+        navLinks.forEach(l => l.style.color = '');
+        const link = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (link) {
+          link.style.borderBottomColor = 'var(--accent)';
+          link.style.color = 'var(--ink)';
+        }
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>

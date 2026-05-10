@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>給与計算 完全ガイド</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&family=Inconsolata:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface2: #edf1f7;
+  --border: #dce3ee;
+  --border2: #c8d3e5;
+  --text: #1a2340;
+  --text-muted: #4a5878;
+  --text-dim: #8a97b0;
+  --accent: #1a7f6e;
+  --accent-dim: rgba(26,127,110,0.10);
+  --warn: #c47a0a;
+  --warn-dim: rgba(196,122,10,0.10);
+  --danger: #c0334a;
+  --danger-dim: rgba(192,51,74,0.10);
+  --blue: #2272c0;
+  --blue-dim: rgba(34,114,192,0.10);
+  --sidebar-w: 252px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:var(--text); line-height:1.8; font-size:14.5px; }
+
+.hero {
+  padding:52px 56px 40px;
+  position:relative; overflow:hidden;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 55% 90% at 85% 10%,rgba(26,127,110,0.07) 0%,transparent 70%),
+             radial-gradient(ellipse 40% 60% at 5% 95%,rgba(34,114,192,0.05) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-eyebrow { font-family:'Inconsolata',monospace; font-size:11px; letter-spacing:0.28em; color:var(--accent); text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; position:relative; }
+.hero-eyebrow::before { content:''; display:inline-block; width:24px; height:1px; background:var(--accent); }
+.hero h1 { font-family:'Shippori Mincho',serif; font-size:clamp(26px,4vw,46px); font-weight:800; line-height:1.2; color:var(--text); margin-bottom:12px; position:relative; }
+.hero h1 em { font-style:normal; color:var(--accent); }
+.hero-sub { font-size:13.5px; color:var(--text-muted); max-width:600px; line-height:1.85; position:relative; }
+.hero-meta { margin-top:18px; display:flex; gap:12px; flex-wrap:wrap; position:relative; }
+.hero-badge { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--text-muted); background:var(--surface2); border:1px solid var(--border); border-radius:100px; padding:4px 11px; }
+
+.layout { display:flex; align-items:flex-start; max-width:1160px; margin:0 auto; }
+
+.sidebar { width:var(--sidebar-w); flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; border-right:1px solid var(--border); background:var(--surface); scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+.sidebar::-webkit-scrollbar { width:4px; }
+.sidebar::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.sidebar-inner { padding:22px 0 40px; }
+.sidebar-group { margin-bottom:4px; }
+.sidebar-label { font-size:9.5px; font-weight:700; letter-spacing:0.18em; color:var(--text-dim); text-transform:uppercase; padding:10px 18px 3px; display:block; }
+.sidebar-item { display:flex; align-items:center; gap:8px; padding:8px 18px; font-size:12px; color:var(--text-muted); text-decoration:none; cursor:pointer; transition:all 0.15s; border-left:3px solid transparent; line-height:1.4; }
+.sidebar-item:hover { color:var(--text); background:var(--surface2); }
+.sidebar-item.active { color:var(--accent); background:var(--accent-dim); border-left-color:var(--accent); font-weight:600; }
+.sidebar-num { font-family:'Inconsolata',monospace; font-size:10px; color:var(--text-dim); min-width:16px; }
+.si-ico { font-size:13px; flex-shrink:0; }
+
+.content { flex:1; min-width:0; padding:52px 52px 120px; }
+
+
+/* ACCORDION */
+.chapter { margin-bottom:10px; scroll-margin-top:24px; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.chapter-toggle { width:100%; display:flex; align-items:center; gap:14px; padding:18px 22px; cursor:pointer; background:none; border:none; text-align:left; transition:background .15s; }
+.chapter-toggle:hover { background:var(--surface2); }
+.chapter-toggle.open { background:var(--surface2); border-bottom:1px solid var(--border); }
+.ch-arrow { font-size:11px; color:var(--text-dim); transition:transform .25s; flex-shrink:0; margin-left:auto; }
+.chapter-toggle.open .ch-arrow { transform:rotate(180deg); }
+.chapter-body { display:none; padding:4px 26px 28px; }
+.chapter-body.open { display:block; animation:fadeIn .2s ease both; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+
+.chapter-header { display:flex; align-items:flex-start; gap:14px; margin-bottom:28px; padding-bottom:22px; border-bottom:2px solid var(--border); }
+.ch-num { font-family:'Inconsolata',monospace; font-size:10.5px; font-weight:700; letter-spacing:0.12em; color:var(--accent); background:var(--accent-dim); border:1px solid rgba(26,127,110,0.25); border-radius:6px; padding:3px 9px; white-space:nowrap; margin-top:3px; }
+.ch-num.warn-num { color:var(--warn); background:var(--warn-dim); border-color:rgba(196,122,10,0.25); }
+.ch-num.blue-num { color:var(--blue); background:var(--blue-dim); border-color:rgba(34,114,192,0.25); }
+.ch-num.danger-num { color:var(--danger); background:var(--danger-dim); border-color:rgba(192,51,74,0.25); }
+.ch-title h2 { font-family:'Shippori Mincho',serif; font-size:21px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.ch-title p { font-size:12px; color:var(--text-muted); letter-spacing:0.03em; }
+
+.phase-divider { display:flex; align-items:center; gap:14px; margin:56px 0 36px; }
+.phase-divider::before,.phase-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+.phase-label { font-family:'Inconsolata',monospace; font-size:10px; font-weight:700; letter-spacing:0.18em; color:var(--text-dim); text-transform:uppercase; white-space:nowrap; padding:3px 11px; background:var(--surface2); border:1px solid var(--border); border-radius:100px; }
+
+.block { margin-bottom:44px; }
+h3 { font-family:'Shippori Mincho',serif; font-size:15.5px; font-weight:600; color:var(--accent); margin-bottom:13px; display:flex; align-items:center; gap:8px; }
+h3::before { content:''; display:inline-block; width:3px; height:13px; background:var(--accent); border-radius:2px; flex-shrink:0; }
+p { color:var(--text-muted); font-size:14px; line-height:1.9; margin-bottom:11px; }
+p strong { color:var(--text); font-weight:600; }
+
+.formula { background:var(--surface); border:1px solid var(--border2); border-radius:11px; padding:20px 24px; margin:14px 0 22px; position:relative; overflow:hidden; }
+.formula::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--blue),transparent); }
+.formula-label { font-family:'Inconsolata',monospace; font-size:9.5px; letter-spacing:0.2em; color:var(--accent); text-transform:uppercase; margin-bottom:10px; }
+.formula-body { font-family:'Inconsolata',monospace; font-size:14px; color:var(--text); line-height:2; }
+.formula-body .op { color:var(--text-muted); margin:0 5px; }
+.formula-body .val { color:var(--accent); font-weight:600; }
+.formula-body .minus { color:var(--danger); }
+.formula-body .note { display:block; font-size:11px; color:var(--text-dim); margin-top:4px; font-family:'Noto Sans JP',sans-serif; letter-spacing:0; }
+
+.dt { width:100%; border-collapse:collapse; font-size:12.5px; margin:13px 0 22px; border-radius:9px; overflow:hidden; border:1px solid var(--border); }
+.dt th { background:var(--surface2); color:var(--text-muted); padding:9px 14px; text-align:left; font-weight:600; font-size:11px; letter-spacing:0.06em; border-bottom:1px solid var(--border2); }
+.dt td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.65; color:var(--text-muted); background:var(--surface); }
+.dt td:first-child { color:var(--text); font-weight:500; }
+.dt tr:last-child td { border-bottom:none; }
+.dt tr:hover td { background:var(--surface2); }
+.em { color:var(--accent)!important; font-weight:600!important; }
+.em-warn { color:var(--warn)!important; }
+.em-danger { color:var(--danger)!important; }
+
+.callout { border-radius:9px; padding:14px 18px; margin:14px 0 22px; display:flex; gap:12px; font-size:13px; line-height:1.85; }
+.callout.info { background:var(--blue-dim); border:1px solid rgba(34,114,192,0.2); color:var(--blue); }
+.callout.warn { background:var(--warn-dim); border:1px solid rgba(196,122,10,0.2); color:var(--warn); }
+.callout.danger { background:var(--danger-dim); border:1px solid rgba(192,51,74,0.2); color:var(--danger); }
+.callout.tip { background:var(--accent-dim); border:1px solid rgba(26,127,110,0.2); color:var(--accent); }
+.callout-ico { font-size:16px; flex-shrink:0; margin-top:2px; }
+.callout strong { display:block; font-size:11.5px; font-weight:700; margin-bottom:3px; }
+
+.cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:13px 0 22px; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:15px 17px; transition:border-color 0.2s,transform 0.2s; }
+.card:hover { border-color:var(--border2); transform:translateY(-2px); }
+.card-ico { font-size:19px; margin-bottom:8px; }
+.card h4 { font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:5px; }
+.card p { font-size:11.5px; color:var(--text-muted); margin:0; line-height:1.65; }
+
+.steps { margin:13px 0 22px; }
+.step { display:flex; gap:13px; padding:13px 0; position:relative; }
+.step:not(:last-child)::after { content:''; position:absolute; left:14px; top:40px; bottom:0; width:1px; background:var(--border2); }
+.step-n { width:28px; height:28px; border-radius:50%; background:var(--surface2); border:1px solid var(--border2); color:var(--accent); font-family:'Inconsolata',monospace; font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative; z-index:1; }
+.step-body { flex:1; padding-top:3px; }
+.step-body strong { display:block; font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px; }
+.step-body p { font-size:12.5px; margin:0; }
+
+.rate-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:13px 0 22px; }
+.rate-card { background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:16px 18px; display:flex; flex-direction:column; gap:7px; }
+.rate-label { font-size:10.5px; color:var(--text-muted); letter-spacing:0.06em; font-weight:600; text-transform:uppercase; }
+.rate-val { font-family:'Inconsolata',monospace; font-size:28px; font-weight:700; color:var(--accent); line-height:1; }
+.rate-val small { font-size:12px; color:var(--text-muted); font-weight:400; }
+.rate-note { font-size:11px; color:var(--text-dim); line-height:1.6; }
+
+.sim-wrap { background:var(--surface); border:1px solid var(--border); border-radius:11px; overflow:hidden; margin:14px 0 22px; }
+.sim-header { background:var(--surface2); padding:11px 20px; border-bottom:1px solid var(--border); font-family:'Inconsolata',monospace; font-size:10px; letter-spacing:0.2em; color:var(--accent); text-transform:uppercase; }
+.sim-body { padding:20px 22px; }
+.sim-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; margin-bottom:16px; }
+.sim-field label { display:block; font-size:10.5px; font-weight:600; color:var(--text-muted); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:5px; }
+.sim-field input,.sim-field select { width:100%; background:var(--bg); border:1px solid var(--border2); border-radius:7px; padding:9px 12px; font-size:13.5px; font-family:'Inconsolata',monospace; color:var(--text); outline:none; transition:border-color 0.2s; }
+.sim-field input:focus,.sim-field select:focus { border-color:var(--accent); }
+.sim-btn { width:100%; padding:11px; background:var(--accent); color:#fff; border:none; border-radius:7px; font-size:14px; font-weight:700; font-family:'Noto Sans JP',sans-serif; cursor:pointer; transition:opacity 0.2s; margin-bottom:18px; }
+.sim-btn:hover { opacity:0.87; }
+.sim-result { display:none; border-top:1px solid var(--border); padding-top:16px; }
+.sim-result.show { display:block; }
+.result-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+.result-row:last-child { border-bottom:none; }
+.result-row .r-label { color:var(--text-muted); }
+.result-row .r-val { font-family:'Inconsolata',monospace; font-weight:600; color:var(--text); }
+.result-row.deduct .r-val { color:var(--danger); }
+.result-row.total { margin-top:4px; padding-top:12px; border-top:1px solid var(--border2)!important; border-bottom:none!important; }
+.result-row.total .r-label { color:var(--text); font-size:14px; font-weight:700; }
+.result-row.total .r-val { font-size:20px; color:var(--accent); }
+
+.cklist { list-style:none; margin:13px 0 22px; }
+.cklist li { display:flex; gap:10px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--border); font-size:12.5px; color:var(--text-muted); }
+.cklist li:last-child { border-bottom:none; }
+.ck { width:16px; height:16px; border:1.5px solid var(--border2); border-radius:3px; flex-shrink:0; margin-top:2px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; transition:all 0.2s; }
+.ck.on { background:var(--accent); border-color:var(--accent); }
+
+
+
+footer { text-align:center; padding:30px 24px; font-size:11px; color:var(--text-dim); border-top:1px solid var(--border); letter-spacing:0.05em; }
+
+@media(max-width:860px){
+  .sidebar{display:none;}
+  .content{padding:28px 18px 80px;}
+  .hero{padding:32px 18px 24px;}
+  .sim-grid,.rate-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Payroll Calculation Complete Guide</div>
+  <h1>給与計算<em>完全</em>ガイド</h1>
+  <p class="hero-sub">基礎知識から実務手続き・特殊制度まで、新人労務担当が現場で使える全14章の実務テキスト。総支給の計算・社保・税金・フレックス・扶養の壁まで体系的に整理しています。</p>
+  <div class="hero-meta">
+    <span class="hero-badge">📚 全14章</span>
+    <span class="hero-badge">🧮 計算シミュレーター付き</span>
+    <span class="hero-badge">✅ チェックリスト付き</span>
+    <span class="hero-badge">⚠️ 2026年度料率対応</span>
+  </div>
+</div>
+
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar-inner">
+    <div class="sidebar-group">
+      <span class="sidebar-label">基礎・前提知識</span>
+      <a class="sidebar-item active" href="#ch1" ><span class="sidebar-num">01</span><span class="si-ico">🏗️</span>給与計算の全体構造</a>
+      <a class="sidebar-item" href="#ch2" ><span class="sidebar-num">02</span><span class="si-ico">👨‍👩‍👧</span>扶養の2つの基準</a>
+      <a class="sidebar-item" href="#ch3" ><span class="sidebar-num">03</span><span class="si-ico">🔍</span>社保・課税対象の違い</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">インプット（勤怠→支給）</span>
+      <a class="sidebar-item" href="#ch4" ><span class="sidebar-num">04</span><span class="si-ico">📋</span>勤怠締めのチェック</a>
+      <a class="sidebar-item" href="#ch5" ><span class="sidebar-num">05</span><span class="si-ico">💰</span>総支給額の計算</a>
+      <a class="sidebar-item" href="#ch6" ><span class="sidebar-num">06</span><span class="si-ico">⏱️</span>フレックス・変形労働</a>
+      <a class="sidebar-item" href="#ch7" ><span class="sidebar-num">07</span><span class="si-ico">🚃</span>通勤手当・立替経費</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">控除計算</span>
+      <a class="sidebar-item" href="#ch8" ><span class="sidebar-num">08</span><span class="si-ico">🛡️</span>社会保険料の計算</a>
+      <a class="sidebar-item" href="#ch9" ><span class="sidebar-num">09</span><span class="si-ico">📊</span>月変・算定基礎届</a>
+      <a class="sidebar-item" href="#ch10" ><span class="sidebar-num">10</span><span class="si-ico">🔧</span>労働保険料率</a>
+      <a class="sidebar-item" href="#ch11" ><span class="sidebar-num">11</span><span class="si-ico">🧾</span>税金の計算</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-label">実務ツール</span>
+      <a class="sidebar-item" href="#ch12" ><span class="sidebar-num">12</span><span class="si-ico">🔢</span>計算シミュレーター</a>
+      <a class="sidebar-item" href="#ch13" ><span class="sidebar-num">13</span><span class="si-ico">⚠️</span>よくあるミス</a>
+      <a class="sidebar-item" href="#ch14" ><span class="sidebar-num">14</span><span class="si-ico">📆</span>年間スケジュール</a>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+
+<div class="phase-divider"><span class="phase-label">Phase 1 — 基礎・前提知識</span></div>
+
+<!-- CH1 -->
+<section class="chapter" id="ch1">
+  <button class="chapter-toggle open" onclick="toggleChapter(this)">
+    <div class="ch-num">01</div>
+    <div class="ch-title"><h2>給与計算の全体構造</h2><p>「何を足して、何を引くか」を理解することが第一歩</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body open">
+<div class="block">
+    <div class="formula">
+      <div class="formula-label">基本公式</div>
+      <div class="formula-body">
+        <span class="val">差引支給額（手取り）</span><br>
+        <span class="op">＝</span><span class="val">総支給額</span>
+        <span class="op minus">－</span><span class="minus">社会保険料（健保＋介護＋厚年＋雇用）</span>
+        <span class="op minus">－</span><span class="minus">所得税（源泉徴収税額）</span>
+        <span class="op minus">－</span><span class="minus">住民税（特別徴収）</span>
+        <span class="op minus">－</span><span class="minus">その他控除（財形・組合費 等）</span>
+        <span class="note">※ 控除は「法定控除」と「協定控除」に分かれる。賃金控除協定（24協定）がないと組合費等は控除不可</span>
+      </div>
+    </div>
+    <h3>法定控除と協定控除を区別する</h3>
+    <table class="dt">
+      <thead><tr><th>種別</th><th>具体例</th><th>根拠</th><th>注意点</th></tr></thead>
+      <tbody>
+        <tr><td class="em">法定控除</td><td>所得税・住民税・社会保険料</td><td>法律上の義務</td><td>協定なしで控除可能</td></tr>
+        <tr><td class="em-warn">協定控除</td><td>財形・社宅費・労組費・貸付返済</td><td>労基法24条の24協定</td><td><strong>24協定がなければ控除不可</strong></td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>賃金全額払いの原則（労基法第24条）</strong>協定なしに社宅費や組合費を控除すると法違反。入社直後に24協定の有無と対象項目を必ず確認しましょう。</div></div>
+  </div>
+  <div class="block">
+    <h3>月次の給与計算フロー</h3>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-body"><strong>勤怠データの締め・集計</strong><p>時間外・休日・深夜労働時間を集計。欠勤・遅刻早退の時間も確認。</p></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-body"><strong>総支給額の計算</strong><p>基本給＋各手当＋時間外・深夜・休日の割増賃金を合算。</p></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-body"><strong>社会保険料の算定・控除</strong><p>標準報酬月額に各保険料率を乗じる。月変・算定の時期は料率変更に注意。</p></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-body"><strong>所得税（源泉徴収）の計算</strong><p>課税対象額（総支給－社保）を税額表（甲欄・乙欄・丙欄）に当てはめる。</p></div></div>
+      <div class="step"><div class="step-n">5</div><div class="step-body"><strong>住民税の控除</strong><p>市区町村の「特別徴収税額通知書」の金額をそのまま控除。6月改定に注意。</p></div></div>
+      <div class="step"><div class="step-n">6</div><div class="step-body"><strong>その他控除・手取りの確定・明細交付</strong><p>24協定控除を差し引き確定。給与明細を作成・交付。</p></div></div>
+      <div class="step"><div class="step-n">7</div><div class="step-body"><strong>振込・源泉税の納付</strong><p>源泉所得税は翌月10日まで（特例：7月と翌年1月）に納付。</p></div></div>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH2 -->
+<section class="chapter" id="ch2">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num danger-num">02</div>
+    <div class="ch-title"><h2>扶養の2つの基準：税法上 vs 社会保険上</h2><p>「扶養内で働く」が何を指すかは法律によって異なる</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <div class="callout danger"><div class="callout-ico">🚨</div><div><strong>税の扶養と社保の扶養は別物</strong>根拠法・判定基準・収入の定義が全て異なります。「どちらかに入れば両方OK」ではありません。</div></div>
+    <h3>2つの扶養の比較</h3>
+    <table class="dt">
+      <thead><tr><th>項目</th><th>税法上の扶養（所得税）</th><th>社会保険上の扶養（健保・年金）</th></tr></thead>
+      <tbody>
+        <tr><td>根拠法</td><td>所得税法</td><td>健康保険法・国民年金法</td></tr>
+        <tr><td>判定期間</td><td class="em">1月1日〜12月31日の年間所得</td><td class="em">認定時点から将来1年間の見込収入</td></tr>
+        <tr><td>収入上限</td><td>合計所得48万円以下（給与103万円以下）</td><td>年収130万円未満（60歳以上・障害者は180万円未満）</td></tr>
+        <tr><td>収入の定義</td><td>給与・事業所得・年金（税法上の収入）</td><td>給与・賞与・<strong>通勤手当・失業給付</strong>など非課税も含む</td></tr>
+        <tr><td>判定者</td><td>税務署（年末調整・確定申告）</td><td>健保組合・協会けんぽ（認定申請が必要）</td></tr>
+        <tr><td>遡及</td><td>暦年で確定するため遡及なし</td><td>要件を満たさなくなった時点から遡って資格喪失・保険料返還の場合あり</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="block">
+    <h3>収入の壁：6つの閾値</h3>
+    <div class="cards">
+      <div class="card"><div class="card-ico">📌</div><h4>100万円の壁</h4><p>住民税の均等割が発生し始める目安（自治体により異なる）。</p></div>
+      <div class="card"><div class="card-ico">📌</div><h4>103万円の壁</h4><p>所得税の扶養・配偶者控除の適用外になるライン。給与収入103万円＝給与所得48万円。</p></div>
+      <div class="card" style="border-color:var(--accent);background:var(--accent-dim)"><div class="card-ico">⭐</div><h4>106万円の壁</h4><p>51人以上企業で社保加入義務が発生（週20h以上・月8.8万円以上等の要件あり）。</p></div>
+      <div class="card" style="border-color:var(--accent);background:var(--accent-dim)"><div class="card-ico">⭐</div><h4>130万円の壁</h4><p>社保の被扶養者から外れるライン。国保・国民年金へ自分で加入必要。</p></div>
+      <div class="card"><div class="card-ico">📌</div><h4>150万円の壁</h4><p>配偶者特別控除が段階的に減り始めるライン。</p></div>
+      <div class="card"><div class="card-ico">📌</div><h4>201万円の壁</h4><p>配偶者特別控除が完全にゼロになるライン（配偶者の合計所得133万円超）。</p></div>
+    </div>
+    <div class="callout tip"><div class="callout-ico">💡</div><div><strong>「106万円の壁」は2024年10月から51人以上に拡大</strong>従来100人超でしたが引き下げ。2026年10月には全企業に適用拡大予定。対象企業の確認と従業員への周知が重要です。</div></div>
+  </div>
+  <div class="block">
+    <h3>労務担当の具体的な対応チェックリスト</h3>
+    <ul class="cklist">
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>年末に「被扶養者異動届」の提出を従業員に促す</strong>（収入が130万円に近づいた家族がいる場合）</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>扶養控除等申告書の内容変更を年末調整時に回収する</strong>（税の扶養の変更）</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>106万円の壁に近いパート・アルバイトへ社保加入義務の発生タイミングを説明する</strong></span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>被扶養者認定の基準を健保組合・協会けんぽに都度確認する</strong>（組合によって基準が異なる場合がある）</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>被扶養者が収入要件を超えた場合は速やかに資格喪失手続きを行う</strong>（遡及喪失は保険給付返還が発生）</span></li>
+    </ul>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH3 -->
+<section class="chapter" id="ch3">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num blue-num">03</div>
+    <div class="ch-title"><h2>社会保険対象額 vs 課税対象額</h2><p>「同じ給与」でも社保と税では含める項目が異なる</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <div class="formula">
+      <div class="formula-label">2つの「対象額」の違い</div>
+      <div class="formula-body">
+        <span class="val">社会保険料算定の対象（報酬）</span><br>
+        <span class="op">＝</span> 基本給 ＋ 各手当 ＋ <span class="val">通勤手当（全額）</span> ＋ 現物給与<br>
+        <span class="note">※ 非課税か否かを問わず「報酬」に該当するものは全て対象</span><br>
+        <br>
+        <span class="val">所得税課税の対象（給与所得）</span><br>
+        <span class="op">＝</span> 基本給 ＋ 各手当 <span class="minus">－ 非課税通勤手当（上限15万円/月）</span> <span class="minus">－ 非課税現物給与</span>
+        <span class="note">※ 社保では「含む」が、税では「除く」ものが多い点に注意</span>
+      </div>
+    </div>
+    <h3>手当・給付ごとの社保・税の取扱い一覧</h3>
+    <table class="dt">
+      <thead><tr><th>項目</th><th>社会保険（報酬）</th><th>所得税（課税）</th><th>備考</th></tr></thead>
+      <tbody>
+        <tr><td>基本給・役職手当</td><td class="em">対象</td><td class="em">課税</td><td></td></tr>
+        <tr><td>残業代（割増賃金）</td><td class="em">対象</td><td class="em">課税</td><td></td></tr>
+        <tr><td>通勤手当</td><td class="em">対象（全額）</td><td class="em-warn">非課税（月15万円まで）</td><td>社保では全額報酬。税は超過分が課税</td></tr>
+        <tr><td>住宅手当（一律支給）</td><td class="em">対象</td><td class="em">課税</td><td>費用実費連動でも社保は対象</td></tr>
+        <tr><td>家族手当（人数連動）</td><td class="em">対象</td><td class="em">課税</td><td>割増基礎からは除外可</td></tr>
+        <tr><td>社宅（現物給与）</td><td class="em">対象（賃貸料相当額）</td><td class="em-warn">一部非課税</td><td>賃貸料相当額が報酬算定に含まれる</td></tr>
+        <tr><td>慶弔見舞金</td><td class="em-warn">対象外（臨時）</td><td class="em-warn">非課税（社会通念上相当額）</td><td></td></tr>
+        <tr><td>出張旅費・日当</td><td class="em-warn">対象外（実費弁償）</td><td class="em-warn">非課税（実費相当）</td><td>日当が過大なら課税リスクあり</td></tr>
+        <tr><td>賞与（年3回以下）</td><td class="em">対象（標準賞与額で計算）</td><td class="em">課税</td><td></td></tr>
+        <tr><td>退職金</td><td class="em-warn">対象外</td><td class="em-warn">退職所得として分離課税</td><td>勤続年数に応じた控除あり</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>通勤手当は「社保対象だが税は非課税」の典型例</strong>月15万円以内の通勤手当は所得税がかかりませんが、社会保険料の算定には含まれます。手取り計算で混同すると誤りになります。</div></div>
+  </div>
+  <div class="block">
+    <h3>DC（確定拠出年金）とふるさと納税の扱い</h3>
+    <div class="cards">
+      <div class="card"><div class="card-ico">🏦</div><h4>企業型DC</h4><p>事業主掛金は<strong>課税対象外・社保対象外</strong>。従業員のマッチング拠出は小規模企業共済等掛金控除として年末調整で所得控除できる。証明書の回収漏れに注意。</p></div>
+      <div class="card"><div class="card-ico">💳</div><h4>iDeCo（個人型DC）</h4><p>掛金は<strong>全額所得控除</strong>。社保の算定には影響しない。年末調整で控除証明書が必要。</p></div>
+      <div class="card"><div class="card-ico">🗾</div><h4>ふるさと納税</h4><p>給与計算とは直接無関係。ワンストップ特例なら確定申告不要。翌年6月の住民税が下がる形で恩恵を受ける。</p></div>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<div class="phase-divider"><span class="phase-label">Phase 2 — インプット（勤怠→支給）</span></div>
+
+<!-- CH4 -->
+<section class="chapter" id="ch4">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num warn-num">04</div>
+    <div class="ch-title"><h2>勤怠締めのチェックポイント</h2><p>給与計算の精度は「勤怠データの品質」で決まる</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <h3>勤怠締め作業フロー</h3>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-body"><strong>締日到来 → 勤怠システムのロック</strong><p>締日翌日以降の修正を防ぐため入力を締め切る。修正は承認フロー経由。</p></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-body"><strong>申請モレ・未承認の確認</strong><p>残業申請・有給申請・欠勤届けが未承認のまま残っていないかチェック。</p></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-body"><strong>打刻エラー・異常値のスクリーニング</strong><p>退勤打刻なし・深夜打刻・24時間超労働などの異常値を本人・上長に確認。</p></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-body"><strong>法定時間・36協定の上限チェック</strong><p>月45時間・年360時間の上限超えを確認。特別条項の年6回・月100時間未満等の要件も確認。</p></div></div>
+      <div class="step"><div class="step-n">5</div><div class="step-body"><strong>有給残日数・時効チェック</strong><p>付与から2年で時効消滅する有給が発生していないか。年5日取得義務の消化状況も確認。</p></div></div>
+      <div class="step"><div class="step-n">6</div><div class="step-body"><strong>給与計算システムへのデータ連携・照合</strong><p>エクスポート後、件数・合計時間のダブルチェックを実施。</p></div></div>
+    </div>
+  </div>
+  <div class="block">
+    <h3>締め時の確認チェックリスト</h3>
+    <ul class="cklist">
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>全員の出勤日数・休日数の合計が暦日数と一致しているか</strong></span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>残業申請と打刻実績のかい離が大きい社員がいないか</strong>（サービス残業の把握）</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>法定休日出勤が正しく「休出」として区分されているか</strong>（所定休日と混同しやすい）</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>深夜時間帯（22〜5時）の打刻が別途集計されているか</strong></span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>欠勤・遅刻・早退の記録が上長承認済みか</strong></span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>育休・産休・介護休業者の勤怠が正しく「休業」として処理されているか</strong></span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>月60時間超の時間外がある場合、50%割増の対象として区分できているか</strong></span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>新入社員・中途入社者の入社日と日割り計算の根拠が明確か</strong></span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>退職者の最終勤務日・有給消化状況が確定しているか</strong></span></li>
+    </ul>
+    <div class="callout info"><div class="callout-ico">ℹ️</div><div><strong>「所定休日」と「法定休日」の区別が重要</strong>週2日休みなら1日は「法定休日（35%割増）」、もう1日は「所定休日（25%割増）」です。就業規則に明記していないと割増率の判断ができません。</div></div>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH5 -->
+<section class="chapter" id="ch5">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num warn-num">05</div>
+    <div class="ch-title"><h2>総支給額の計算</h2><p>残業代の計算を正確に行うことが最重要ポイント</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <h3>割増賃金の種類と率</h3>
+    <div class="rate-grid">
+      <div class="rate-card"><div class="rate-label">時間外（法定外残業）</div><div class="rate-val">25<small>%以上</small></div><div class="rate-note">1日8h・週40hを超えた部分。36協定の締結が前提。</div></div>
+      <div class="rate-card"><div class="rate-label">時間外（月60時間超）</div><div class="rate-val">50<small>%以上</small></div><div class="rate-note">月60h超は中小含め全企業が50%以上（2023年4月〜）。</div></div>
+      <div class="rate-card"><div class="rate-label">深夜（22時〜5時）</div><div class="rate-val">25<small>%以上</small></div><div class="rate-note">時間外と重なる場合は合算（最低50%）。</div></div>
+      <div class="rate-card"><div class="rate-label">法定休日労働</div><div class="rate-val">35<small>%以上</small></div><div class="rate-note">週1日の法定休日。所定休日は25%。</div></div>
+    </div>
+    <div class="formula">
+      <div class="formula-label">割増賃金単価</div>
+      <div class="formula-body">
+        <span class="val">割増賃金（1h）</span><span class="op">＝</span><span class="val">基礎賃金 ÷ 月所定労働時間数</span><span class="op">×</span><span class="val">割増率</span>
+        <span class="note">※「基礎賃金」は家族手当・通勤手当・住宅手当（実費連動）・臨時賃金・1ヶ月超の賃金を除いた賃金</span>
+        <span class="note">※ 月所定労働時間数 ＝ 年間所定労働日数 × 1日の所定労働時間 ÷ 12</span>
+      </div>
+    </div>
+    <h3>割増賃金の計算から除外できる手当</h3>
+    <table class="dt">
+      <thead><tr><th>除外できる手当</th><th>条件</th></tr></thead>
+      <tbody>
+        <tr><td>家族手当</td><td>扶養家族の人数に応じた支給の場合のみ。一律支給は除外不可</td></tr>
+        <tr><td>通勤手当</td><td>通勤実費・定期代に応じた額の場合のみ</td></tr>
+        <tr><td>住宅手当</td><td>住宅費用に応じた支給の場合のみ</td></tr>
+        <tr><td>臨時に支払われた賃金</td><td>結婚祝い金・見舞金など不定期なもの</td></tr>
+        <tr><td>1ヶ月超の期間に支払われる賃金</td><td>賞与（ただし年4回以上の賞与は含まれる）</td></tr>
+      </tbody>
+    </table>
+    <div class="callout danger"><div class="callout-ico">🚨</div><div><strong>「職務手当」「営業手当」は原則除外不可</strong>名称が手当でも実態として一律支給されているものは除外できません。よくある誤りです。</div></div>
+  </div>
+  <div class="block">
+    <h3>欠勤・遅刻早退の控除計算</h3>
+    <div class="formula">
+      <div class="formula-label">欠勤控除額</div>
+      <div class="formula-body">
+        <span class="val">控除額</span><span class="op">＝</span><span class="val">基本給 ÷ 月の所定労働日数</span><span class="op">×</span><span class="val">欠勤日数</span>
+        <span class="note">※ 「暦日数」「年間平均所定日数」を使う会社もある。就業規則を確認のこと</span>
+      </div>
+    </div>
+    <div class="callout tip"><div class="callout-ico">💡</div><div><strong>ノーワーク・ノーペイの原則</strong>働いていない時間・日数の賃金は支払わなくてよい。ただし有給・産休・育休中の賃金の扱いは規定を確認してください。</div></div>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH6 -->
+<section class="chapter" id="ch6">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num">06</div>
+    <div class="ch-title"><h2>フレックスタイム制と変形労働時間制</h2><p>「何時間働いたら残業か」が通常と異なる制度を整理する</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <h3>3制度の比較</h3>
+    <table class="dt">
+      <thead><tr><th>制度</th><th>概要</th><th>残業の考え方</th><th>導入要件</th></tr></thead>
+      <tbody>
+        <tr><td class="em">フレックスタイム制</td><td>清算期間（最大3ヶ月）の総労働時間を定め、始終業時刻を従業員が自由に決定</td><td>清算期間の<strong>総枠時間を超えた時間</strong></td><td>就業規則への定め＋労使協定（1ヶ月超の清算期間は届出必要）</td></tr>
+        <tr><td class="em">1ヶ月単位変形</td><td>1ヶ月以内の期間で労働時間を変動。特定の週・日に長く働かせることができる</td><td>変形期間の<strong>法定労働時間の総枠</strong>を超えた時間</td><td>就業規則または労使協定</td></tr>
+        <tr><td class="em">1年単位変形</td><td>繁閑に合わせて年間の労働時間を設定する</td><td>1年の法定労働時間総枠（約2085h）を超えた時間</td><td>労使協定の締結＋労基署への届出が必須</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="block">
+    <h3>フレックスタイム制の給与計算</h3>
+    <div class="formula">
+      <div class="formula-label">フレックスの清算計算</div>
+      <div class="formula-body">
+        <span class="val">清算期間の総枠時間</span><span class="op">＝</span><span class="val">40h × 清算期間の暦日数 ÷ 7</span>
+        <span class="note">例：3月（31日）の場合 → 40 × 31 ÷ 7 ≒ 177.1時間</span><br><br>
+        <span class="val">不足時間</span><span class="op">→</span> 翌清算期間に繰り越すか<span class="minus">賃金控除</span>するか就業規則で定める<br>
+        <span class="val">超過時間</span><span class="op">→</span> 総枠超過分のみ<span class="val">割増賃金の支払い</span>対象
+        <span class="note">※ 清算期間が1ヶ月超の場合、各月の上限（週50h換算）を超えた分も毎月精算が必要</span>
+      </div>
+    </div>
+    <div class="callout danger"><div class="callout-ico">🚨</div><div><strong>「みなし残業込みだから割増不要」は誤り</strong>フレックスでも清算期間の総枠を超えた時間には割増賃金が必要です。固定残業代の上限時間を超えた分は必ず追加支払いが必要です。</div></div>
+  </div>
+  <div class="block">
+    <h3>変形労働時間制の注意点</h3>
+    <div class="cards">
+      <div class="card"><div class="card-ico">📅</div><h4>シフトの事前確定が必須</h4><p>変形期間開始前に各日・各週の労働時間を特定。後からシフトを増やすことは原則不可。</p></div>
+      <div class="card"><div class="card-ico">🔄</div><h4>途中入退社者の精算</h4><p>変形期間の途中で入退社した場合、実際の労働時間と週40h換算を比較して過不足を精算する。</p></div>
+      <div class="card"><div class="card-ico">⚖️</div><h4>育休・有給取得者への注意</h4><p>育休・産休中は変形期間の総枠計算から除外。有給取得日は所定労働時間分を労働したものとみなして計算。</p></div>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH7 -->
+<section class="chapter" id="ch7">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num">07</div>
+    <div class="ch-title"><h2>通勤手当と立替経費の違い</h2><p>「給与」か「経費精算」かで税務・社保の扱いが180度変わる</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <h3>根本的な違い</h3>
+    <table class="dt">
+      <thead><tr><th>区分</th><th>通勤手当</th><th>立替経費（旅費・交通費精算）</th></tr></thead>
+      <tbody>
+        <tr><td>性質</td><td>賃金の一種（給与）</td><td>会社の費用を従業員が一時立替（実費弁償）</td></tr>
+        <tr><td>法的根拠</td><td>就業規則・賃金規程</td><td>旅費規程・経費精算規程</td></tr>
+        <tr><td>社会保険（報酬）</td><td class="em">報酬に含まれる</td><td class="em-warn">報酬に含まれない</td></tr>
+        <tr><td>所得税</td><td class="em-warn">月15万円まで非課税（超過分は課税）</td><td class="em-warn">実費相当であれば非課税</td></tr>
+        <tr><td>割増賃金の基礎</td><td class="em-warn">除外可（通勤実費連動の場合）</td><td>関係なし</td></tr>
+      </tbody>
+    </table>
+    <div class="callout danger"><div class="callout-ico">🚨</div><div><strong>「通勤手当として払っているが実態は固定額」に注意</strong>一律定額で支給している通勤手当は割増賃金の基礎から除外できない可能性があります。また社保の報酬にも含まれます。</div></div>
+  </div>
+  <div class="block">
+    <h3>通勤手当の非課税限度額（2024年）</h3>
+    <table class="dt">
+      <thead><tr><th>通勤手段</th><th>非課税限度額（月額）</th></tr></thead>
+      <tbody>
+        <tr><td>電車・バスなど交通機関のみ</td><td class="em">150,000円</td></tr>
+        <tr><td>マイカー・自転車（片道2km未満）</td><td class="em-danger">全額課税（非課税なし）</td></tr>
+        <tr><td>マイカー・自転車（片道2〜10km）</td><td>4,200円</td></tr>
+        <tr><td>マイカー・自転車（片道10〜15km）</td><td>7,100円</td></tr>
+        <tr><td>マイカー・自転車（片道15〜25km）</td><td>12,900円</td></tr>
+        <tr><td>マイカー・自転車（片道25〜35km）</td><td>18,700円</td></tr>
+        <tr><td>マイカー・自転車（片道35km以上）</td><td>24,400〜31,600円</td></tr>
+        <tr><td>交通機関＋マイカー（併用）</td><td>各限度額の合計（上限150,000円）</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>テレワーク導入後の通勤手当見直し</strong>定期代から実費精算に切り替える場合は就業規則・賃金規程の改定と社保の月変要否確認が必要です。</div></div>
+  </div>
+  <div class="block">
+    <h3>立替経費の処理ポイント</h3>
+    <div class="cards">
+      <div class="card"><div class="card-ico">🧾</div><h4>旅費規程の整備が前提</h4><p>出張日当・宿泊費・交通費の上限を旅費規程で定めることで非課税の根拠になる。規程なし・過大な日当は給与として課税。</p></div>
+      <div class="card"><div class="card-ico">📱</div><h4>テレワーク費用の扱い</h4><p>在宅勤務手当（固定額）は社保対象・課税対象。実費精算（通信費・光熱費）は非課税が認められやすいが、国税庁の計算式を使った証明が求められる。</p></div>
+      <div class="card"><div class="card-ico">⚖️</div><h4>給与明細への混入に注意</h4><p>立替経費を給与と同じ振込で支払う場合でも、給与明細とは区分して記載するか別振込にすることが望ましい。</p></div>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<div class="phase-divider"><span class="phase-label">Phase 3 — 控除計算</span></div>
+
+<!-- CH8 -->
+<section class="chapter" id="ch8">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num blue-num">08</div>
+    <div class="ch-title"><h2>社会保険料の計算</h2><p>「標準報酬月額」「保険者」「二以上事業所按分」を理解する</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+    <div class="block">
+      <h3>健康保険の保険者：協会けんぽ vs 健保組合</h3>
+      <div class="callout info"><div class="callout-ico">ℹ️</div><div><strong>「健康保険」と一口に言っても、保険者は2種類ある</strong>どちらに加入しているかで料率・給付内容・手続き先が変わります。まず自社の保険者を確認しましょう。</div></div>
+      <table class="dt">
+        <thead><tr><th>項目</th><th>全国健康保険協会（協会けんぽ）</th><th>健康保険組合（健保組合）</th></tr></thead>
+        <tbody>
+          <tr><td>設立主体</td><td>国（厚生労働省が管掌）</td><td>一定規模以上の企業・業界団体が設立</td></tr>
+          <tr><td>加入対象</td><td>主に中小企業の被用者</td><td>設立した企業・グループの被用者</td></tr>
+          <tr><td>保険料率</td><td class="em">都道府県ごとに異なる（2024年度東京都：9.85%）</td><td class="em">組合が独自に設定。協会けんぽより低いことが多い</td></tr>
+          <tr><td>介護保険料率</td><td>全国一律（2024年度：1.62%）</td><td>組合が独自に設定</td></tr>
+          <tr><td>給付の上乗せ</td><td>法定給付のみ</td><td>付加給付（傷病手当金の上乗せ等）がある組合も多い</td></tr>
+          <tr><td>手続き先</td><td>所轄の年金事務所または協会けんぽ支部</td><td>健保組合の事務局（各社・業界によって異なる）</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>入社時・採用時に必ず保険者を確認する</strong>健保組合は独自の規程・申請書式・締め切りを持っていることが多く、協会けんぽと同じ手続きでは対応できません。健保組合の規程集を入手して把握しましょう。</div></div>
+    </div>
+<div class="block">
+    <p>実際の給与ではなく、報酬を一定の等級に当てはめた<strong>「みなし月収（標準報酬月額）」</strong>をもとに健康保険・厚生年金の保険料を計算します。</p>
+    <div class="formula">
+      <div class="formula-label">標準報酬月額の決め方</div>
+      <div class="formula-body">
+        <span class="val">標準報酬月額</span><span class="op">＝</span><span class="val">報酬月額（基本給＋手当＋通勤費等）</span><span class="op">→</span><span class="val">等級表に当てはめた額</span>
+        <span class="note">※ 健保：1等級（58,000円）〜50等級（1,390,000円）、厚年：1〜32等級（650,000円上限）</span>
+      </div>
+    </div>
+    <h3>各保険料の計算方法</h3>
+    <table class="dt">
+      <thead><tr><th>保険種別</th><th>計算式（労働者負担分）</th><th>ポイント</th></tr></thead>
+      <tbody>
+        <tr><td>健康保険料</td><td>標準報酬月額 × 保険料率 ÷ 2</td><td>料率は協会けんぽ（都道府県別）または健保組合によって異なる</td></tr>
+        <tr><td>介護保険料</td><td>標準報酬月額 × 介護保険料率 ÷ 2</td><td><strong>40歳〜64歳のみ</strong>。健保と一緒に徴収</td></tr>
+        <tr><td>厚生年金保険料</td><td>標準報酬月額 × 18.3% ÷ 2</td><td>料率は18.3%で固定（2017年9月〜）。70歳到達で資格喪失</td></tr>
+        <tr><td>雇用保険料</td><td>総支給額（賃金総額）× 5/1000（2026年度）</td><td>標準報酬ではなく<strong>実際の賃金総額</strong>に料率を乗じる。賞与も対象</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>保険料の端数処理ルール</strong>健保・厚年の保険料は50銭未満切り捨て、50銭以上切り上げが原則。給与計算システムの設定を確認しましょう。</div></div>
+      <div class="callout info"><div class="callout-ico">🆕</div><div><strong>2026年4月分（5月納付分）から：子ども・子育て支援金の徴収開始</strong>全国一律 <strong>0.23%</strong>（労使折半で各0.115%）が健康保険料に上乗せで徴収されます。標準報酬月額30万円の場合、従業員負担は月345円（端数処理後）。健保システムの設定変更が必要です。</div></div>
+
+  </div>
+  <div class="block">
+    <h3>産休・育休中の保険料免除</h3>
+    <div class="cards">
+      <div class="card"><div class="card-ico">🤱</div><h4>産休中（産前産後休業）</h4><p>健保・厚年の保険料が<strong>全額免除</strong>（労使ともに）。事業主が年金事務所へ申請。</p></div>
+      <div class="card"><div class="card-ico">🍼</div><h4>育休中（育児休業等）</h4><p>同様に全額免除。2022年10月〜月末時点で育休取得していれば当月分も免除。賞与も条件付きで免除。</p></div>
+      <div class="card"><div class="card-ico">📋</div><h4>雇用保険</h4><p>産休・育休中も免除なし。育休給付金受給中は実質的な負担感が軽減する。</p></div>
+    </div>
+  </div>
+
+    <div class="block">
+      <h3>二以上事業所勤務者の社会保険料按分</h3>
+      <div class="callout danger"><div class="callout-ico">🚨</div><div><strong>複数の事業所で社保加入要件を満たす場合、保険料は「按分」で計算する</strong>副業・掛け持ちで両社の要件（週20h以上・月8.8万円以上等）をそれぞれ満たすと、二以上事業所勤務者として社保を合算算定・按分負担します。</div></div>
+
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body"><strong>本人が「二以上事業所勤務届」を提出する</strong><p>複数の事業所で加入要件を満たした時点で、<strong>本人が</strong>選択した年金事務所（または健保組合）に届出する義務があります。会社側ではなく本人の手続きです。</p></div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body"><strong>各事業所の報酬を合算して標準報酬月額を決定する</strong><p>A社30万円＋B社20万円＝合計50万円として標準報酬月額の等級を算定。単独時より高い等級になりやすい。</p></div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body"><strong>按分保険料を計算する</strong><p>合算後の保険料を各社の報酬額の比率で按分。年金事務所・健保組合から各事業所に按分後の金額が通知される。</p></div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body"><strong>各事業所が按分された保険料を控除・納付する</strong><p>A社・B社それぞれが通知された按分保険料を給与から控除し、各事務所に納付します。</p></div></div>
+      </div>
+
+      <div class="formula">
+        <div class="formula-label">按分保険料の計算式</div>
+        <div class="formula-body">
+          <span class="val">各事業所の按分保険料</span><br>
+          <span class="op">＝</span> <span class="val">合算標準報酬月額に対する保険料</span>
+          <span class="op">×</span> <span class="val">（その事業所の報酬額 ÷ 全事業所の報酬合計）</span>
+          <span class="note">例：A社30万円・B社20万円 → 合算50万円 → 健保料（労使合計）約49,900円</span>
+          <span class="note">A社按分：49,900 × 30/50 ≒ 29,940円　B社按分：49,900 × 20/50 ≒ 19,960円</span>
+          <span class="note">※ 端数は円未満切捨て。実際の控除額は年金事務所・健保組合からの通知に従う</span>
+        </div>
+      </div>
+
+      <table class="dt">
+        <thead><tr><th>項目</th><th>内容・注意点</th></tr></thead>
+        <tbody>
+          <tr><td>届出義務者</td><td>従業員本人（会社ではない）。複数の勤務先で要件を満たした時点で遅滞なく届出。</td></tr>
+          <tr><td>選択年金事務所</td><td>本人が「主たる事業所」の所在地を管轄する年金事務所を選択。健保組合加入の場合は組合が管轄。</td></tr>
+          <tr><td>保険料の通知</td><td>年金事務所（または健保組合）から各事業所に按分後の保険料額が通知される。会社は通知額をそのまま使う。</td></tr>
+          <tr><td>算定基礎届・月変</td><td>按分対象者も通常通り対象。手続きは選択年金事務所が一元管理。</td></tr>
+          <tr><td>雇用保険</td><td>雇用保険には二以上事業所の概念なし。主たる生計を得る事業所1カ所でのみ加入。</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>会社が気づかないケースに要注意</strong>従業員が届出をしていないと按分が行われず保険料の過少納付になります。採用時・年末調整時に「他に社保加入の勤務先があるか」を確認する習慣をつけましょう。</div></div>
+      <div class="callout tip"><div class="callout-ico">💡</div><div><strong>会社側の実務フロー</strong>（1）従業員から届出済みの旨を確認 →（2）年金事務所から按分保険料の通知が届くのを待つ →（3）通知された金額を給与システムに設定 →（4）毎月の給与から控除・納付。通知前に独自計算で控除するのは厳禁です。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CH9 -->
+<section class="chapter" id="ch9">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num blue-num">09</div>
+    <div class="ch-title"><h2>随時改定（月変）と算定基礎届</h2><p>標準報酬月額をいつ・どうやって見直すかを理解する</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <h3>標準報酬月額が変わる4つのタイミング</h3>
+    <div class="cards">
+      <div class="card"><div class="card-ico">🏢</div><h4>① 資格取得時決定</h4><p>入社時に最初の標準報酬月額を決定。見込み賃金を基に決める。</p></div>
+      <div class="card"><div class="card-ico">📅</div><h4>② 定時決定（算定基礎届）</h4><p>毎年1回、4〜6月の実績報酬を届け出て9月〜翌年8月の標準報酬を決定する。</p></div>
+      <div class="card"><div class="card-ico">⚡</div><h4>③ 随時改定（月額変更届）</h4><p>固定的賃金の変動後、一定要件を満たした場合に臨時で改定する。</p></div>
+      <div class="card"><div class="card-ico">🤱</div><h4>④ 育休等終了時改定</h4><p>育休・産休復帰後、申し出により復帰後の実態に合わせて改定できる。</p></div>
+    </div>
+  </div>
+  <div class="block">
+    <h3>算定基礎届（定時決定）の詳細</h3>
+    <div class="formula">
+      <div class="formula-label">算定基礎届の計算方法</div>
+      <div class="formula-body">
+        <span class="val">報酬月額</span><span class="op">＝</span><span class="val">（4月報酬 ＋ 5月報酬 ＋ 6月報酬） ÷ 3</span>
+        <span class="note">※ 報酬には通勤手当・現物給与を含む</span>
+        <span class="note">※ 支払基礎日数が17日未満の月は除外（パートは11日未満を除外）</span>
+        <span class="note">→ 算出した報酬月額を等級表に当てはめた額が9月〜翌年8月の標準報酬月額になる</span>
+      </div>
+    </div>
+    <table class="dt">
+      <thead><tr><th>項目</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>提出先・期限</td><td>所轄の年金事務所へ7月1〜10日（電子申請可）</td></tr>
+        <tr><td>適用開始</td><td>9月分保険料（10月給与控除）〜翌年8月分</td></tr>
+        <tr><td>対象者</td><td>6月1日時点で在籍している被保険者全員</td></tr>
+        <tr><td>除外者</td><td>6月1日以前2ヶ月以内に資格取得した人、月変対象者</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>4〜6月の残業を意図的に減らすリスク</strong>社保を下げるために4〜6月だけ残業を抑制することは、報酬を不正に低く見せる行為とみなされるリスクがあります。</div></div>
+  </div>
+  <div class="block">
+    <h3>随時改定（月額変更届）の3要件</h3>
+    <div class="callout tip"><div class="callout-ico">💡</div><div><strong>3つの条件を全て満たした場合のみ月変が必要</strong>1つでも欠ければ月変不要です。</div></div>
+    <table class="dt">
+      <thead><tr><th>要件</th><th>詳細</th><th>注意点</th></tr></thead>
+      <tbody>
+        <tr><td class="em">① 固定的賃金の変動</td><td>基本給の昇降給・手当の新設廃止・通勤手当の変更など</td><td>残業代など非固定の変動は対象外</td></tr>
+        <tr><td class="em">② 2等級以上の差</td><td>変動後3ヶ月の平均報酬が現在の標準報酬月額と2等級以上差がある</td><td>1等級差では月変不要</td></tr>
+        <tr><td class="em">③ 支払基礎日数</td><td>変動後3ヶ月すべてで17日以上（パートは11日以上）</td><td>1ヶ月でも17日未満なら月変不要</td></tr>
+      </tbody>
+    </table>
+    <div class="formula">
+      <div class="formula-label">随時改定の適用タイミング</div>
+      <div class="formula-body">
+        <span class="val">固定的賃金の変動月</span> → 翌月・翌々月・翌々々月の3ヶ月平均を算出<br>
+        <span class="op">→</span> 3要件を満たせば <span class="val">変動月から4ヶ月目</span> から新標準報酬月額適用<br>
+        <span class="note">例：4月昇給 → 4・5・6月の平均を算出 → 8月から新しい標準報酬月額</span>
+      </div>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH10 -->
+<section class="chapter" id="ch10">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num">10</div>
+    <div class="ch-title"><h2>労働保険料率のしくみ</h2><p>労災保険＋雇用保険 ＝ 労働保険。年度更新で精算する</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <div class="cards">
+      <div class="card"><div class="card-ico">🔨</div><h4>労災保険</h4><p>業務上・通勤途上の傷病に対する補償。<strong>保険料は全額事業主負担</strong>。パート含め全労働者に適用。</p></div>
+      <div class="card"><div class="card-ico">💼</div><h4>雇用保険</h4><p>失業・育児・介護・教育訓練給付などの財源。<strong>労使で分担</strong>（事業主の方が多く負担）。週20時間未満は原則適用除外。</p></div>
+    </div>
+    <h3>雇用保険料率（2026年度）</h3>
+    <table class="dt">
+      <thead><tr><th>事業の種類</th><th>労働者負担</th><th>事業主負担</th><th>合計</th></tr></thead>
+      <tbody>
+        <tr><td class="em">一般の事業</td><td>5/1000</td><td>8.5/1000</td><td>13.5/1000</td></tr>
+        <tr><td>農林水産・清酒製造業</td><td>6/1000</td><td>10/1000</td><td>16/1000</td></tr>
+        <tr><td>建設業</td><td>7/1000</td><td>11.5/1000</td><td>18.5/1000</td></tr>
+      </tbody>
+    </table>
+    <h3>労災保険料率（2026年度・主な業種）</h3>
+    <table class="dt">
+      <thead><tr><th>業種</th><th>料率</th></tr></thead>
+      <tbody>
+        <tr><td>その他の各種事業（一般事務・IT等）</td><td class="em">2.5/1000</td></tr>
+        <tr><td>卸売業・小売業・飲食店</td><td>3/1000</td></tr>
+        <tr><td>社会福祉施設</td><td>5/1000</td></tr>
+        <tr><td>製造業（食料品）</td><td>6/1000</td></tr>
+        <tr><td>建設事業（既設建築物設備工事）</td><td>12/1000</td></tr>
+        <tr><td>林業</td><td>52/1000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="block">
+    <h3>年度更新のしくみ</h3>
+    <p>労働保険料は<strong>年度当初に概算納付し、翌年度に確定精算する</strong>方式。毎年6月1日〜7月10日が申告・納付期間です。</p>
+    <div class="formula">
+      <div class="formula-label">確定保険料の計算</div>
+      <div class="formula-body">
+        <span class="val">確定保険料</span><span class="op">＝</span><span class="val">前年度の賃金総額</span> × <span class="val">労災保険料率（事業主のみ）</span><br>
+        <span class="op">＋</span><span class="val">前年度の賃金総額</span> × <span class="val">雇用保険料率（事業主＋労働者合計）</span>
+        <span class="note">※「賃金総額」は基本給・残業代・賞与・通勤手当など全ての賃金（税引前）の合計</span>
+        <span class="note">※ 確定保険料と前年概算保険料との差額を精算し、当年度の概算保険料を同時に納付する</span>
+      </div>
+    </div>
+    <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>賃金総額の集計ミスに注意</strong>社保の報酬には含まれないものが、労働保険の賃金には含まれる場合があります。特に賞与は必ず含めること。</div></div>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH11 -->
+<section class="chapter" id="ch11">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num danger-num">11</div>
+    <div class="ch-title"><h2>税金の計算（所得税・住民税）</h2><p>源泉徴収は「甲乙丙の判定」から始まる。年末調整で精算する</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <h3>毎月の源泉所得税の計算フロー</h3>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-body"><strong>課税対象額を求める</strong><p>総支給額から社会保険料の合計（健保＋介護＋厚年＋雇用）を差し引いた金額。</p></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-body"><strong>扶養親族等の人数を確認する</strong><p>「給与所得者の扶養控除等申告書」で「控除対象配偶者＋扶養親族の数」を確認。</p></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-body"><strong>源泉徴収税額表（月額表）で税額を算出</strong><p>甲欄（申告書あり）・乙欄（申告書なし）・丙欄（日雇い）を確認して当てはめる。</p></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-body"><strong>復興特別所得税を加算</strong><p>所得税額 × 2.1% を加算した合計が源泉徴収税額（2013〜2037年の時限措置）。</p></div></div>
+    </div>
+    
+  </div>
+  <div class="block">
+    <h3>年末調整とは何か</h3>
+    <p>毎月の源泉徴収は「概算」の税額控除です。年末調整は1年間の実際の所得・控除をもとに正確な税額を計算し直し、<strong>過払い・不足分を精算</strong>する手続きです。</p>
+    <table class="dt">
+      <thead><tr><th>年末調整で確認する主な控除</th><th>必要書類</th></tr></thead>
+      <tbody>
+        <tr><td>基礎控除</td><td>「基礎控除申告書」（年末調整兼用）</td></tr>
+        <tr><td>配偶者控除・配偶者特別控除</td><td>「配偶者控除等申告書」配偶者の年収証明</td></tr>
+        <tr><td>扶養控除</td><td>「扶養控除等申告書」扶養親族の情報</td></tr>
+        <tr><td>生命保険料控除</td><td>生命保険会社からの控除証明書</td></tr>
+        <tr><td>地震保険料控除</td><td>地震保険の控除証明書</td></tr>
+        <tr><td>小規模企業共済等掛金控除</td><td>iDeCo・企業型DCのマッチング拠出の掛金証明書</td></tr>
+        <tr><td>住宅借入金等特別控除（2年目以降）</td><td>税務署からの年末残高等証明書</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn"><div class="callout-ico">⚠️</div><div><strong>年末調整ができない人（2以上事業者を含む）</strong>年収2,000万円超・<strong>複数の会社から給与を受けている人（2以上事業者）</strong>・副業収入20万円超・住宅ローン1年目は確定申告が必要。対象者を見極めて案内することも労務担当の仕事です。</div></div>
+  </div>
+  <div class="block">
+    <h3>住民税（特別徴収）の実務ポイント</h3>
+    <div class="cards">
+      <div class="card"><div class="card-ico">🏙️</div><h4>金額の決め方</h4><p>会社が計算するのではなく、毎年5〜6月に市区町村から届く「特別徴収税額通知書」の金額をそのまま控除する。</p></div>
+      <div class="card"><div class="card-ico">📅</div><h4>6月改定</h4><p>前年所得を基に計算されるため、毎年6月給与から新しい税額に切り替わる。通知書と従業員の紐付けを間違えないように。</p></div>
+      <div class="card"><div class="card-ico">🚪</div><h4>退職時の扱い</h4><p>1〜4月退職：未徴収分を最後の給与から一括徴収するか普通徴収へ切り替え。6月以降退職は翌年5月まで特別徴収を継続。</p></div>
+      <div class="card"><div class="card-ico">📬</div><h4>異動届</h4><p>入退社・転居があった場合は市区町村へ「給与支払報告・特別徴収にかかる給与所得者異動届出書」を提出する。</p></div>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<div class="phase-divider"><span class="phase-label">Phase 4 — 実務ツール</span></div>
+
+<!-- CH12 -->
+<section class="chapter" id="ch12">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num">12</div>
+    <div class="ch-title"><h2>給与計算シミュレーター</h2><p>概算計算ツール（2026年度・協会けんぽ東京都の料率を使用）</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <div class="sim-wrap">
+      <div class="sim-header">⚡ CALCULATOR — 入力して計算ボタンを押す</div>
+      <div class="sim-body">
+        <div class="sim-grid">
+          <div class="sim-field"><label>基本給（円）</label><input type="number" id="basicSalary" value="300000"></div>
+          <div class="sim-field"><label>各種手当合計（円）</label><input type="number" id="allowances" value="30000"></div>
+          <div class="sim-field"><label>時間外労働時間数</label><input type="number" id="overtime" value="20"></div>
+          <div class="sim-field"><label>月所定労働時間数</label><input type="number" id="workHours" value="160"></div>
+          <div class="sim-field"><label>扶養家族の人数</label>
+            <select id="dependents">
+              <option value="0">0人（独身など）</option>
+              <option value="1">1人</option>
+              <option value="2">2人</option>
+              <option value="3">3人以上</option>
+            </select>
+          </div>
+          <div class="sim-field"><label>年齢</label>
+            <select id="age">
+              <option value="young">40歳未満</option>
+              <option value="middle">40〜64歳（介護保険対象）</option>
+              <option value="senior">65歳以上</option>
+            </select>
+          </div>
+        </div>
+        <button class="sim-btn" onclick="calcSalary()">給与を計算する</button>
+        <div class="sim-result" id="simResult">
+          <div class="result-row"><span class="r-label">基本給</span><span class="r-val" id="r-basic"></span></div>
+          <div class="result-row"><span class="r-label">各種手当</span><span class="r-val" id="r-allowances"></span></div>
+          <div class="result-row"><span class="r-label">時間外割増賃金（25%）</span><span class="r-val" id="r-overtime"></span></div>
+          <div class="result-row" style="border-bottom:2px solid var(--border2);padding-bottom:9px;margin-bottom:2px;"><span class="r-label" style="font-weight:700;color:var(--text)">総支給額</span><span class="r-val" id="r-gross" style="color:var(--text)"></span></div>
+          <div class="result-row deduct"><span class="r-label">健康保険料（労働者負担）</span><span class="r-val" id="r-health"></span></div>
+          <div class="result-row deduct" id="r-care-row"><span class="r-label">介護保険料（労働者負担）</span><span class="r-val" id="r-care"></span></div>
+          <div class="result-row deduct"><span class="r-label">厚生年金保険料（労働者負担）</span><span class="r-val" id="r-pension"></span></div>
+          <div class="result-row deduct"><span class="r-label">雇用保険料（労働者負担）</span><span class="r-val" id="r-employ"></span></div>
+          <div class="result-row deduct"><span class="r-label">所得税（源泉徴収）概算</span><span class="r-val" id="r-income-tax"></span></div>
+          <div class="result-row total"><span class="r-label">差引支給額（手取り概算）</span><span class="r-val" id="r-takehome"></span></div>
+          <p style="font-size:10.5px;color:var(--text-dim);margin-top:12px;margin-bottom:0;">※ 概算値です。住民税・その他控除は含みません。実務では必ず正式な計算方式と最新の保険料率を確認してください。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH13 -->
+<section class="chapter" id="ch13">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num danger-num">13</div>
+    <div class="ch-title"><h2>よくあるミスと対策</h2><p>新人担当が特につまずきやすいポイントを整理</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <h3>計算ミスTOP 10 チェックリスト</h3>
+    <ul class="cklist">
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>割増賃金の基礎に通勤手当を含めた</strong> — 実費連動の通勤手当は除外可。ただし一律支給は要注意。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>法内残業に割増をつけ忘れた（またはつけすぎた）</strong> — 所定時間超〜法定時間内の「法内残業」は割増不要（就業規則で別途定める場合を除く）。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>月変（随時改定）の対象者を見逃した</strong> — 昇給・手当新設後3ヶ月で2等級以上変動があれば月変必須。月次ルーティンに組み込むこと。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>40歳到達月に介護保険料を取り忘れた</strong> — 誕生日の前日が属する月から徴収開始。誕生日が1日の場合は前月から。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>住民税の6月切り替えを忘れた</strong> — 毎年6月給与から新税額へ切り替え。通知書と従業員を正確に紐付けて入力する。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>退職者の住民税精算を誤った</strong> — 退職月により「一括徴収」か「普通徴収切り替え」かが異なる。1〜4月退職は一括徴収が原則。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>雇用保険料を標準報酬で計算した</strong> — 雇用保険は実際の賃金総額（総支給額）に料率を掛ける。健保・厚年と混同しやすい。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>二以上事業所勤務者の按分保険料を自社で独自計算した</strong> — 按分額は年金事務所・健保組合からの通知が届いてから設定する。通知前の独自控除は不可。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>掛け持ち社員の源泉税欄を誤った</strong> — 自社が従たる給与なら乙欄。扶養控除等申告書の提出状況を毎年確認する。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>産休・育休中の保険料免除申請を忘れた</strong> — 免除は自動にはならない。事業主から年金事務所へ申請が必要。</span></li>
+      <li><span class="ck" onclick="toggleCk(this)"></span><span><strong>端数処理ルールを統一していない</strong> — 健保・厚年の保険料は50銭未満切り捨て・50銭以上切り上げが原則。システムの設定を確認する。</span></li>
+    </ul>
+  </div>
+  <div class="block">
+    <h3>計算ミスが発覚したときの対応手順</h3>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-body"><strong>事実確認・影響範囲の特定</strong><p>いつから・誰に・何の項目でミスがあったかを洗い出し、過去にさかのぼって計算し直す。</p></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-body"><strong>上長・関係部署への報告</strong><p>隠蔽は厳禁。金額・人数・原因・対応方針を早めに報告する。</p></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-body"><strong>当事者への説明と差額精算</strong><p>不足払いは速やかに補填。過払いは当人と合意のうえで翌月調整（強制控除は不可）。</p></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-body"><strong>社会保険・税務の修正手続き</strong><p>保険料の過不足は年金事務所へ。所得税は「誤納額」として翌月分と調整。</p></div></div>
+      <div class="step"><div class="step-n">5</div><div class="step-body"><strong>再発防止策の実施</strong><p>ダブルチェック体制・チェックリストの見直し・システム設定の確認など。</p></div></div>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- CH14 -->
+<section class="chapter" id="ch14">
+  <button class="chapter-toggle" onclick="toggleChapter(this)">
+    <div class="ch-num">14</div>
+    <div class="ch-title"><h2>給与計算 年間スケジュール</h2><p>毎月の定常業務に加えて、年次の法定手続きを把握する</p></div>
+    <span class="ch-arrow">▼</span>
+  </button>
+  <div class="chapter-body">
+<div class="block">
+    <table class="dt">
+      <thead><tr><th>月</th><th>主な給与・労務イベント</th><th>期限</th></tr></thead>
+      <tbody>
+        <tr><td>1月</td><td>源泉所得税の納付（特例前期）／法定調書合計表・給与支払報告書の提出／労働保険料の申告（第3期）</td><td>1月20日・1月31日</td></tr>
+        <tr><td class="em">4月</td><td>雇用保険料率の改定確認／新卒入社手続き（社保・雇保の資格取得届）／固定的賃金変動後の月変確認開始</td><td>取得日から5日以内（社保）</td></tr>
+        <tr><td class="em">5〜6月</td><td>住民税特別徴収額通知書の受領／<strong>6月給与から新住民税額に切り替え</strong></td><td>6月給与が切替月</td></tr>
+        <tr><td class="em">7月</td><td><strong>算定基礎届（定時決定）の提出</strong>／源泉所得税の納付（特例前期）／労働保険年度更新（申告・納付）</td><td>7月10日・8月31日（算定）</td></tr>
+        <tr><td class="em">9月</td><td><strong>算定基礎届に基づく保険料率改定開始</strong>（9月分保険料＝10月控除から）</td><td>—</td></tr>
+        <tr><td>10月</td><td>社会保険料の改定額が給与から控除開始／年末調整書類の配布・回収準備</td><td>—</td></tr>
+        <tr><td class="em">11〜12月</td><td><strong>年末調整の実施・確定</strong>／過不足税額の還付・追徴／源泉徴収票の準備</td><td>12月最後の給与で精算</td></tr>
+        <tr><td>翌年1月</td><td>源泉徴収票の交付（全従業員）／法定調書・給与支払報告書の提出</td><td>1月31日まで</td></tr>
+      </tbody>
+    </table>
+    <div class="callout tip"><div class="callout-ico">💡</div><div><strong>月次ルーティンの確立が重要</strong>給与計算は毎月「締日→集計→計算→チェック→振込→納付」のサイクルを回します。締日・支払日・納付日をカレンダーに登録して期限漏れをゼロにする習慣をつけましょう。</div></div>
+  </div>
+
+  </div>
+</section>
+
+</div>
+</div>
+
+<footer>給与計算完全ガイド — 労務担当向け実務テキスト ／ 本資料は一般的な情報提供を目的としています。実務においては最新の法令・料率を確認のうえ、社会保険労務士等の専門家にご相談ください。</footer>
+
+<script>
+function toggleChapter(btn){
+  const body=btn.nextElementSibling;
+  const isOpen=btn.classList.contains('open');
+  btn.classList.toggle('open',!isOpen);
+  body.classList.toggle('open',!isOpen);
+}
+function openAndScroll(id,el){
+  const section=document.getElementById(id);
+  const btn=section.querySelector('.chapter-toggle');
+  const body=section.querySelector('.chapter-body');
+  btn.classList.add('open');
+  body.classList.add('open');
+  setTimeout(()=>section.scrollIntoView({behavior:'smooth',block:'start'}),50);
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+}
+function toggleCk(el){
+  el.classList.toggle('on');
+  el.textContent=el.classList.contains('on')?'✓':'';
+}
+function fmt(n){ return '¥'+Math.round(n).toLocaleString('ja-JP'); }
+function getStdRem(m){
+  const g=[58000,68000,78000,88000,98000,104000,110000,118000,126000,134000,142000,150000,160000,170000,180000,190000,200000,220000,240000,260000,280000,300000,320000,340000,360000,380000,410000,440000,470000,500000,530000,560000,590000,620000,650000,680000,710000,750000,790000,830000,880000,930000,980000,1030000,1090000,1150000,1210000,1270000,1330000,1390000];
+  for(let i=0;i<g.length-1;i++) if(m<(g[i]+g[i+1])/2) return g[i];
+  return g[g.length-1];
+}
+function getTax(taxable,dep){
+  const a=Math.max(0,taxable-parseInt(dep)*38000);
+  let t=0;
+  if(a<=162500) t=a*0.05;
+  else if(a<=270000) t=8125+(a-162500)*0.10;
+  else if(a<=350000) t=18875+(a-270000)*0.20;
+  else t=34875+(a-350000)*0.23;
+  return Math.floor(t*1.021/100)*100;
+}
+function calcSalary(){
+  const basic=parseFloat(document.getElementById('basicSalary').value)||0;
+  const allow=parseFloat(document.getElementById('allowances').value)||0;
+  const ot=parseFloat(document.getElementById('overtime').value)||0;
+  const wh=parseFloat(document.getElementById('workHours').value)||160;
+  const dep=document.getElementById('dependents').value;
+  const age=document.getElementById('age').value;
+  const otPay=Math.round(basic/wh*1.25*ot);
+  const gross=basic+allow+otPay;
+  const std=getStdRem(gross);
+  const hp=Math.round(std*0.0985/2);
+  const cp=age==='middle'?Math.round(std*0.0162/2):0;
+  const pp=age==='senior'?0:Math.round(std*0.183/2);
+  const ep=Math.round(gross*0.005);
+  const ins=hp+cp+pp+ep;
+  const tax=getTax(gross-ins,dep);
+  const net=gross-ins-tax;
+  document.getElementById('r-basic').textContent=fmt(basic);
+  document.getElementById('r-allowances').textContent=fmt(allow);
+  document.getElementById('r-overtime').textContent=fmt(otPay);
+  document.getElementById('r-gross').textContent=fmt(gross);
+  document.getElementById('r-health').textContent='−'+fmt(hp);
+  document.getElementById('r-care').textContent='−'+fmt(cp);
+  document.getElementById('r-care-row').style.display=age==='middle'?'flex':'none';
+  document.getElementById('r-pension').textContent=age==='senior'?'（65歳以上のため非該当）':'−'+fmt(pp);
+  document.getElementById('r-employ').textContent='−'+fmt(ep);
+  document.getElementById('r-income-tax').textContent='−'+fmt(tax);
+  document.getElementById('r-takehome').textContent=fmt(net);
+  document.getElementById('simResult').classList.add('show');
+}
+// Sidebar auto-highlight
+const chapters=document.querySelectorAll('.chapter');
+const navItems=document.querySelectorAll('.sidebar-item');
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navItems.forEach(n=>n.classList.remove('active'));
+      const lnk=document.querySelector(`.sidebar-item[href="#${e.target.id}"]`);
+      if(lnk){lnk.classList.add('active');lnk.scrollIntoView({block:'nearest'});}
+    }
+  });
+},{threshold:0.25,rootMargin:'-10% 0px -60% 0px'});
+chapters.forEach(c=>io.observe(c));
+</script>
+</body>
+</html>

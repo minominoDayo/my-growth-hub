@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>簿記3級 第1問 仕訳練習</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'メイリオ', sans-serif;
+      background: #f0f4f8; color: #333; padding: 16px;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 18px; }
+    .header h1 { font-size: 1.2rem; color: #444; margin-bottom: 4px; }
+    .header .sub { font-size: 0.83rem; color: #999; }
+
+    .card {
+      background: white; border-radius: 12px; padding: 16px;
+      margin-bottom: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .card-title { font-size: 0.85rem; font-weight: bold; color: #555; margin-bottom: 10px; }
+
+    /* History */
+    .history-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    .history-table th { text-align: left; padding: 4px 8px; color: #aaa; font-weight: normal; border-bottom: 1px solid #eee; }
+    .history-table td { padding: 7px 8px; border-bottom: 1px solid #f5f5f5; }
+    .sc { display: inline-block; padding: 2px 9px; border-radius: 10px; font-weight: bold; font-size: 0.83rem; }
+    .sc-hi { background: #d4edda; color: #155724; }
+    .sc-md { background: #fff3cd; color: #856404; }
+    .sc-lo { background: #f8d7da; color: #721c24; }
+    .sw-row { margin-top: 12px; }
+    .sw-label { font-size: 0.78rem; color: #aaa; margin-bottom: 5px; }
+    .sw-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .sw-tag { padding: 3px 9px; border-radius: 10px; font-size: 0.78rem; }
+    .t-strong { background: #d4edda; color: #155724; }
+    .t-weak   { background: #f8d7da; color: #721c24; }
+
+    /* Problem cards */
+    .prob-card {
+      background: white; border-radius: 12px; padding: 16px;
+      margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border-left: 4px solid #ddd; transition: border-color 0.2s;
+    }
+    .prob-card.correct { border-left-color: #28a745; }
+    .prob-card.wrong   { border-left-color: #dc3545; }
+
+    .prob-header { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; }
+    .prob-num {
+      background: #4a90d9; color: white;
+      border-radius: 6px; padding: 2px 9px; font-size: 0.78rem; font-weight: bold; flex-shrink: 0;
+    }
+    .prob-cat { font-size: 0.73rem; color: #999; background: #f0f0f0; padding: 2px 7px; border-radius: 10px; }
+    .result-icon { margin-left: auto; font-size: 1.1rem; display: none; }
+
+    .prob-text { font-size: 0.88rem; line-height: 1.85; margin-bottom: 12px; white-space: pre-wrap; }
+
+    .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+    .c-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 10px; border-radius: 7px;
+      border: 2px solid #e0e0e0; background: #fafafa;
+      cursor: pointer; font-size: 0.83rem;
+      transition: all 0.12s; text-align: left; font-family: inherit;
+    }
+    .c-btn:hover:not(:disabled) { border-color: #bbb; }
+    .c-btn .sym { font-weight: bold; font-size: 0.9rem; min-width: 17px; }
+    .c-btn.debit  { border-color: #4a90d9; background: #e8f1fb; color: #1a5ba8; }
+    .c-btn.credit { border-color: #d94a4a; background: #fde8e8; color: #a81a1a; }
+    .c-btn:disabled { cursor: default; }
+    .c-lbl {
+      font-size: 0.66rem; font-weight: bold;
+      padding: 1px 5px; border-radius: 3px; margin-left: auto;
+    }
+    .debit .c-lbl  { background: #4a90d9; color: white; }
+    .credit .c-lbl { background: #d94a4a; color: white; }
+
+    .t-acc { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #e8e8e8; border-radius: 7px; overflow: hidden; font-size: 0.8rem; }
+    .t-l { padding: 7px 9px; border-right: 1px solid #e8e8e8; background: #f5f9ff; }
+    .t-r { padding: 7px 9px; background: #fff8f8; }
+    .t-h { font-size: 0.7rem; font-weight: bold; margin-bottom: 3px; }
+    .t-l .t-h { color: #4a90d9; }
+    .t-r .t-h { color: #d94a4a; }
+    .t-b { line-height: 1.75; min-height: 18px; }
+    .t-empty { color: #ccc; font-size: 0.76rem; }
+
+    .exp-box {
+      background: #fffbf0; border: 1px solid #ffe08a;
+      border-radius: 8px; padding: 12px; margin-top: 11px;
+      font-size: 0.85rem; line-height: 1.85; display: none; white-space: pre-wrap;
+    }
+    .exp-box.show { display: block; }
+    .ca-label { font-size: 0.76rem; color: #888; margin: 8px 0 4px; }
+    .ca-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .ca-tag { padding: 3px 9px; border-radius: 5px; font-size: 0.8rem; }
+    .ca-d { background: #e8f1fb; color: #1a5ba8; border: 1px solid #4a90d9; }
+    .ca-c { background: #fde8e8; color: #a81a1a; border: 1px solid #d94a4a; }
+
+    .submit-wrap { text-align: center; margin: 6px 0 20px; }
+    .btn-submit {
+      width: 100%; max-width: 400px; padding: 15px;
+      background: #4a90d9; color: white; border: none;
+      border-radius: 12px; font-size: 1.05rem;
+      cursor: pointer; font-family: inherit; transition: background 0.15s; margin-bottom: 7px;
+    }
+    .btn-submit:hover { background: #3a7bc8; }
+    .answered-ct { font-size: 0.8rem; color: #aaa; }
+
+    .score-card {
+      background: white; border-radius: 14px; padding: 24px;
+      text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.09); margin-bottom: 14px;
+    }
+    .score-big { font-size: 3.5rem; font-weight: bold; color: #4a90d9; line-height: 1; }
+    .score-denom { font-size: 1rem; color: #aaa; margin-bottom: 8px; }
+    .score-msg { font-size: 0.98rem; margin-top: 6px; }
+    .score-attempt { font-size: 0.8rem; color: #aaa; margin-top: 4px; }
+
+    .btn-retry {
+      display: block; margin: 0 auto 24px; padding: 13px 40px;
+      background: white; color: #4a90d9; border: 2px solid #4a90d9;
+      border-radius: 12px; font-size: 1rem; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .btn-retry:hover { background: #e8f1fb; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>簿記3級 第1問 仕訳練習</h1>
+    <p class="sub">全15問を解き終えたら「答え合わせ」を押してください</p>
+  </div>
+
+  <div id="historyCard" class="card" style="display:none"></div>
+  <div id="problemsArea"></div>
+
+  <div class="submit-wrap">
+    <button id="submitBtn" class="btn-submit" onclick="checkAnswers()">答え合わせ</button>
+    <div class="answered-ct" id="answeredCt">0 / 15問 解答済み</div>
+  </div>
+
+  <div id="scoreArea" style="display:none"></div>
+  <div id="retryArea" style="display:none">
+    <button class="btn-retry" onclick="retry()">もう一度挑戦する</button>
+  </div>
+
+</div>
+<script>
+const STORAGE_KEY = 'bk3_q1_history';
+
+const problems = [
+  {
+    id:1, cat:"給与・社会保険",
+    text:"従業員の給料 ¥550,000 を支給するにあたって、所得税の源泉徴収額 ¥27,500 と社会保険料 ¥50,000 を差し引き、残額を普通預金口座から支払った。",
+    choices:[{s:"ア",n:"従業員立替金"},{s:"イ",n:"法定福利費"},{s:"ウ",n:"社会保険料預り金"},{s:"エ",n:"普通預金"},{s:"オ",n:"所得税預り金"},{s:"カ",n:"給料"}],
+    debit:["カ"], credit:["ウ","オ","エ"],
+    exp:"【考え方】\n給料を支払う＝費用が発生 → 借方「給料」¥550,000（全額）\n\n実際には全額渡さず、税と社保を天引きして「あずかっている状態」\n→ 貸方「所得税預り金」¥27,500、「社会保険料預り金」¥50,000\n\n残り¥472,500を普通預金から支払う → 貸方「普通預金」"
+  },
+  {
+    id:2, cat:"租税公課・通信費",
+    text:"収入印紙 ¥2,700 と郵便切手 ¥450 を現金で購入した。なお、これらはすぐに使用した。",
+    choices:[{s:"ア",n:"当座預金"},{s:"イ",n:"租税公課"},{s:"ウ",n:"現金"},{s:"エ",n:"通信費"},{s:"オ",n:"仮払消費税"},{s:"カ",n:"支払手数料"}],
+    debit:["イ","エ"], credit:["ウ"],
+    exp:"【考え方】\n収入印紙はすぐ使用した → 費用「租税公課」¥2,700\n（未使用なら「貯蔵品」という資産になる）\n\n郵便切手もすぐ使用した → 費用「通信費」¥450\n\n合計¥3,150を現金で支払った → 貸方「現金」"
+  },
+  {
+    id:3, cat:"電子記録債務",
+    text:"電子記録債務 ¥720,000 が決済され、当座預金口座から引き落とされた。",
+    choices:[{s:"ア",n:"電子記録債権"},{s:"イ",n:"普通預金"},{s:"ウ",n:"支払手形"},{s:"エ",n:"当座預金"},{s:"オ",n:"電子記録債務"},{s:"カ",n:"買掛金"}],
+    debit:["オ"], credit:["エ"],
+    exp:"【考え方】\n電子記録債務 = 電子的に記録された「支払う義務」（負債）\n\n決済＝支払い完了 → 負債がなくなる → 借方「電子記録債務」¥720,000\n当座預金から引き落とし → 資産が減る → 貸方「当座預金」¥720,000"
+  },
+  {
+    id:4, cat:"固定資産売却",
+    text:"期首に、不用になった備品（取得原価 ¥490,000、減価償却累計額 ¥428,750、間接法で記帳）を ¥70,000 で売却し、代金は月末に受け取ることとした。",
+    choices:[{s:"ア",n:"備品減価償却累計額"},{s:"イ",n:"固定資産売却損"},{s:"ウ",n:"固定資産売却益"},{s:"エ",n:"備品"},{s:"オ",n:"未収入金"},{s:"カ",n:"現金"}],
+    debit:["ア","オ"], credit:["エ","ウ"],
+    exp:"【考え方】\n帳簿価額 = ¥490,000（取得原価）− ¥428,750（累計額）= ¥61,250\n売却額¥70,000 > 帳簿価額¥61,250 → 売却益¥8,750が発生\n\n間接法 → 取得原価のまま貸方「備品」¥490,000、借方「備品減価償却累計額」¥428,750で消す\n代金は月末受取 → 借方「未収入金」¥70,000\n（商品以外の売却代金は「売掛金」でなく「未収入金」！）"
+  },
+  {
+    id:5, cat:"貸倒れ",
+    text:"前期末に未回収であった売掛金 ¥280,000 が貸倒れとなった。なお、貸倒引当金の残高は ¥190,000 であった。",
+    choices:[{s:"ア",n:"売掛金"},{s:"イ",n:"貸倒引当金繰入"},{s:"ウ",n:"貸倒引当金"},{s:"エ",n:"貸倒損失"},{s:"オ",n:"償却債権取立益"},{s:"カ",n:"雑損"}],
+    debit:["ウ","エ"], credit:["ア"],
+    exp:"【考え方】\n貸倒れ¥280,000 − 引当金¥190,000 = 不足額¥90,000\n\n引当金を全額使い切る → 借方「貸倒引当金」¥190,000\n引当金で足りない残りは当期の損失 → 借方「貸倒損失」¥90,000\n売掛金が回収不能に → 消す → 貸方「売掛金」¥280,000"
+  },
+  {
+    id:6, cat:"商品券",
+    text:"商品 ¥210,000 を売り上げ、代金のうち ¥60,000 は現金で受け取り、残額は共通商品券で受け取った。",
+    choices:[{s:"ア",n:"受取商品券"},{s:"イ",n:"受取手数料"},{s:"ウ",n:"売掛金"},{s:"エ",n:"現金"},{s:"オ",n:"クレジット売掛金"},{s:"カ",n:"売上"}],
+    debit:["エ","ア"], credit:["カ"],
+    exp:"【考え方】\n売上¥210,000 → 貸方「売上」¥210,000\n\n受け取ったもの：\n  現金¥60,000 → 借方「現金」\n  商品券¥150,000（210,000−60,000）→ 借方「受取商品券」\n  ※商品券はいずれ換金できる資産として記録する\n（クレジット売掛金はカード払いのときに使う科目）"
+  },
+  {
+    id:7, cat:"当座借越",
+    text:"買掛金 ¥200,000 を当座預金口座から返済した。ただし、返済前の当座預金残高は ¥175,000 であり、当社は銀行と借越限度額 ¥1,000,000 の当座借越契約を締結している。",
+    choices:[{s:"ア",n:"現金"},{s:"イ",n:"当座預金"},{s:"ウ",n:"売掛金"},{s:"エ",n:"普通預金"},{s:"オ",n:"買掛金"},{s:"カ",n:"雑費"}],
+    debit:["オ"], credit:["イ"],
+    exp:"【考え方】\n当座借越契約がある場合、残高を超えても「当座預金」科目のまま処理できる\n残高¥175,000 − 支払¥200,000 = −¥25,000（借越状態）でも契約内なのでOK\n\n買掛金を返済 → 借方「買掛金」¥200,000\n当座預金から引き落とし → 貸方「当座預金」¥200,000"
+  },
+  {
+    id:8, cat:"仮払金精算",
+    text:"従業員が出張から帰社し、旅費交通費として使うよう手渡していた ¥100,000 のうち、残った ¥9,500 を従業員から現金で受け取った。",
+    choices:[{s:"ア",n:"旅費交通費"},{s:"イ",n:"従業員立替金"},{s:"ウ",n:"現金"},{s:"エ",n:"仮受金"},{s:"オ",n:"仮払金"},{s:"カ",n:"前払金"}],
+    debit:["ア","ウ"], credit:["オ"],
+    exp:"【考え方】\n出張前に渡したお金は「仮払金」として記録済み\n\n帰社して精算 → 仮払金¥100,000を消す → 貸方「仮払金」¥100,000\n実際の旅費¥90,500（100,000−9,500）→ 費用「旅費交通費」→ 借方\nおつり¥9,500を現金で受取 → 借方「現金」¥9,500"
+  },
+  {
+    id:9, cat:"受取手形",
+    text:"日商商事株式会社に商品 ¥740,000 を売り上げ、代金として同社振出しの約束手形 ¥500,000 を受け取り、残額は掛けとした。",
+    choices:[{s:"ア",n:"支払手形"},{s:"イ",n:"売上"},{s:"ウ",n:"買掛金"},{s:"エ",n:"売掛金"},{s:"オ",n:"受取手形"},{s:"カ",n:"当座預金"}],
+    debit:["オ","エ"], credit:["イ"],
+    exp:"【考え方】\n売上¥740,000 → 貸方「売上」¥740,000\n\n受け取ったもの：\n  相手が振り出した約束手形¥500,000 → 借方「受取手形」（資産）\n  残り¥240,000（740,000−500,000）は掛け → 借方「売掛金」\n（支払手形は自分が振り出したときに使う負債科目）"
+  },
+  {
+    id:10, cat:"消費税（仕入）",
+    text:"商品 ¥979,000（消費税10%を含む）を仕入れ、代金のうち ¥100,000 は小切手を振り出して支払い、残額は掛けとした。消費税は税抜方式で処理する。",
+    choices:[{s:"ア",n:"買掛金"},{s:"イ",n:"仕入"},{s:"ウ",n:"仮受消費税"},{s:"エ",n:"仮払消費税"},{s:"オ",n:"当座預金"},{s:"カ",n:"売掛金"}],
+    debit:["イ","エ"], credit:["オ","ア"],
+    exp:"【考え方】\n税抜方式 = 消費税を別の科目に分けて記録する方法\n\n税抜き仕入額 = ¥979,000 ÷ 1.1 = ¥890,000 → 借方「仕入」\n消費税額 = ¥89,000 → 借方「仮払消費税」\n\n支払い：\n  小切手振出¥100,000 → 貸方「当座預金」\n  残り¥879,000（979,000−100,000）は掛け → 貸方「買掛金」"
+  },
+  {
+    id:11, cat:"手形借入金",
+    text:"銀行から ¥5,000,000 を借り入れ、同額の約束手形を振り出すとともに、利息を差し引かれた手取金を当座預金とした。なお、借入期間は10か月間、年利率は2.4％であり、利息は月割計算する。",
+    choices:[{s:"ア",n:"受取利息"},{s:"イ",n:"手形貸付金"},{s:"ウ",n:"当座預金"},{s:"エ",n:"手形借入金"},{s:"オ",n:"支払手形"},{s:"カ",n:"支払利息"}],
+    debit:["ウ","カ"], credit:["エ"],
+    exp:"【考え方】\n利息 = ¥5,000,000 × 2.4% × 10÷12 = ¥100,000\n手取金 = ¥5,000,000 − ¥100,000 = ¥4,900,000\n\n約束手形を振り出して借入 → 貸方「手形借入金」¥5,000,000（負債）\n手取金が当座預金に入る → 借方「当座預金」¥4,900,000\n利息は費用 → 借方「支払利息」¥100,000\n（手形貸付金は貸した側、受取利息は収益。この問題は借りる側）"
+  },
+  {
+    id:12, cat:"増資・資本金",
+    text:"北日本株式会社は増資を行い、株式 7,000 株を 1 株当たり ¥900 で発行し、株主からの払込金は普通預金口座に振り込まれた。",
+    choices:[{s:"ア",n:"資本金"},{s:"イ",n:"普通預金"},{s:"ウ",n:"当座預金"},{s:"エ",n:"利益準備金"},{s:"オ",n:"広告宣伝費"},{s:"カ",n:"繰越利益剰余金"}],
+    debit:["イ"], credit:["ア"],
+    exp:"【考え方】\n発行金額 = 7,000株 × ¥900 = ¥6,300,000\n\n株主からお金が入ってきた → 普通預金が増える → 借方「普通預金」\n株式を発行 = 会社の資本が増える → 貸方「資本金」"
+  },
+  {
+    id:13, cat:"収益的/資本的支出",
+    text:"営業の用に供している建物の改修と修繕を行い、代金 ¥4,500,000 は月末に支払うこととした。代金のうち ¥2,800,000 は収益的支出に、残額は資本的支出に該当する。",
+    choices:[{s:"ア",n:"修繕費"},{s:"イ",n:"未収入金"},{s:"ウ",n:"資本金"},{s:"エ",n:"損益"},{s:"オ",n:"建物"},{s:"カ",n:"未払金"}],
+    debit:["ア","オ"], credit:["カ"],
+    exp:"【考え方】\n収益的支出（現状維持・修繕）= 費用として処理 → 借方「修繕費」¥2,800,000\n資本的支出（価値向上・改修）= 資産として処理 → 借方「建物」¥1,700,000\n\n月末払い＝まだ支払っていない → 貸方「未払金」¥4,500,000"
+  },
+  {
+    id:14, cat:"賃貸借・敷金",
+    text:"事務所の賃貸借契約を結び、家賃6か月分（1か月 ¥250,000）、手数料 ¥250,000、敷金 ¥300,000 を、小切手を振り出して支払った。",
+    choices:[{s:"ア",n:"支払手数料"},{s:"イ",n:"前払金"},{s:"ウ",n:"支払家賃"},{s:"エ",n:"当座預金"},{s:"オ",n:"差入保証金"},{s:"カ",n:"受取手数料"}],
+    debit:["ウ","ア","オ"], credit:["エ"],
+    exp:"【考え方】\n家賃6ヶ月分 = ¥250,000 × 6 = ¥1,500,000 → 費用「支払家賃」\n仲介手数料¥250,000 → 費用「支払手数料」\n敷金¥300,000 → 退去時に返ってくるお金（資産）→「差入保証金」\n\n合計¥2,050,000を小切手振出 → 当座預金が減る → 貸方「当座預金」"
+  },
+  {
+    id:15, cat:"消費税（売上）",
+    text:"西日本株式会社に商品を売り上げ、品物とともに次の納品書兼請求書を発送し、代金は掛けとした。なお、消費税については、税抜方式で記帳する。\n\n【納品書】Y商品 230個×¥150＝¥34,500 ／ Z商品 170個×¥210＝¥35,700 ／ 消費税¥7,020 ／ 合計¥77,220",
+    choices:[{s:"ア",n:"売掛金"},{s:"イ",n:"買掛金"},{s:"ウ",n:"売上"},{s:"エ",n:"仕入"},{s:"オ",n:"仮受消費税"},{s:"カ",n:"仮払消費税"}],
+    debit:["ア"], credit:["ウ","オ"],
+    exp:"【考え方】\n税抜方式 = 売上と消費税を分けて記録する方法\n\n商品代（税抜）= ¥34,500 + ¥35,700 = ¥70,200 → 貸方「売上」\n消費税¥7,020 = お客さんから預かった税金 → 貸方「仮受消費税」\n\n請求金額合計¥77,220を掛けで売上 → 借方「売掛金」¥77,220\n（仮払消費税は仕入れのときに使う科目）"
+  },
+];
+
+// --- state ---
+let sels; // sels[i][sym] = null | 'debit' | 'credit'
+let submitted = false;
+
+function init() {
+  sels = problems.map(p => {
+    const o = {};
+    p.choices.forEach(c => o[c.s] = null);
+    return o;
+  });
+  submitted = false;
+  renderHistory();
+  renderProblems();
+  updateCount();
+  document.getElementById('scoreArea').style.display = 'none';
+  document.getElementById('retryArea').style.display = 'none';
+  document.getElementById('submitBtn').disabled = false;
+}
+
+// --- localStorage ---
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {attempts:[]}; }
+  catch { return {attempts:[]}; }
+}
+function saveAttempt(results) {
+  const h = loadHistory();
+  h.attempts.push({
+    date: new Date().toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'}),
+    ts: Date.now(),
+    score: results.filter(Boolean).length,
+    results
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(h));
+  return h;
+}
+
+// --- strengths/weaknesses ---
+function getSW(history) {
+  if (!history.attempts.length) return {strong:[], weak:[]};
+  const strong = [], weak = [];
+  problems.forEach((p, i) => {
+    const total = history.attempts.length;
+    const correct = history.attempts.filter(a => a.results[i]).length;
+    const rate = correct / total;
+    if (total >= 2) {
+      if (rate >= 0.8) strong.push(p.cat);
+      else if (rate <= 0.4) weak.push(p.cat);
+    }
+  });
+  return {strong, weak};
+}
+
+// --- render history ---
+function renderHistory() {
+  const h = loadHistory();
+  const card = document.getElementById('historyCard');
+  if (!h.attempts.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+
+  const sw = getSW(h);
+  let html = '<div class="card-title">過去の挑戦履歴</div>';
+  html += '<table class="history-table"><tr><th></th><th>日付</th><th>点数</th></tr>';
+  h.attempts.forEach((a, i) => {
+    const cls = a.score >= 13 ? 'sc-hi' : a.score >= 9 ? 'sc-md' : 'sc-lo';
+    html += `<tr><td>${i+1}回目</td><td>${a.date}</td><td><span class="sc ${cls}">${a.score}/15</span></td></tr>`;
+  });
+  html += '</table>';
+
+  if (sw.strong.length) {
+    html += '<div class="sw-row"><div class="sw-label">得意なカテゴリ</div><div class="sw-tags">';
+    sw.strong.forEach(c => html += `<span class="sw-tag t-strong">${c}</span>`);
+    html += '</div></div>';
+  }
+  if (sw.weak.length) {
+    html += '<div class="sw-row"><div class="sw-label">要復習カテゴリ</div><div class="sw-tags">';
+    sw.weak.forEach(c => html += `<span class="sw-tag t-weak">${c}</span>`);
+    html += '</div></div>';
+  }
+  card.innerHTML = html;
+}
+
+// --- render problems ---
+function renderProblems() {
+  const area = document.getElementById('problemsArea');
+  area.innerHTML = problems.map((p, i) => `
+    <div class="prob-card" id="pcard-${i}">
+      <div class="prob-header">
+        <span class="prob-num">第${p.id}問</span>
+        <span class="prob-cat">${p.cat}</span>
+        <span class="result-icon" id="icon-${i}"></span>
+      </div>
+      <div class="prob-text">${p.text}</div>
+      <div class="choices-grid" id="cgrid-${i}">
+        ${p.choices.map(c => `
+          <button class="c-btn" id="cb-${i}-${c.s}" onclick="toggle(${i},'${c.s}')">
+            <span class="sym">${c.s}</span><span>${c.n}</span>
+          </button>`).join('')}
+      </div>
+      <div class="t-acc">
+        <div class="t-l"><div class="t-h">借方</div><div class="t-b" id="td-${i}"><span class="t-empty">未選択</span></div></div>
+        <div class="t-r"><div class="t-h">貸方</div><div class="t-b" id="tc-${i}"><span class="t-empty">未選択</span></div></div>
+      </div>
+      <div class="exp-box" id="exp-${i}"></div>
+    </div>`).join('');
+}
+
+// --- toggle choice ---
+function toggle(idx, sym) {
+  if (submitted) return;
+  const cur = sels[idx][sym];
+  sels[idx][sym] = cur === null ? 'debit' : cur === 'debit' ? 'credit' : null;
+  refreshBtn(idx, sym);
+  refreshTacc(idx);
+  updateCount();
+}
+
+function refreshBtn(idx, sym) {
+  const btn = document.getElementById(`cb-${idx}-${sym}`);
+  const state = sels[idx][sym];
+  btn.className = 'c-btn' + (state === 'debit' ? ' debit' : state === 'credit' ? ' credit' : '');
+  const old = btn.querySelector('.c-lbl');
+  if (old) old.remove();
+  if (state) {
+    const lbl = document.createElement('span');
+    lbl.className = 'c-lbl';
+    lbl.textContent = state === 'debit' ? '借方' : '貸方';
+    btn.appendChild(lbl);
+  }
+}
+
+function refreshTacc(idx) {
+  const p = problems[idx];
+  const dl = p.choices.filter(c => sels[idx][c.s] === 'debit');
+  const cl = p.choices.filter(c => sels[idx][c.s] === 'credit');
+  document.getElementById(`td-${idx}`).innerHTML = dl.length ? dl.map(c=>`${c.s}. ${c.n}`).join('<br>') : '<span class="t-empty">未選択</span>';
+  document.getElementById(`tc-${idx}`).innerHTML = cl.length ? cl.map(c=>`${c.s}. ${c.n}`).join('<br>') : '<span class="t-empty">未選択</span>';
+}
+
+function updateCount() {
+  const n = problems.filter((p,i) =>
+    p.choices.some(c => sels[i][c.s] !== null)
+  ).length;
+  document.getElementById('answeredCt').textContent = `${n} / 15問 解答済み`;
+}
+
+// --- check answers ---
+function checkAnswers() {
+  submitted = true;
+  document.getElementById('submitBtn').disabled = true;
+
+  const results = problems.map((p, i) => {
+    const userD = p.choices.filter(c=>sels[i][c.s]==='debit').map(c=>c.s).sort().join(',');
+    const userC = p.choices.filter(c=>sels[i][c.s]==='credit').map(c=>c.s).sort().join(',');
+    return userD === [...p.debit].sort().join(',') && userC === [...p.credit].sort().join(',');
+  });
+
+  // disable all buttons
+  problems.forEach((p,i) => p.choices.forEach(c => {
+    const btn = document.getElementById(`cb-${i}-${c.s}`);
+    btn.disabled = true;
+  }));
+
+  // show inline results
+  results.forEach((ok, i) => {
+    const card = document.getElementById(`pcard-${i}`);
+    card.classList.add(ok ? 'correct' : 'wrong');
+    const icon = document.getElementById(`icon-${i}`);
+    icon.textContent = ok ? '✓' : '✗';
+    icon.style.display = 'inline';
+
+    if (!ok) {
+      const p = problems[i];
+      const getName = s => p.choices.find(c=>c.s===s).n;
+      const box = document.getElementById(`exp-${i}`);
+      box.innerHTML =
+        `<div>${p.exp}</div>` +
+        `<div class="ca-label">正しい答え（借方）</div><div class="ca-tags">${p.debit.map(s=>`<span class="ca-tag ca-d">${s}. ${getName(s)}</span>`).join('')}</div>` +
+        `<div class="ca-label">正しい答え（貸方）</div><div class="ca-tags">${p.credit.map(s=>`<span class="ca-tag ca-c">${s}. ${getName(s)}</span>`).join('')}</div>`;
+      box.classList.add('show');
+    }
+  });
+
+  const h = saveAttempt(results);
+  showScore(results, h);
+  renderHistory();
+}
+
+// --- show score ---
+function showScore(results, h) {
+  const score = results.filter(Boolean).length;
+  const attempt = h.attempts.length;
+  const msg = score===15 ? '完璧！全問正解です！' : score>=12 ? 'よくできました！あと少し。' : score>=9 ? 'もう一息！解説を確認しよう。' : '焦らず一つずつ復習しましょう。';
+
+  const area = document.getElementById('scoreArea');
+  area.innerHTML = `
+    <div class="score-card">
+      <div class="score-big">${score}</div>
+      <div class="score-denom">/ 15問 正解</div>
+      <div class="score-msg">${msg}</div>
+      <div class="score-attempt">${attempt}回目の挑戦</div>
+    </div>`;
+  area.style.display = 'block';
+  document.getElementById('retryArea').style.display = 'block';
+  area.scrollIntoView({behavior:'smooth'});
+}
+
+// --- retry ---
+function retry() {
+  document.getElementById('problemsArea').innerHTML = '';
+  document.getElementById('scoreArea').style.display = 'none';
+  document.getElementById('retryArea').style.display = 'none';
+  init();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+init();
+</script>
+</body>
+</html>

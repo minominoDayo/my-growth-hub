@@ -1,0 +1,698 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC Part 5 練習</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Helvetica Neue',Arial,sans-serif;background:#f0f2f5;color:#333;min-height:100vh}
+.header{background:#1a3a6b;color:#fff;padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.header h1{font-size:1.1rem;font-weight:700}
+.header .badge{background:#4a90d9;padding:3px 10px;border-radius:12px;font-size:0.78rem}
+.screen{display:none}
+.screen.active{display:block}
+
+/* Selector */
+.selector{max-width:620px;margin:36px auto;padding:0 16px}
+.selector h2{font-size:1.3rem;color:#1a3a6b;margin-bottom:6px}
+.selector p{color:#777;font-size:0.88rem;margin-bottom:20px;line-height:1.6}
+.test-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.test-card{background:#fff;border:2px solid #ddd;border-radius:10px;padding:18px 14px;cursor:pointer;transition:all 0.18s;text-align:center}
+.test-card:hover{border-color:#1a3a6b;box-shadow:0 4px 14px rgba(0,0,0,0.1);transform:translateY(-1px)}
+.test-card.has-score{border-color:#43a047}
+.tc-name{font-weight:700;color:#1a3a6b;font-size:0.95rem;margin-bottom:4px}
+.tc-info{color:#aaa;font-size:0.78rem;margin-bottom:8px}
+.tc-score{font-size:0.83rem;font-weight:600;color:#43a047}
+.tc-score.none{color:#ccc}
+
+/* Test screen */
+.test-screen{max-width:800px;margin:0 auto;padding:16px 16px 100px}
+.test-head{background:#fff;border-radius:10px;padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
+.th-left .test-title{font-size:1rem;font-weight:700;color:#1a3a6b}
+.th-left .prog-txt{color:#999;font-size:0.82rem;margin-top:2px}
+.timer-box{text-align:right}
+.timer-lbl{font-size:0.75rem;color:#aaa}
+.timer{font-size:1.6rem;font-weight:800;color:#1a3a6b;font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
+.timer.warn{color:#e53935}
+.btn-timer-start{margin-top:5px;background:#1a3a6b;color:#fff;border:none;padding:6px 14px;border-radius:7px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:background 0.18s;white-space:nowrap}
+.btn-timer-start:hover{background:#2952a3}
+
+.q-block{background:#fff;border-radius:10px;padding:18px 20px;margin-bottom:10px;box-shadow:0 1px 5px rgba(0,0,0,0.06);border-left:3px solid transparent;transition:border-color 0.2s}
+.q-block.answered{border-left-color:#4a90d9}
+.q-num{font-size:0.75rem;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.q-text{font-size:0.94rem;line-height:1.65;color:#222;margin-bottom:13px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.c-label{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:0.88rem;transition:all 0.15s;user-select:none}
+.c-label:hover{border-color:#4a90d9;background:#f0f6ff}
+.c-label.sel{border-color:#1a3a6b;background:#e8f0fb}
+.c-label input{display:none}
+.c-key{font-weight:800;color:#1a3a6b;min-width:18px}
+.c-label.ok{border-color:#43a047;background:#e8f5e9;pointer-events:none}
+.c-label.ok .c-key{color:#43a047}
+.c-label.ng{border-color:#e53935;background:#ffebee;pointer-events:none}
+.c-label.ng .c-key{color:#e53935}
+.c-label.show-ans{border-color:#43a047;background:#f1faf2;pointer-events:none}
+.c-label.locked{pointer-events:none}
+
+/* Action bar */
+.action-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:11px 20px;box-shadow:0 -2px 10px rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:space-between;z-index:200}
+.ans-cnt{color:#888;font-size:0.82rem}
+.btn-grade{background:#1a3a6b;color:#fff;border:none;padding:11px 28px;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer;transition:background 0.18s}
+.btn-grade:hover{background:#2952a3}
+.btn-back-sm{background:#fff;color:#888;border:1.5px solid #ddd;padding:9px 18px;border-radius:8px;font-size:0.85rem;cursor:pointer}
+.btn-back-sm:hover{border-color:#aaa}
+
+/* Result */
+.result-screen{max-width:700px;margin:0 auto;padding:20px 16px 40px}
+.score-card{background:#fff;border-radius:14px;padding:28px 24px;text-align:center;margin-bottom:18px;box-shadow:0 4px 18px rgba(0,0,0,0.09)}
+.sc-label{color:#999;font-size:0.85rem;margin-bottom:6px}
+.sc-main{font-size:3.2rem;font-weight:800;color:#1a3a6b}
+.sc-main span{font-size:1.4rem;color:#bbb;font-weight:400}
+.sc-pct{font-size:1rem;color:#4a90d9;font-weight:600;margin-top:2px}
+.bar-wrap{background:#f0f0f0;border-radius:4px;height:7px;margin:14px 0;overflow:hidden}
+.bar-fill{background:linear-gradient(90deg,#4a90d9,#1a3a6b);height:100%;border-radius:4px;transition:width 0.9s ease;width:0%}
+.sc-hist{font-size:0.78rem;color:#bbb;margin-top:6px}
+.res-actions{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.btn-retry{background:#1a3a6b;color:#fff;border:none;padding:11px 26px;border-radius:8px;font-size:0.92rem;font-weight:700;cursor:pointer}
+.btn-sel{background:#fff;color:#1a3a6b;border:2px solid #1a3a6b;padding:11px 26px;border-radius:8px;font-size:0.92rem;font-weight:700;cursor:pointer}
+.review-sec h3{font-size:0.95rem;font-weight:700;color:#555;margin-bottom:12px}
+.rv-item{background:#fff;border-radius:10px;padding:14px 16px;margin-bottom:9px;border-left:4px solid #e0e0e0}
+.rv-item.ok{border-left-color:#43a047}
+.rv-item.ng{border-left-color:#e53935}
+.rv-qn{font-size:0.72rem;color:#bbb;margin-bottom:3px;font-weight:700}
+.rv-txt{font-size:0.84rem;color:#444;margin-bottom:7px;line-height:1.55}
+.rv-row{display:flex;gap:16px;flex-wrap:wrap;font-size:0.8rem}
+.rv-your{color:#e53935}
+.rv-your.ok{color:#43a047}
+.rv-ans{color:#43a047;font-weight:700}
+
+@media(max-width:540px){
+  .choices{grid-template-columns:1fr}
+  .test-head{flex-direction:column;gap:6px;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>TOEIC Part 5 練習</h1>
+  <span class="badge">文法・語彙 30問 ／ 10分</span>
+</div>
+
+<!-- Selector -->
+<div class="screen active" id="screen-selector">
+  <div class="selector">
+    <h2>テストを選択</h2>
+    <p>テストを選んで開始してください。全問解いたら「採点する」ボタンで即時採点できます。スコアは自動保存されます。</p>
+    <div class="test-grid" id="test-grid"></div>
+  </div>
+</div>
+
+<!-- Test -->
+<div class="screen" id="screen-test">
+  <div class="test-screen">
+    <div class="test-head">
+      <div class="th-left">
+        <div class="test-title" id="test-title"></div>
+        <div class="prog-txt" id="prog-txt">0 / 30 問 回答済み</div>
+      </div>
+      <div class="timer-box">
+        <div class="timer-lbl">残り時間</div>
+        <div class="timer" id="timer">10:00</div>
+        <button class="btn-timer-start" id="btn-timer-start" onclick="startTick()">▶ タイマー開始</button>
+      </div>
+    </div>
+    <div id="questions"></div>
+  </div>
+  <div class="action-bar">
+    <button class="btn-back-sm" onclick="goSel()">← 選択へ戻る</button>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="ans-cnt" id="ans-cnt"></span>
+      <button class="btn-grade" id="btn-grade" onclick="grade()">採点する</button>
+    </div>
+  </div>
+</div>
+
+<!-- Result -->
+<div class="screen" id="screen-result">
+  <div class="result-screen">
+    <div class="score-card">
+      <div class="sc-label" id="r-name"></div>
+      <div class="sc-main" id="r-score">0 <span>/ 30</span></div>
+      <div class="sc-pct" id="r-pct"></div>
+      <div class="bar-wrap"><div class="bar-fill" id="r-bar"></div></div>
+      <div class="sc-hist" id="r-hist"></div>
+    </div>
+    <div class="res-actions">
+      <button class="btn-sel" onclick="goSel()">テスト選択へ</button>
+      <button class="btn-retry" onclick="retry()">もう一度</button>
+    </div>
+    <div class="review-sec">
+      <h3>解答・解説</h3>
+      <div id="review-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- Question data ----
+const TESTS = [
+  {
+    id:'T1', label:'テスト 1',
+    qs:[
+      {t:'The financial report is consistently ______, thereby reassuring investors about the company\'s stable performance.',c:['accurate','accurately','most accurately','accuracy'],a:0},
+      {t:'Applicants must submit their completed forms ______ person to the human resources office for processing.',c:['by','in','with','for'],a:1},
+      {t:'This is ______ solution possible to minimize costs and maximize long-term productivity.',c:['an efficient','a more efficient','the most efficient','an efficiency'],a:2},
+      {t:'Each ______ must demonstrate strong leadership skills and problem-solving abilities during the interview process.',c:['carpenter','celebrity','cashier','candidate'],a:3},
+      {t:'An employee may excuse ______ from a meeting if a conflict of interest arises unexpectedly.',c:['it','him','myself','themselves'],a:3},
+      {t:'The specialized training program is ______ the investment, given its measurable effect on employee retention.',c:['worth','worthwhile','worthiness','worthless'],a:0},
+      {t:'The merger has strong ______ to create new revenue streams and enhance market competitiveness.',c:['potent','potential','potentially','potency'],a:1},
+      {t:'The marketing team ______ the new campaign will increase brand awareness across international markets.',c:['wishes','hopes','wants','seeks'],a:1},
+      {t:'We deeply ______ to inform you that your application was not successful this time.',c:['retrieve','restore','regret','resign'],a:2},
+      {t:'The company offers a wide ______ of training programs to enhance employee development opportunities.',c:['array','display','area','section'],a:0},
+      {t:'______ facing several technical difficulties, the project was delivered ahead of schedule.',c:['Due to','Although','Because','In spite of'],a:3},
+      {t:'The training program was designed ______ to improve cross-cultural communication among global team members.',c:['sparingly','steadily','specifically','socially'],a:2},
+      {t:'______ small or large, the new regulations will affect all businesses operating within the region.',c:['Either','Also','Despite','Whether'],a:3},
+      {t:'The hotel staff were extremely ______, ensuring every guest\'s special request was promptly fulfilled.',c:['promoting','depending','accommodating','recognizing'],a:2},
+      {t:'The promotional discount will only be valid for a ______ period of time, encouraging immediate purchases.',c:['limit','limiting','limited','limitless'],a:2},
+      {t:'Essential resources are ______ available online, ensuring staff can access documents without unnecessary delays.',c:['ready','readily','readied','readiness'],a:1},
+      {t:'The ______ conducted detailed tests to verify the safety of the newly developed pharmaceutical product.',c:['chemist','chemistry','chemical','chemically'],a:0},
+      {t:'All safety equipment must be stored ______ site to comply with government regulations and inspections.',c:['at','on','in','with'],a:1},
+      {t:'Despite limited resources, the project team ______ to complete the assignment ahead of the deadline.',c:['applied','requested','managed','adhered'],a:2},
+      {t:'Normal operations will ______ tomorrow following scheduled maintenance on the company\'s internal network.',c:['resume','consume','presume','assume'],a:0},
+      {t:'Employees are accustomed ______ late during peak seasons to meet demanding client deadlines.',c:['work','working','to work','to working'],a:3},
+      {t:'______ the company has adopted automated machinery and monitoring systems, production efficiency has improved significantly.',c:['Even though','Fortunately','Now that','In response to'],a:2},
+      {t:'The company\'s headquarters is located in a ______ area, surrounded by mountains and scenic landscapes.',c:['picturesque','tedious','substantial','laborious'],a:0},
+      {t:'Legal documents will be translated into multiple languages upon ______ to accommodate international partners.',c:['request','requests','requesting','requested'],a:0},
+      {t:'The firm terminated contracts with those ______ violating the strict confidentiality agreements.',c:['find','found','finding','to find'],a:1},
+      {t:'The speaker was an ______ author, invited to share insights on international business negotiations.',c:['edited','pronounced','acclaimed','secluded'],a:2},
+      {t:'The company launched several new products, many of ______ gained international recognition within months.',c:['them','those','whose','which'],a:3},
+      {t:'The project was ______ successful, yet unexpected costs reduced its overall profitability significantly.',c:['specially','systematically','sequentially','seemingly'],a:3},
+      {t:'The advertising campaign helped the small agency ______ the client significant contracts in overseas markets.',c:['award','win','prize','boast'],a:1},
+      {t:'______ did the board realize how significantly the policy change would impact global market performance.',c:['Little','Slightly','A bit','Few'],a:0},
+    ]
+  }
+  ,
+  {
+    id:'T2', label:'テスト 2',
+    qs:[
+      {t:'Jane Smith, the ______ sales director, now serves as an external consultant to the company.',c:['former','latter','occasional','previously'],a:0},
+      {t:'The marketing team developed an innovative branding ______ for the new product line.',c:['planning','tactics','strategy','advertising'],a:2},
+      {t:'Our deadline was ______ too short for the team to complete the complex analysis.',c:['way','very','so','a lot'],a:0},
+      {t:'The outdated software was considered ______ after the system migration was completed.',c:['priceless','worthless','invaluable','costly'],a:1},
+      {t:'The equipment installed last month ______ energy consumption.',c:['reduce','reducing','to reduce','has reduced'],a:3},
+      {t:'Companies are ______ investing in cybersecurity to protect customer data.',c:['increasing','to increase','increased','increasingly'],a:3},
+      {t:'The board voted to ______ the policy to reflect recent regulatory changes.',c:['amend','provide','reduce','compensate'],a:0},
+      {t:'Only authorized staff ______ duty may access the secure server room.',c:['in','by','on','with'],a:2},
+      {t:'Traffic ______ near the distribution center delayed several scheduled deliveries.',c:['jam','congestion','accident','signal'],a:1},
+      {t:'The startup gained attention for its ______ approach to digital payment solutions.',c:['volatile','innovative','consecutive','obsolete'],a:1},
+      {t:'This flexible schedule should ______ employees who prefer working nontraditional hours.',c:['suit','suits','be suited','be suitable'],a:0},
+      {t:'You may access the database ______ you comply with company security policies.',c:['as far as','as long as','as much as','as quickly as'],a:1},
+      {t:'The director ______ review the proposal before making the final decision.',c:['requires to','wishes to','aspires to','is needed to'],a:1},
+      {t:'The shipment contained ______ equipment requiring careful handling during transportation.',c:['frequent','fluent','fragile','flexible'],a:2},
+      {t:'Customer ______ played a key role in product development.',c:['comment','feedback','survey','report'],a:1},
+      {t:'Overtime hours ______ excess of company policy require written approval from senior management.',c:['in','over','beyond','with'],a:0},
+      {t:'Customer satisfaction improved ______ after the company upgraded its support system.',c:['reliability','reliably','significance','significantly'],a:3},
+      {t:'All training materials are protected by ______ and may not be reproduced without permission.',c:['editing','publisher','copyright','printing'],a:2},
+      {t:'The memo outlines ______ the budget cuts will be implemented next quarter.',c:['what','which','how','who'],a:2},
+      {t:'Products ______ overseas are subject to additional inspections.',c:['manufacture','manufacturing','manufactured','will be manufactured'],a:2},
+      {t:'Online sales ______ for nearly forty percent of the company\'s total annual revenue.',c:['account','prepare','pay','charge'],a:0},
+      {t:'All applicants must submit ______ written approval before attending the overseas training session.',c:['prior','prior to','in advance','in advance of'],a:0},
+      {t:'During emergencies, the best thing to do ______ exactly what safety guidelines recommend.',c:['following','to follow','is follow','is following'],a:3},
+      {t:'Accurate data analysis is ______ to effective strategic decision-making.',c:['integral','internal','integrated','intentional'],a:0},
+      {t:'______ under tight deadlines, the team maintained high accuracy.',c:['Work','To work','Working','For working'],a:2},
+      {t:'______ the shipment arrived earlier than expected, it was not processed immediately.',c:['Whereas','However','Despite','Although'],a:3},
+      {t:'The system should not be applied ______ across departments with different operational needs.',c:['reluctantly','chronologically','voluntarily','indiscriminately'],a:3},
+      {t:'______ full-time or part-time, all employees must complete the safety training.',c:['Including','Either','Except','Whether'],a:3},
+      {t:'Analysts attribute the unexpected decline in quarterly earnings ______ market volatility.',c:['on','to','with','by'],a:1},
+      {t:'The legal team ______ defended the company\'s interests during contract negotiations.',c:['moderately','outrageously','impartially','zealously'],a:3},
+    ]
+  }
+  ,
+  {
+    id:'T3', label:'テスト 3',
+    qs:[
+      {t:'The temporary contract ______ until the project is officially completed.',c:['runs','extends','has','reaches'],a:1},
+      {t:'Senior leadership had compliance procedures ______ last quarter.',c:['review','to review','reviewing','reviewed'],a:3},
+      {t:'Management is ______ committed to improving transparency across all operational divisions companywide.',c:['hesitantly','absolutely','sometimes','kindly'],a:1},
+      {t:'Employees ______ leave are not required to respond to routine work-related communications.',c:['to','with','in','on'],a:3},
+      {t:'Overseas expansion ______ significant operational risks for small firms.',c:['is','covers','carries','lies'],a:2},
+      {t:'Damaged ______ was returned to suppliers following routine quality control inspection procedures.',c:['piece','goods','merchandise','parts'],a:2},
+      {t:'She was regarded as one of the ______ respected leaders in the industry.',c:['high','highest','highly','most highly'],a:3},
+      {t:'______ under contract, employees must strictly follow all applicable company policies.',c:['Unless','When','Except','Having'],a:1},
+      {t:'Several board members ______ that delaying the launch would reduce financial exposure.',c:['concurred','informed','requested','demanded'],a:0},
+      {t:'Employees assigned to the project ______ the mandatory briefing held last week.',c:['attend','attended','attendees','attendance'],a:1},
+      {t:'With investor confidence ______ stake, management acted quickly to address the issue.',c:['in','by','on','at'],a:3},
+      {t:'The audit provided ______ evidence supporting the company\'s compliance with international regulations.',c:['indistinguishable','indiscreet','indisputable','indestructible'],a:2},
+      {t:'Equipment left unattended for an ______ period of time may pose safety risks.',c:['extend','extending','extended','extension'],a:2},
+      {t:'The manager ______ candidates shortlisted for the position during the final interview round.',c:['evaluate','evaluating','evaluated','evaluation'],a:2},
+      {t:'A system ______ disrupted online transactions during peak business hours worldwide yesterday.',c:['malfunction','malfunctioning','malfunctioned','malfunctions'],a:2},
+      {t:'The company reserves the ______ to do further audits if compliance standards are violated.',c:['right','authority','room','privilege'],a:0},
+      {t:'Despite the tight deadline, the team ______ complete the report on time.',c:['ability','capably','required to','managed to'],a:3},
+      {t:'The supplier was ______ involved in practices that violated international trade regulations.',c:['allegedly','illegibly','arguably','elegantly'],a:0},
+      {t:'Employees must use ______ when sharing confidential information with external partners online.',c:['cautious','cautiously','caution','cautions'],a:2},
+      {t:'The policy is effective ______ that it reduces unnecessary administrative work.',c:['in','and','but','saying'],a:0},
+      {t:'The new policy aims to ______ excessive spending across multiple regional offices.',c:['curb','impose','exempt','bid'],a:0},
+      {t:'Of all the proposed strategies, ______ are viable under current market conditions.',c:['everything','both','none','neither'],a:2},
+      {t:'The director supported the plan he ______ was financially viable.',c:['considerably','thought','included','preferred'],a:1},
+      {t:'Several employees were ______ yesterday, delaying completion of the quarterly inventory review.',c:['disposed','disposing','indisposed','disposable'],a:2},
+      {t:'Staff members are ______ additional training opportunities as part of the company\'s development program.',c:['offer','to offer','offering','offered'],a:3},
+      {t:'The report shows ______ three departments failed to meet targets.',c:['less than','more','as many as','a lot'],a:2},
+      {t:'Rules should not be ______ enforced without clear justification or prior notice.',c:['arbitrarily','unanimously','simultaneously','predominantly'],a:0},
+      {t:'The manager approved only the strategies she ______ financially viable.',c:['observed','estimated','predicted','deemed'],a:3},
+      {t:'The company revised the policy ______ provisions conflicted with updated regulatory guidelines.',c:['that','those','which','whose'],a:3},
+      {t:'The normally punctual manager arrived ______ late to the budget meeting.',c:['timely','chronologically','uncharacteristically','hysterically'],a:2},
+    ]
+  },
+  {
+    id:'T4', label:'テスト 4',
+    qs:[
+      {t:'All residents must ______ their income taxes by the end of March.',c:['record','document','file','process'],a:2},
+      {t:'The expansion plan remains ______ hold until regulatory approval is officially granted.',c:['in','to','on','by'],a:2},
+      {t:'Management had the assistant ______ the sales report before the client meeting.',c:['prepare','prepared','to prepare','preparation'],a:0},
+      {t:'The contract ______ that all payments must be made within thirty days of invoicing.',c:['orders','gives','supplies','provides'],a:3},
+      {t:'The technician ______ deleted critical data while updating the internal server system.',c:['eventfully','incidentally','coincidentally','accidentally'],a:3},
+      {t:'______ purchased within five days may be eligible for a refund, provided they remain undamaged.',c:['Apparel','Clothes','Attire','Garment'],a:0},
+      {t:'The project required five specialists and cost over two million dollars ______ total.',c:['in','for','at','on'],a:0},
+      {t:'Employee ______ increased following the introduction of performance-based incentive programs.',c:['work','tasks','motivation','inspiration'],a:2},
+      {t:'Security staff monitored anyone who came ______ to the restricted area.',c:['close','closely','most closely','closeness'],a:0},
+      {t:'The company hired a consultant ______ by several industry experts.',c:['to recommend','for recommending','recommended','is recommended'],a:2},
+      {t:'The software license is available ______ to corporate clients with long-term contracts.',c:['exclusively','inclusively','restrictively','unanimously'],a:0},
+      {t:'Sales declined ______ unexpected shipping delays incurred during the peak holiday season.',c:['because','because of','despite','even though'],a:1},
+      {t:'Customer satisfaction improved ______ after the company upgraded its online support system.',c:['carefully','kindly','thoughtfully','considerably'],a:3},
+      {t:'Regulatory requirements may ______ firms to disclose detailed financial information annually.',c:['compel','comply','complain','comprise'],a:0},
+      {t:'______ that the contract is signed, production can begin ahead of schedule.',c:['In','So','Now','Before'],a:2},
+      {t:'Small retailers often operate ______ a disadvantage when competing with large online platforms.',c:['at','for','in','to'],a:0},
+      {t:'The company aims to provide software solutions ______ for small and medium enterprises.',c:['afford','afforded','affording','affordably'],a:3},
+      {t:'Projects ______ additional funding often face extended approval processes.',c:['require','required','requiring','are required to'],a:2},
+      {t:'The company plans to ______ operating costs by the end of the fiscal year.',c:['reduce','continue','maintain','observe'],a:0},
+      {t:'The two proposals appeared ______ after careful review by the evaluation committee.',c:['indiscriminate','indistinguishable','indistinct','indisputable'],a:1},
+      {t:'______ in the attachment are the materials required for the training session.',c:['List','Listing','Listed','Listings'],a:2},
+      {t:'Please review all documents ______ to the merger before Friday\'s executive meeting.',c:['persuasive','pertaining','permitted','persisting'],a:1},
+      {t:'System ______ is required to improve security and ensure regulatory compliance.',c:['revision','amendment','modification','customization'],a:2},
+      {t:'Management addressed customer ______ by revising the company\'s return policy.',c:['comment','claim','complaint','frustration'],a:2},
+      {t:'Team leaders ______ extra budget to support urgent initiatives.',c:['allot','allotted','have allotted','are allotted'],a:3},
+      {t:'The company aims to ______ out a niche market through innovative service offerings.',c:['carve','scratch','take','draw'],a:0},
+      {t:'______ due to supply shortages, the project required a revised timeline.',c:['To delay','Delaying','Having delayed','Having been delayed'],a:3},
+      {t:'Reliable data is ______ for making accurate forecasts and strategic business decisions.',c:['indispensable','indisposed','disposable','indestructible'],a:0},
+      {t:'______ it not for the automated system, processing customer requests would take much longer.',c:['If','Were','Had','Should'],a:1},
+      {t:'Managers must act ______ when balancing budget constraints and operational priorities.',c:['pragmatically','dogmatically','arbitrarily','superficially'],a:0},
+    ]
+  },
+  {
+    id:'T5', label:'テスト 5',
+    qs:[
+      {t:'Staff members who work ______ will be eligible for overtime compensation.',c:['late','later','latest','lately'],a:0},
+      {t:'Several concerns were ______ at the board meeting regarding data security.',c:['increased','raised','arisen','reached'],a:1},
+      {t:'Items ______ sale this weekend include office supplies and electronics from selected brands.',c:['in','on','with','having'],a:1},
+      {t:'The trainer ______ participants to participate in group discussions to improve engagement.',c:['saw','let','had','got'],a:3},
+      {t:'______ from scheduling issues, operations continued smoothly throughout peak sales periods nationally.',c:['Besides','Rather','Apart','Next'],a:2},
+      {t:'The company travel reimbursement policy ______ meals and transportation costs only.',c:['charges','pays','covers','invests'],a:2},
+      {t:'Meetings should be scheduled outside peak hours ______ possible.',c:['where','how','as','like'],a:2},
+      {t:'New hires must familiarize ______ with policies before handling client accounts independently.',c:['them','theirs','their own','themselves'],a:3},
+      {t:'Competition for the government contract became ______ among major infrastructure firms.',c:['vacant','swift','fierce','dense'],a:2},
+      {t:'The contract ______ delayed payment approvals and required mediation from external legal advisors.',c:['argument','quarrel','debate','dispute'],a:3},
+      {t:'The assistant organized the files ______ on the server for easier access by the accounting team.',c:['store','storing','stored','storage'],a:2},
+      {t:'The company\'s international ______ attracted strong investor interest at the technology exhibition.',c:['premiere','debut','beginning','opening'],a:1},
+      {t:'Employees must follow company policies ______ their position or seniority.',c:['for','with','owing to','regardless of'],a:3},
+      {t:'Please do not ______ supporting documents when submitting expense reimbursement requests.',c:['erase','avoid','cancel','omit'],a:3},
+      {t:'The shipment was ______ delayed due to customs inspections at the port.',c:['consistently','presumably','adversely','voluntarily'],a:1},
+      {t:'Lower operating costs can attract ______ from small and mid-sized firms.',c:['invest','investor','investing','investment'],a:3},
+      {t:'Participants reviewed materials ______ to ensure smooth discussions during training workshop sessions.',c:['prior','beforehand','advance','previous'],a:1},
+      {t:'Each proposal included an ______ highlighting expected outcomes and methodologies.',c:['abstract','offset','infringement','endeavor'],a:0},
+      {t:'Applicants selected for the interview ______ notification by email within three business days.',c:['receive','to receive','receiving','are received'],a:0},
+      {t:'Customer complaints were reviewed ______ length before a final decision was made.',c:['for','at','with','in'],a:1},
+      {t:'______ immediately, access badges require manager approval for after-hours office entry requests.',c:['Effect','Effective','Effectively','Effectiveness'],a:1},
+      {t:'Online registration ______ applicants a trip to the office while improving administrative efficiency.',c:['takes','provides','includes','saves'],a:3},
+      {t:'Employees may ______ for flexible hours during peak workload periods with approval.',c:['opt','optic','optimist','optimize'],a:0},
+      {t:'Several documents were ______ incomplete during the audit and required immediate revision.',c:['uncovered','found','revealed','noticed'],a:1},
+      {t:'Management confirmed the revised schedule was ______ despite limited staffing resources.',c:['feasible','durable','edible','amicable'],a:0},
+      {t:'Our proposal seems flexible, whereas ______ is rigid and costly for regional offices.',c:['it','ours','he','theirs'],a:3},
+      {t:'The manager ______ rejected the proposal because it failed to meet compliance standards.',c:['unanimously','resolutely','exponentially','overwhelmingly'],a:1},
+      {t:'The board members, ______ of whom represents a different region, approved the merger without dissent yesterday.',c:['each','every','many','none'],a:0},
+      {t:'______ do managers approve budgets without forecasts during annual planning cycles sessions.',c:['Rather','Should','Rarely','Surprisingly'],a:2},
+      {t:'Financial ______ helps managers evaluate investments and minimize long-term operational risks effectively.',c:['credibility','acumen','legitimacy','authority'],a:1},
+    ]
+  },
+  {
+    id:'T6', label:'テスト 6',
+    qs:[
+      {t:'The annual winter sale ______ until March 21st, offering significant discounts on selected items.',c:['operates','runs','performs','reaches'],a:1},
+      {t:'Staff attended a workshop ______ effective communication in the workplace.',c:['by','on','with','to'],a:1},
+      {t:'Potential benefits often ______ initial costs during major system upgrades for enterprises.',c:['weigh','weigh in','outweigh','overweigh'],a:2},
+      {t:'Reports prepared by the finance team ______ by management.',c:['approve','approved','were approved','to be approved'],a:2},
+      {t:'The extended warranty ______ as protection against unexpected repair costs.',c:['serves','provides','guards','becomes'],a:0},
+      {t:'Engineers quickly identified a minor ______ before product shipment began last week.',c:['deposit','decline','detour','defect'],a:3},
+      {t:'______ the audit begins, all financial records will have been updated.',c:['While','Until','By the time','As soon as'],a:2},
+      {t:'The applicant arrived early for the interview, ______ to find that it had been postponed.',c:['in order','only','asking','about'],a:1},
+      {t:'Quality inspections confirmed ______ performance across all newly installed systems this month.',c:['careless','restless','tireless','flawless'],a:3},
+      {t:'The company reduced expenses by negotiating bulk discounts on office ______.',c:['supply','supplier','suppliers','supplies'],a:3},
+      {t:'Customer inquiries must be answered as ______ as possible.',c:['timely','promptly','quick','usually'],a:1},
+      {t:'Laboratory technicians calibrated new ______ to ensure accurate and reliable measurements daily.',c:['apparatus','apparel','application','approximation'],a:0},
+      {t:'The company improved efficiency, ______ costs and overall expenses.',c:['both','either','reducing','spending'],a:2},
+      {t:'______ present, customer demand remains higher than production capacity.',c:['With','At','For','To'],a:1},
+      {t:'Employees must settle outstanding ______ before accessing corporate training programs each quarter.',c:['due','dues','duly','due on'],a:1},
+      {t:'Customer feedback on the updated service platform is ______ to be reviewed.',c:['yet','already','ever','always'],a:0},
+      {t:'Human Resources assists ______ new to the organization with ongoing training and support.',c:['being','with','those','are'],a:2},
+      {t:'Customer satisfaction remains ______ when developing long-term business partnerships with key clients.',c:['clearly','somewhat','necessarily','foremost'],a:3},
+      {t:'Employees are required to submit identification ______ arrival at the facility.',c:['upon','to','for','over'],a:0},
+      {t:'Many workers consider fringe ______ to be as important as base salary.',c:['merits','benefits','advantages','profits'],a:1},
+      {t:'Management plans to ______ staff with updated safety equipment immediately companywide next.',c:['outrun','outdo','outfit','outperform'],a:2},
+      {t:'The firm saved ______ 15 percent on operational costs after renegotiating contracts.',c:['almost','mostly','approximate','total'],a:0},
+      {t:'The new policy will improve efficiency, ______ overall productivity, in daily operations.',c:['providing','otherwise','whether','if not'],a:0},
+      {t:'Media coverage brought widespread ______ for the company\'s commitment to sustainable business practices.',c:['acclaim','accountability','acceptance','acclimation'],a:0},
+      {t:'High employee turnover is ______ with low workplace satisfaction.',c:['associate','associating','associated','association'],a:2},
+      {t:'The client raised multiple concerns, some of ______ must be addressed immediately.',c:['them','many','whose','which'],a:3},
+      {t:'Business decisions should be ______ driven by accurate financial data at scale.',c:['fruitfully','ferociously','fundamentally','formidably'],a:2},
+      {t:'Employees should arrive early ______ the security check takes longer than expected.',c:['in case','when','so as','as long as'],a:0},
+      {t:'______ a household name, the brand enjoys strong consumer loyalty.',c:['Having','To be','Given','Practically'],a:2},
+      {t:'Meeting schedules ______ change when clients request last-minute revisions to project timelines.',c:['resolutely','invariably','attentively','harshly'],a:1},
+    ]
+  },
+  {
+    id:'T7', label:'テスト 7',
+    qs:[
+      {t:'Customer complaints ______ the manager reconsider the service strategy.',c:['asked','made','forced','allowed'],a:2},
+      {t:'Several employees will be on vacation ______ during the holiday season, so workloads have been adjusted.',c:['leave','to leave','leaving','have left'],a:0},
+      {t:'The manager agreed to ______ the decision until more data becomes available.',c:['get','give','make','hold'],a:3},
+      {t:'Several system updates are ______ to be done before the software launch next month to ensure platform stability.',c:['already','just','still','always'],a:2},
+      {t:'The board will ______ its commitment to ethical business practices.',c:['affix','affirm','affect','afford'],a:1},
+      {t:'The conference room was ______ too small to accommodate all attendees comfortably.',c:['so','such','much','very'],a:2},
+      {t:'A senior supervisor will be in charge ______ training new employees during their probation period.',c:['to','by','for','of'],a:3},
+      {t:'The department issued a ______ regarding updated compliance regulations.',c:['license','complaint','certificate','memorandum'],a:3},
+      {t:'Employees are required to renew their safety certification ______ 2 years in accordance with company policy.',c:['each','every','over','for'],a:1},
+      {t:'Management scheduled a meeting to ______ declining sales in key regional markets.',c:['address','locate','cope','present'],a:0},
+      {t:'The manager received praise for ______ performance during negotiations.',c:['example','exemplify','exemplifying','exemplary'],a:3},
+      {t:'The company experienced a sharp increase in sales ______ the launch of its new product line.',c:['follow','to follow','following','by following'],a:2},
+      {t:'The manager requested clarification ______ the cause of the recent decline in sales.',c:['whereas','as to','so as','as far as'],a:1},
+      {t:'The corporation avoided ______ through strategic cost reduction measures.',c:['bankruptcy','withdrawing','budgeting','audits'],a:0},
+      {t:'The research team reported ______ findings that could lead to product innovation.',c:['promise','to promise','promising','having promised'],a:2},
+      {t:'The training session provided ______ professional development opportunities for staff.',c:['valuable','valuably','valuated','valuation'],a:0},
+      {t:'The company plans to ______ additional assets in Southeast Asia.',c:['acquire','require','inquire','enquire'],a:0},
+      {t:'When the finance team ______ the audit, the final report will be submitted to management.',c:['completed','will complete','has completed','has been completed'],a:2},
+      {t:'A candidate should feel proud of ______ if they perform well during the interview process.',c:['his','itself','us','themselves'],a:3},
+      {t:'The former CEO released a ______ about corporate leadership challenges.',c:['mentor','memoir','milestone','momentum'],a:1},
+      {t:'Additional safety measures will be implemented ______ necessary to meet regulatory standards.',c:['unless','rather','where','to be'],a:2},
+      {t:'Customer feedback is ______ reviewing to identify areas for service improvement.',c:['worth','worthy','worthwhile','worthless'],a:0},
+      {t:'The designer created an ______ detailed marketing presentation.',c:['unequivocally','arbitrarily','invariably','elaborately'],a:3},
+      {t:'______ domestic or international, all shipments must comply with customs regulations.',c:['Either','Neither','While','Whether'],a:3},
+      {t:'Negative customer reviews can work ______ the brand\'s reputation in competitive markets.',c:['for','through','against','towards'],a:2},
+      {t:'The employee admitted to a serious ______ of company policy.',c:['breach','issue','element','ordinance'],a:0},
+      {t:'Employees may not access the system ______ they complete the required security training.',c:['otherwise','unless','after','providing'],a:1},
+      {t:'The committee conducted an ______ review of financial statements.',c:['abrupt','interpersonal','impending','exhaustive'],a:3},
+      {t:'______ limited resources, the team completed the project ahead of schedule.',c:['Inside','Extremely','Being','Despite'],a:3},
+      {t:'The new policy improved efficiency ______ within six months.',c:['sluggishly','immeasurably','presumably','resolutely'],a:1},
+    ]
+  },
+  {
+    id:'T8', label:'テスト 8',
+    qs:[
+      {t:'The instruction manual needs to be reviewed ______ to avoid installation errors.',c:['through','thorough','thoroughly','thoroughness'],a:2},
+      {t:'______ no circumstances should employees share confidential information.',c:['With','Under','By','For'],a:1},
+      {t:'The program pairs new hires with experienced ______ who provide ongoing guidance and support.',c:['mentors','pupils','applicants','citizens'],a:0},
+      {t:'We may need to extend the contract for ______ three months due to the delay.',c:['until','mostly','every','another'],a:3},
+      {t:'To avoid ______ orders, confirm the purchase number before submitting the request.',c:['duplicate','duplicated','being duplicated','having duplicated'],a:0},
+      {t:'Customer feedback helped ______ the direction of the new advertising campaign.',c:['invent','alter','discover','claim'],a:1},
+      {t:'Although still in its early stages, the project has considerable ______.',c:['promise','promises','promising','to promise'],a:0},
+      {t:'Employees ______ overtime during the busy season must obtain prior approval from their supervisors.',c:['work','worked','working','have worked'],a:2},
+      {t:'Negotiations took place against the ______ of rising economic uncertainty.',c:['backup','backstage','backstop','backdrop'],a:3},
+      {t:'Payment must be received ______ the due date indicated on the invoice.',c:['until','up to','as long as','no later than'],a:3},
+      {t:'The company offers discounts to ______ clients based on long-term contracts.',c:['every','certain','almost','much'],a:1},
+      {t:'______ customers will receive priority service and exclusive promotional offers during the renewal period.',c:['Holding','Denying','Existing','Valuing'],a:2},
+      {t:'Applicants may receive a response ______ two weeks after the interview.',c:['prior to','longer than','in advance','as early as'],a:3},
+      {t:'Please ______ the IT support team of any technical issues you encounter while using the new software system.',c:['notify','mention','tell','say'],a:0},
+      {t:'The board evaluated the proposal ______ before making a final decision.',c:['demonstrably','rationally','exclusively','respectively'],a:1},
+      {t:'We need to carefully evaluate ______ to renew the contract under the current conditions.',c:['whether','prior','in order','in regard'],a:0},
+      {t:'Our system does not support older software, ______ does it allow manual configuration.',c:['also','but','nor','and'],a:2},
+      {t:'The anniversary celebration marked a ______ in the organization\'s history.',c:['keynote','milestone','detour','token'],a:1},
+      {t:'Our new office layout is better ______ to encouraging collaboration among team members.',c:['suit','suiting','suited','suitable'],a:2},
+      {t:'The contract contains ______ terms regarding payment methods and deadlines.',c:['explicit','obscure','modest','foremost'],a:0},
+      {t:'Effective product ______ helps identify consumer trends and preferences.',c:['survey','research','questionnaire','study'],a:1},
+      {t:'The issues to be addressed before the product launch ______ in the final report.',c:['outline','outlined','have outlined','have been outlined'],a:3},
+      {t:'Industry standards serve as an important ______ for quality control.',c:['watermark','landmark','benchmark','trademark'],a:2},
+      {t:'All financial reports must be prepared in ______ with international accounting standards.',c:['complying','complied','compliant','compliance'],a:3},
+      {t:'The director eliminated outdated policies that he maintained ______ employee morale.',c:['harms','to harm','by harming','were harming'],a:3},
+      {t:'The accident might have been far more serious ______ it not been for the new safety regulations.',c:['though','even','if','had'],a:3},
+      {t:'Due to technical difficulties, the conference was ______ for thirty minutes.',c:['awaited','adjourned','advocated','amended'],a:1},
+      {t:'Several board members voted ______ the proposal due to concerns about long-term profitability.',c:['opposite to','to not','against','unanimously'],a:2},
+      {t:'______ several employees resigned at the same time caused concern among management.',c:['Because','The fact that','Having','Suddenly'],a:1},
+      {t:'The proposal was ______ approved despite strong public opposition and concerns raised by community leaders.',c:['controversially','fundamentally','presumably','intricately'],a:0},
+    ]
+  },
+  {
+    id:'T9', label:'テスト 9',
+    qs:[
+      {t:'This quarter\'s strong sales performance ______ expectations for the upcoming quarter.',c:['raise','rose','has raised','has been rising'],a:2},
+      {t:'Employees are evaluated on a regular ______ to ensure consistent performance.',c:['base','basis','basic','bases'],a:1},
+      {t:'______ firms in industry continue to invest heavily in innovation.',c:['Lead','Leader','Leading','Having lead'],a:2},
+      {t:'The issue was handled so ______ that it did not escalate further.',c:['competence','competency','competent','competently'],a:3},
+      {t:'Our marketing team was effective ______ a wider audience through social media.',c:['to reach','to reaching','for reaching','in reaching'],a:3},
+      {t:'Technical support staff are available ______ during regular business hours.',c:['onsite','onboard','onshore','oncoming'],a:0},
+      {t:'ABC Electronics ______ a new line of energy-efficient devices for global distribution.',c:['are developing','has developed','have been developing','has been developed'],a:1},
+      {t:'We don\'t have enough time to finish the report today, and ______ do our colleagues in the other department.',c:['so','also','either','neither'],a:3},
+      {t:'Logistics teams must ______ large quantities of goods across long distances efficiently.',c:['hinder','harvest','hamper','haul'],a:3},
+      {t:'All employees are ______ contract and must follow company policies strictly.',c:['with','on','under','within'],a:2},
+      {t:'The marketing director handled multiple projects ______ on assignment abroad.',c:['while','during','before','depending'],a:0},
+      {t:'______ of project milestones requires careful coordination among departments.',c:['Accomplishment','Accountability','Accuracy','Accessing'],a:0},
+      {t:'We had ______ alternative but to cancel the meeting because of the sudden power outage.',c:['other','another','no other','the other'],a:2},
+      {t:'Budget constraints prevented the team ______ the project as planned.',c:['to complete','to completing','by completing','from completing'],a:3},
+      {t:'Conference rooms remain fully ______ during peak business hours.',c:['occupant','occupied','occupancy','occupying'],a:1},
+      {t:'Demand for the product may ______ if competitors offer lower prices.',c:['decline','reduce','lower','cut'],a:0},
+      {t:'Customer inquiries ______ for the past few days following the product launch.',c:['surged','are surging','had surged','have been surging'],a:3},
+      {t:'New safety measures will ______ awareness among employees.',c:['rise','climb','heighten','soar'],a:2},
+      {t:'Current market trends are ______ odds with the company\'s initial forecasts.',c:['at','having','for','under'],a:0},
+      {t:'The enterprise ______ by industry experts with decades of experience offers high-quality consulting services.',c:['find','found','founded','founding'],a:2},
+      {t:'Network connections may fail ______ due to unstable conditions.',c:['hesitantly','intermittently','unanimously','invariably'],a:1},
+      {t:'The organization made significant investments in the years ______ its expansion overseas.',c:['prior','previously','preceding','in advance'],a:2},
+      {t:'A series of unexpected delays in the delivery of critical raw materials ______ the production schedule.',c:['affect','affecting','have affected','has affected'],a:3},
+      {t:'______ in demand has prompted companies to expand production capacity.',c:['Acceleration','Depreciation','Oversupply','Specialization'],a:0},
+      {t:'Sales increased in the domestic market, ______ they declined in overseas regions.',c:['until','because','so','whereas'],a:3},
+      {t:'______ of today, all employees are required to complete the updated training program.',c:['As','In spite','Because','Regardless'],a:0},
+      {t:'Growth patterns rarely follow a perfectly ______ trend in real markets.',c:['line','linear','lining','lined'],a:1},
+      {t:'The board suggested management ______ the current strategy in light of recent market changes.',c:['reconsider','to reconsider','reconsidering','reconsidered'],a:0},
+      {t:'Products undergo strict quality checks, and those found ______ are removed from distribution.',c:['defects','defecting','defective','defectively'],a:2},
+      {t:'The workforce remains ______ focused on domestic operations at this time.',c:['exponentially','retrospectively','sporadically','predominantly'],a:3},
+    ]
+  },
+  {
+    id:'T10', label:'テスト 10',
+    qs:[
+      {t:'We must complete the final report before the project ______ next Friday.',c:['decline','deadline','deduction','debate'],a:1},
+      {t:'Many travelers choose this resort for its ______ ocean view and quiet atmosphere.',c:['scenically','beautifully','lovely','ideally'],a:2},
+      {t:'Production ______ because several key parts have not arrived yet.',c:['delays','delayed','has delayed','has been delayed'],a:3},
+      {t:'The new software will ______ faster communication between departments.',c:['foresee','furnish','forecast','facilitate'],a:3},
+      {t:'Our customer survey helped us ______ understand what clients expect from our services.',c:['better','more','clearer','certainly'],a:0},
+      {t:'______ of renewable energy has become a major priority for many countries.',c:['Produce','Product','Products','Production'],a:3},
+      {t:'We appreciate your ______ interest in working with our organization.',c:['genuine','gradual','generous','graceful'],a:0},
+      {t:'Our team aims to identify ______ expanding business opportunities through data analysis.',c:['continuing','continued','continuous','continuously'],a:3},
+      {t:'Many employees prefer working remotely ______ than commuting long distances.',c:['further','other','rather','less'],a:2},
+      {t:'Over the past ______, the company has expanded into several international markets.',c:['deficit','decade','defeat','detour'],a:1},
+      {t:'The office location may be inconvenient, ______ the rent is affordable.',c:['but','so','except','also'],a:0},
+      {t:'Completing the project on time required a ______ effort from every department.',c:['coordinate','coordinating','coordinated','coordination'],a:2},
+      {t:'The store reported higher ______ sales during the holiday season this year.',c:['gauge','grant','gross','guide'],a:2},
+      {t:'Extra inventory was ordered ______ that customer demand could be met quickly.',c:['so','in','for','considering'],a:0},
+      {t:'Rising material costs may discourage investors ______ new construction projects.',c:['to support','supporting','from supporting','in supporting'],a:2},
+      {t:'New environmental ______ will affect manufacturing companies nationwide.',c:['layout','league','logistics','legislation'],a:3},
+      {t:'Several employees agreed to work overtime ______ short notice to finish the project on time.',c:['with','at','for','by'],a:1},
+      {t:'______ the high demand, the factory plans to increase production next month.',c:['Give','To give','Giving','Given'],a:3},
+      {t:'Management requested a ______ detailed analysis of the proposed expansion plan.',c:['secondly','minutely','primarily','carelessly'],a:1},
+      {t:'The lawyer provided several ______ arguments to support the company\'s position.',c:['convincing','convinced','persuading','persuaded'],a:0},
+      {t:'Employee benefits ______ paid vacation, health insurance, and retirement savings plans.',c:['consist','include','contain','hold'],a:1},
+      {t:'Fuel prices often ______ depending on global supply and demand.',c:['accelerate','differentiate','fluctuate','substantiate'],a:2},
+      {t:'Strong customer feedback was instrumental ______ the company\'s new product line.',c:['to shape','to shaping','in shaping','by shaping'],a:2},
+      {t:'Emergency supplies need to ______ in an easily accessible location.',c:['remain','place','put','leave'],a:0},
+      {t:'The director appeared calm ______, but he was anxious about the results.',c:['outwardly','awkwardly','forwardly','downwardly'],a:0},
+      {t:'______ customers want is faster delivery and better service.',c:['That','Having','Should','What'],a:3},
+      {t:'The firm entered ______ after suffering major financial losses over several consecutive quarters.',c:['expiration','suspension','termination','liquidation'],a:3},
+      {t:'______ are the signed contract and the updated pricing list for your review and approval.',c:['Enclosing','Enclosed','Enclosure','Enclosures'],a:1},
+      {t:'The new office location is considered ______ for both staff and clients.',c:['convenient','convenience','conveniences','conveniently'],a:0},
+      {t:'Employees should work remotely ______ practical during the office renovation.',c:['providing','where','whose','once'],a:1},
+    ]
+  }
+];
+
+// ---- State ----
+let cur = null;
+let ans = [];
+let tick = null;
+let tleft = 600;
+let done = false;
+
+// ---- Init ----
+function init(){ renderGrid(); }
+
+function renderGrid(){
+  const g = document.getElementById('test-grid');
+  g.innerHTML = '';
+  TESTS.forEach((t,i)=>{
+    const hist = getHist(t.id);
+    const best = hist.length ? Math.max(...hist) : null;
+    const card = document.createElement('div');
+    card.className = 'test-card' + (best!==null?' has-score':'');
+    card.innerHTML = `<div class="tc-name">${t.label}</div>
+      <div class="tc-info">30問 ／ 10分</div>
+      <div class="tc-score ${best===null?'none':''}">${best!==null?'最高 '+best+'/30':'未受験'}</div>`;
+    card.onclick = ()=>startTest(i);
+    g.appendChild(card);
+  });
+}
+
+function startTest(i){
+  cur = TESTS[i];
+  ans = new Array(cur.qs.length).fill(-1);
+  done = false;
+  tleft = 600;
+  document.getElementById('test-title').textContent = cur.label;
+  renderQs();
+  updProg();
+  document.getElementById('btn-timer-start').style.display = '';
+  show('test');
+  scrollTo(0,0);
+}
+
+function renderQs(){
+  const c = document.getElementById('questions');
+  c.innerHTML = '';
+  const K = ['A','B','C','D'];
+  cur.qs.forEach((q,qi)=>{
+    const b = document.createElement('div');
+    b.className = 'q-block';
+    b.id = 'qb'+qi;
+    b.innerHTML = `<div class="q-num">問 ${qi+1}</div>
+      <div class="q-text">${esc(q.t)}</div>
+      <div class="choices" id="ch${qi}">${
+        q.c.map((ch,ci)=>`<label class="c-label" id="cl${qi}_${ci}" onclick="pick(${qi},${ci})">
+          <input type="radio" name="q${qi}"><span class="c-key">${K[ci]})</span><span>${esc(ch)}</span></label>`
+        ).join('')
+      }</div>`;
+    c.appendChild(b);
+  });
+}
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'); }
+
+function pick(qi,ci){
+  if(done) return;
+  ans[qi]=ci;
+  document.querySelectorAll(`#ch${qi} .c-label`).forEach((l,i)=>l.classList.toggle('sel',i===ci));
+  document.getElementById('qb'+qi).classList.add('answered');
+  updProg();
+}
+
+function updProg(){
+  const n = ans.filter(a=>a>=0).length;
+  const tot = cur.qs.length;
+  document.getElementById('prog-txt').textContent = `${n} / ${tot} 問 回答済み`;
+  document.getElementById('ans-cnt').textContent = `${n}/${tot}問`;
+}
+
+function startTick(){
+  document.getElementById('btn-timer-start').style.display = 'none';
+  clearInterval(tick);
+  updTimer();
+  tick = setInterval(()=>{
+    tleft--;
+    updTimer();
+    if(tleft===60) beep(880, 0.3, 1);
+    if(tleft<=0){ clearInterval(tick); beep(660, 0.25, 3); grade(true); }
+  },1000);
+}
+
+function beep(freq, dur, times){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    for(let i=0;i<times;i++){
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=freq; o.type='sine';
+      g.gain.setValueAtTime(0.5,ctx.currentTime+i*(dur+0.1));
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*(dur+0.1)+dur);
+      o.start(ctx.currentTime+i*(dur+0.1));
+      o.stop(ctx.currentTime+i*(dur+0.1)+dur);
+    }
+  }catch(e){}
+}
+
+function updTimer(){
+  const m=Math.floor(tleft/60), s=tleft%60;
+  const el=document.getElementById('timer');
+  el.textContent = `${m}:${String(s).padStart(2,'0')}`;
+  el.className = 'timer'+(tleft<=60?' warn':'');
+}
+
+function grade(timeup=false){
+  clearInterval(tick);
+  done = true;
+  let score = 0;
+  const K = ['A','B','C','D'];
+  const rev = document.getElementById('review-list');
+  rev.innerHTML = '';
+
+  cur.qs.forEach((q,qi)=>{
+    const ua=ans[qi], ca=q.a, ok=ua===ca;
+    if(ok) score++;
+    document.querySelectorAll(`#ch${qi} .c-label`).forEach((l,ci)=>{
+      l.classList.remove('sel');
+      if(ci===ca && ci===ua) l.classList.add('ok');
+      else if(ci===ua) l.classList.add('ng');
+      else if(ci===ca) l.classList.add('show-ans');
+      else l.classList.add('locked');
+    });
+    const it = document.createElement('div');
+    it.className = 'rv-item '+(ok?'ok':'ng');
+    it.innerHTML = `<div class="rv-qn">問 ${qi+1}</div>
+      <div class="rv-txt">${esc(q.t)}</div>
+      <div class="rv-row">
+        <span class="rv-your ${ok?'ok':''}">あなた: ${ua>=0?K[ua]+') '+esc(q.c[ua]):'未回答'}</span>
+        ${!ok?`<span class="rv-ans">正解: ${K[ca]}) ${esc(q.c[ca])}</span>`:''}
+      </div>`;
+    rev.appendChild(it);
+  });
+
+  saveScore(cur.id, score);
+  const hist = getHist(cur.id);
+
+  document.getElementById('r-name').textContent = cur.label + (timeup?' （時間切れ）':'');
+  document.getElementById('r-score').innerHTML = `${score} <span>/ 30</span>`;
+  document.getElementById('r-pct').textContent = `正答率 ${Math.round(score/30*100)}%`;
+  setTimeout(()=>{ document.getElementById('r-bar').style.width = `${score/30*100}%`; },80);
+  document.getElementById('r-hist').textContent = hist.length>1 ? '過去の記録: '+hist.slice(-6).join(', ')+' 点' : '';
+
+  show('result');
+  scrollTo(0,0);
+}
+
+function retry(){
+  const i=TESTS.findIndex(t=>t.id===cur.id);
+  startTest(i);
+}
+
+function goSel(){
+  clearInterval(tick);
+  renderGrid();
+  show('selector');
+  scrollTo(0,0);
+}
+
+function show(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+
+function getHist(id){
+  try{ return JSON.parse(localStorage.getItem('toeicP5_'+id+'_scores')||'[]'); }catch{ return []; }
+}
+
+function saveScore(id, score){
+  const h=getHist(id); h.push(score);
+  localStorage.setItem('toeicP5_'+id+'_scores', JSON.stringify(h));
+  localStorage.setItem('toeicP5_lastScore', score);
+  localStorage.setItem('toeicP5_lastTest', id);
+  localStorage.setItem('toeicP5_lastDate', new Date().toISOString().split('T')[0]);
+}
+
+init();
+</script>
+</body>
+</html>

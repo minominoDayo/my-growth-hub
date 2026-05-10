@@ -1,0 +1,110 @@
+========================================
+TOEIC 上級者向け単語リスト
+出典：vocabulary フォルダ内PDFより抽出
+========================================
+
+----------------------------------------
+【最上級語】toeic.pdf レベル3（27語）
+----------------------------------------
+
+tariff          【名】関税表、運賃表
+gratuity        【名】こころづけ、チップ
+supervise       【動】監督する
+dividend        【名】（株の）配当
+infringement    【名】法律違反、版権侵害
+obituary        【名】死亡記事
+incur           【動】（損害などを）招く
+incidental expense【名】雑費
+nominal         【形】名目上の
+fiscal          【形】会計の
+overdue         【形】支払期限を過ぎた
+exempt          【動】免除する
+endorse         【動】（手形に）裏書する
+cuisine         【名】料理（法）
+petty           【形】ささいな
+smuggle         【動】密輸入する
+proximity       【名】近接、近いこと
+quota           【名】割り当て、持分
+deficit         【名】欠損、赤字
+defer           【動】延期する
+curtail         【動】（費用を）節減する
+reimburse       【動】弁償する
+remit           【動】送金する
+complimentary   【形】無料の
+jury            【名】陪審
+celebrity       【名】名士
+perjury         【名】偽証（罪）
+
+
+----------------------------------------
+【スコア730】わかる・使える4000単語 より（Group 71）
+----------------------------------------
+
+author          【動/名】執筆する / 著者、作家
+authority       【名】権威（者）、権限、当局
+authorize       【動】権限を与える、承認する
+authorization   【名】権限、許可、承認
+license         【名】免許（状）、許可
+sanction        【動/名】承認する / 認可、裁可、制裁
+chair           【動/名】議長を務める / 議長（職）
+chairperson     【名】議長、司会者
+applicable      【形】適用できる、当てはまる
+appliance       【名】器具、装置、電気製品
+conservative    【形/名】控えめな、保守的な / 保守主義者
+conservation    【名】保存、維持
+liberal         【形/名】豊富な、進歩的な / 自由主義者
+moderate        【形/動】適度の / 節度のある、穏和にする
+quote           【動/名】引用する、見積もる / 見積書
+quotation       【名】引用（文・句）、見積もり書
+afford          【動】余裕がある、提供する
+affordable      【形】手ごろな価格の
+compete         【動】競争する、立ち向かう
+competition     【名】競争、試合
+competitive     【形】競合する、競争の激しい
+competitor      【名】競争相手、競合会社
+competent       【形】有能な
+competence      【名】能力
+concept         【名】概念、考え
+conceive        【動】考えを思いつく
+rely            【動】頼る、信頼する
+reliable        【形】信頼できる
+reliability     【名】信頼性
+unreliable      【形】信頼できない
+shortage        【名】不足
+shortcut        【名】近道
+shortcomings    【名】短所（複数形で使う）
+alleged         【形】伝えられる、申し立てられた
+undergo         【動】受ける、経験する
+tempted         【形】したくなる（feel tempted to）
+treasure        【動/名】大切にする / 宝物
+venture         【名】ベンチャー事業
+context         【名】文脈、状況
+phenomenon      【名】現象（複数：phenomena）
+refugee         【名】難民
+plausible       【形】もっともらしい
+
+
+----------------------------------------
+【スコア600】ビジネス・経理よりの専門語
+  ※経理・会計の仕事に特に関連するものを厳選
+----------------------------------------
+
+differentiate   【動】区別する、差別化する
+paraphrase      【動/名】別の言葉で言い換える
+restatement     【名】再陳述、言い換え
+bookkeeping     【名】簿記
+mandatory       【形】義務的な、強制の、必須の
+enforce         【動】実施する、施行する、強制する
+compel          【動】強いる、強要する
+impose          【動】（税などを）課す、無理強いする
+disorder        【名】無秩序、混乱、不調
+payroll         【名】給与支払い台帳、従業員総数、給与
+payable         【形】支払うべき、支払い可能な、支払期日の
+paycheck        【名】給与、給与払い小切手
+overpay         【動】余分に支払う
+unpaid          【形】未払いの、無給の
+governor        【名】知事、支配者
+generalization  【名】一般化、概括
+generic         【形】ノーブランドの、商標登録されていない
+
+========================================
